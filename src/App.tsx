@@ -5,6 +5,8 @@ import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import Index from "./pages/Index";
 import GenerationPage from "./pages/GenerationPage";
+import NationalDexPage from "./pages/NationalDexPage";
+import PokemonDetailPage from "./pages/PokemonDetailPage";
 import PokemonDetailPage from "./pages/PokemonDetailPage";
 import NotFound from "./pages/NotFound";
 
