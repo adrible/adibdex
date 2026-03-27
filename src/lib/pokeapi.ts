@@ -180,7 +180,16 @@ function flattenChain(chain: any): EvolutionStep[][] {
       sprite: `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/${id}.png`,
       minLevel: details?.min_level || null,
       trigger: details?.trigger?.name || null,
-      item: details?.item?.name || details?.held_item?.name || null,
+      item: details?.item?.name || null,
+      heldItem: details?.held_item?.name || null,
+      minHappiness: details?.min_happiness || null,
+      timeOfDay: details?.time_of_day || null,
+      knownMove: details?.known_move?.name || null,
+      knownMoveType: details?.known_move_type?.name || null,
+      location: details?.location?.name || null,
+      minAffection: details?.min_affection || null,
+      needsRain: details?.needs_overworld_rain || false,
+      turnUpsideDown: details?.turn_upside_down || false,
     });
     for (const next of node.evolves_to) {
       traverse(next, depth + 1);
