@@ -25,9 +25,16 @@ export default function Index() {
           <h2 className="font-pixel text-lg sm:text-2xl text-foreground mb-4">
             Todas as Gerações
           </h2>
-          <p className="text-muted-foreground max-w-lg mx-auto">
-            Explore todos os Pokémon organizados por geração. Selecione uma geração para ver a lista completa.
+          <p className="text-muted-foreground max-w-lg mx-auto mb-6">
+            Explore todos os Pokémon organizados por geração ou veja a Pokédex Nacional completa.
           </p>
+          <Link
+            to="/national"
+            className="inline-flex items-center gap-2 rounded-xl bg-primary px-6 py-3 font-bold text-primary-foreground transition-all hover:opacity-90 hover:scale-105"
+          >
+            🌍 Pokédex Nacional
+            <ChevronRight className="h-4 w-4" />
+          </Link>
         </div>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5 max-w-4xl mx-auto">

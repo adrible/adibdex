@@ -5,6 +5,7 @@ import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import Index from "./pages/Index";
 import GenerationPage from "./pages/GenerationPage";
+import NationalDexPage from "./pages/NationalDexPage";
 import PokemonDetailPage from "./pages/PokemonDetailPage";
 import NotFound from "./pages/NotFound";
 
@@ -18,6 +19,7 @@ const App = () => (
       <BrowserRouter>
         <Routes>
           <Route path="/" element={<Index />} />
+          <Route path="/national" element={<NationalDexPage />} />
           <Route path="/generation/:id" element={<GenerationPage />} />
           <Route path="/pokemon/:id" element={<PokemonDetailPage />} />
           <Route path="*" element={<NotFound />} />

@@ -139,3 +139,68 @@ export const STAT_TRANSLATIONS: Record<string, string> = {
   'special-defense': 'Def. Esp.',
   speed: 'Velocidade',
 };
+
+export interface EvolutionStep {
+  id: number;
+  name: string;
+  sprite: string;
+  minLevel: number | null;
+  trigger: string | null;
+  item: string | null;
+}
+
+export interface EvolutionChain {
+  steps: EvolutionStep[][];
+}
+
+function extractIdFromUrl(url: string): number {
+  const parts = url.replace(/\/$/, '').split('/');
+  return Number(parts[parts.length - 1]);
+}
+
+function flattenChain(chain: any): EvolutionStep[][] {
+  const stages: EvolutionStep[][] = [];
+
+  function traverse(node: any, depth: number) {
+    if (!stages[depth]) stages[depth] = [];
+    const id = extractIdFromUrl(node.species.url);
+    const details = node.evolution_details?.[0];
+    stages[depth].push({
+      id,
+      name: node.species.name,
+      sprite: `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/${id}.png`,
+      minLevel: details?.min_level || null,
+      trigger: details?.trigger?.name || null,
+      item: details?.item?.name || details?.held_item?.name || null,
+    });
+    for (const next of node.evolves_to) {
+      traverse(next, depth + 1);
+    }
+  }
+
+  traverse(chain, 0);
+  return stages;
+}
+
+export async function fetchEvolutionChain(pokemonId: number): Promise<EvolutionChain> {
+  const speciesRes = await fetch(`${BASE_URL}/pokemon-species/${pokemonId}`);
+  const speciesData = await speciesRes.json();
+  const chainUrl = speciesData.evolution_chain.url;
+  const chainRes = await fetch(chainUrl);
+  const chainData = await chainRes.json();
+  return { steps: flattenChain(chainData.chain) };
+}
+
+export async function fetchPokemonPage(offset: number, limit: number): Promise<{ pokemons: PokemonBasic[]; total: number }> {
+  const res = await fetch(`${BASE_URL}/pokemon?offset=${offset}&limit=${limit}`);
+  const data = await res.json();
+  const total = Math.min(data.count, 1025);
+
+  const promises = data.results.map((_: any, i: number) => fetchPokemonBasic(offset + i + 1));
+  const results: PokemonBasic[] = [];
+  for (let i = 0; i < promises.length; i += 20) {
+    const batch = await Promise.all(promises.slice(i, i + 20));
+    results.push(...batch);
+  }
+  return { pokemons: results, total };
+}
