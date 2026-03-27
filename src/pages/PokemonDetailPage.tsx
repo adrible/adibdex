@@ -156,6 +156,38 @@ export default function PokemonDetailPage() {
           </div>
         </div>
 
+        <div className="rounded-xl bg-card border border-border p-6 mb-10">
+          <div className="flex items-center gap-2 mb-4">
+            <MapPin className="h-5 w-5 text-primary" />
+            <h3 className="font-bold text-card-foreground">Localizações</h3>
+          </div>
+          {encountersLoading ? (
+            <div className="space-y-2">
+              <Skeleton className="h-4 w-full" />
+              <Skeleton className="h-4 w-3/4" />
+            </div>
+          ) : encounters && encounters.length > 0 ? (
+            <div className="space-y-3 max-h-64 overflow-y-auto pr-2">
+              {encounters.map((enc, i) => (
+                <div key={i} className="rounded-lg bg-muted/50 p-3">
+                  <p className="text-sm font-semibold text-foreground capitalize">{enc.location}</p>
+                  <div className="flex flex-wrap gap-1 mt-1">
+                    {[...new Set(enc.versions.map(v => v.version))].map(v => (
+                      <span key={v} className="text-xs rounded-full bg-secondary px-2 py-0.5 capitalize text-secondary-foreground">
+                        {v}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+              ))}
+            </div>
+          ) : (
+            <p className="text-sm text-muted-foreground">
+              Não encontrado em nenhuma rota — pode ser obtido por evento, troca ou evolução.
+            </p>
+          )}
+        </div>
+
         <div className="mb-10">
           <EvolutionChainDisplay pokemonId={pokemonId} />
         </div>
