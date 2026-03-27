@@ -1,16 +1,56 @@
-// Update this page (the content is just a fallback if you fail to update the page)
+import { Link } from 'react-router-dom';
+import { GENERATIONS } from '@/lib/pokeapi';
+import { Header } from '@/components/Header';
+import { ChevronRight } from 'lucide-react';
 
-// IMPORTANT: Fully REPLACE this with your own code
-const PlaceholderIndex = () => {
-  // PLACEHOLDER: Replace this entire return statement with the user's app.
-  // The inline background color is intentionally not part of the design system.
-  return (
-    <div className="flex min-h-screen items-center justify-center" style={{ backgroundColor: '#fcfbf8' }}>
-      <img data-lovable-blank-page-placeholder="REMOVE_THIS" src="/placeholder.svg" alt="Your app will live here!" />
-    </div>
-  );
+const REGION_EMOJIS: Record<string, string> = {
+  Kanto: '🏯',
+  Johto: '⛩️',
+  Hoenn: '🌊',
+  Sinnoh: '🏔️',
+  Unova: '🌆',
+  Kalos: '🗼',
+  Alola: '🌴',
+  Galar: '🏰',
+  Paldea: '🏟️',
 };
 
-const Index = PlaceholderIndex;
+export default function Index() {
+  return (
+    <div className="min-h-screen bg-background">
+      <Header />
 
-export default Index;
+      <main className="container py-12">
+        <div className="text-center mb-12">
+          <h2 className="font-pixel text-lg sm:text-2xl text-foreground mb-4">
+            Todas as Gerações
+          </h2>
+          <p className="text-muted-foreground max-w-lg mx-auto">
+            Explore todos os Pokémon organizados por geração. Selecione uma geração para ver a lista completa.
+          </p>
+        </div>
+
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5 max-w-4xl mx-auto">
+          {GENERATIONS.map((gen) => (
+            <Link
+              key={gen.id}
+              to={`/generation/${gen.id}`}
+              className="group relative overflow-hidden rounded-xl border border-border bg-card p-6 transition-all hover:shadow-xl hover:-translate-y-1 hover:border-primary/50"
+            >
+              <div className="flex items-start justify-between mb-3">
+                <span className="text-3xl">{REGION_EMOJIS[gen.region]}</span>
+                <ChevronRight className="h-5 w-5 text-muted-foreground group-hover:text-primary transition-colors" />
+              </div>
+              <h3 className="font-bold text-lg text-card-foreground mb-1">{gen.name}</h3>
+              <p className="text-sm text-muted-foreground mb-3">Região de {gen.region}</p>
+              <p className="text-xs font-semibold text-primary">
+                #{gen.pokemonRange[0]} — #{gen.pokemonRange[1]}
+              </p>
+              <div className="absolute -bottom-4 -right-4 h-24 w-24 rounded-full bg-primary/5 group-hover:bg-primary/10 transition-colors" />
+            </Link>
+          ))}
+        </div>
+      </main>
+    </div>
+  );
+}
