@@ -5,7 +5,7 @@ import { Header } from '@/components/Header';
 import { TypeBadge } from '@/components/TypeBadge';
 import { EvolutionChainDisplay } from '@/components/EvolutionChain';
 import { Button } from '@/components/ui/button';
-import { ArrowLeft, ChevronLeft, ChevronRight } from 'lucide-react';
+import { ArrowLeft, ChevronLeft, ChevronRight, MapPin } from 'lucide-react';
 import { Skeleton } from '@/components/ui/skeleton';
 
 function StatBar({ name, value }: { name: string; value: number }) {
