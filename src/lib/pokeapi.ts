@@ -147,6 +147,15 @@ export interface EvolutionStep {
   minLevel: number | null;
   trigger: string | null;
   item: string | null;
+  heldItem: string | null;
+  minHappiness: number | null;
+  timeOfDay: string | null;
+  knownMove: string | null;
+  knownMoveType: string | null;
+  location: string | null;
+  minAffection: number | null;
+  needsRain: boolean;
+  turnUpsideDown: boolean;
 }
 
 export interface EvolutionChain {
