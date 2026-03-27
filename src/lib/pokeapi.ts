@@ -241,3 +241,43 @@ export async function fetchPokemonPage(offset: number, limit: number): Promise<{
   }
   return { pokemons: results, total };
 }
+
+export interface MegaEvolution {
+  id: number;
+  name: string;
+  sprite: string;
+  spriteShiny: string;
+  types: string[];
+}
+
+export async function fetchMegaEvolutions(pokemonId: number): Promise<MegaEvolution[]> {
+  try {
+    const speciesRes = await fetch(`${BASE_URL}/pokemon-species/${pokemonId}`);
+    const speciesData = await speciesRes.json();
+    const varieties = speciesData.varieties || [];
+    
+    const megaVarieties = varieties.filter((v: any) => 
+      v.pokemon.name.includes('-mega') && !v.is_default
+    );
+    
+    if (megaVarieties.length === 0) return [];
+    
+    const megas = await Promise.all(
+      megaVarieties.map(async (v: any) => {
+        const res = await fetch(v.pokemon.url);
+        const data = await res.json();
+        return {
+          id: data.id,
+          name: data.name,
+          sprite: data.sprites.other?.['official-artwork']?.front_default || data.sprites.front_default,
+          spriteShiny: data.sprites.other?.['official-artwork']?.front_shiny || data.sprites.front_shiny,
+          types: data.types.map((t: any) => t.type.name),
+        };
+      })
+    );
+    
+    return megas;
+  } catch {
+    return [];
+  }
+}
