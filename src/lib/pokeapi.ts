@@ -14,6 +14,7 @@ export interface PokemonDetail {
     front_default: string;
     front_shiny: string;
     artwork: string;
+    artwork_shiny: string;
   };
   types: string[];
   height: number;
