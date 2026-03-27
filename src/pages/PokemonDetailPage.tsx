@@ -137,7 +137,7 @@ export default function PokemonDetailPage() {
           </div>
         </div>
 
-        <div className="rounded-xl bg-card border border-border p-6">
+        <div className="rounded-xl bg-card border border-border p-6 mb-10">
           <div className="flex items-center justify-between mb-4">
             <h3 className="font-bold text-card-foreground">Estatísticas Base</h3>
             <span className="text-sm font-semibold text-primary">Total: {totalStats}</span>
@@ -147,6 +147,10 @@ export default function PokemonDetailPage() {
               <StatBar key={s.name} name={s.name} value={s.value} />
             ))}
           </div>
+        </div>
+
+        <div className="mb-10">
+          <EvolutionChainDisplay pokemonId={pokemonId} />
         </div>
       </main>
     </div>

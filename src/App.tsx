@@ -20,6 +20,7 @@ const App = () => (
       <BrowserRouter>
         <Routes>
           <Route path="/" element={<Index />} />
+          <Route path="/national" element={<NationalDexPage />} />
           <Route path="/generation/:id" element={<GenerationPage />} />
           <Route path="/pokemon/:id" element={<PokemonDetailPage />} />
           <Route path="*" element={<NotFound />} />
