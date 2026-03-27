@@ -7,7 +7,6 @@ import Index from "./pages/Index";
 import GenerationPage from "./pages/GenerationPage";
 import NationalDexPage from "./pages/NationalDexPage";
 import PokemonDetailPage from "./pages/PokemonDetailPage";
-import PokemonDetailPage from "./pages/PokemonDetailPage";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
