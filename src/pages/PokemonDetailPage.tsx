@@ -1,6 +1,6 @@
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
-import { fetchPokemonDetail, STAT_TRANSLATIONS, GENERATIONS } from '@/lib/pokeapi';
+import { fetchPokemonDetail, fetchPokemonEncounters, STAT_TRANSLATIONS, GENERATIONS } from '@/lib/pokeapi';
 import { Header } from '@/components/Header';
 import { TypeBadge } from '@/components/TypeBadge';
 import { EvolutionChainDisplay } from '@/components/EvolutionChain';
