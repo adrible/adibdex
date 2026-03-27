@@ -38,6 +38,13 @@ export default function PokemonDetailPage() {
     staleTime: 1000 * 60 * 30,
   });
 
+  const { data: encounters, isLoading: encountersLoading } = useQuery({
+    queryKey: ['pokemon-encounters', pokemonId],
+    queryFn: () => fetchPokemonEncounters(pokemonId),
+    enabled: !isNaN(pokemonId),
+    staleTime: 1000 * 60 * 30,
+  });
+
   const gen = GENERATIONS.find(
     (g) => pokemonId >= g.pokemonRange[0] && pokemonId <= g.pokemonRange[1]
   );
