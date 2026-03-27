@@ -3,6 +3,7 @@ import { useQuery } from '@tanstack/react-query';
 import { fetchPokemonDetail, STAT_TRANSLATIONS, GENERATIONS } from '@/lib/pokeapi';
 import { Header } from '@/components/Header';
 import { TypeBadge } from '@/components/TypeBadge';
+import { EvolutionChainDisplay } from '@/components/EvolutionChain';
 import { Button } from '@/components/ui/button';
 import { ArrowLeft, ChevronLeft, ChevronRight } from 'lucide-react';
 import { Skeleton } from '@/components/ui/skeleton';
