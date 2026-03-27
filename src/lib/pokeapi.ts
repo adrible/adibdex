@@ -191,6 +191,23 @@ export async function fetchEvolutionChain(pokemonId: number): Promise<EvolutionC
   return { steps: flattenChain(chainData.chain) };
 }
 
+export interface PokemonEncounter {
+  location: string;
+  versions: { version: string; methods: string[] }[];
+}
+
+export async function fetchPokemonEncounters(pokemonId: number): Promise<PokemonEncounter[]> {
+  const res = await fetch(`${BASE_URL}/pokemon/${pokemonId}/encounters`);
+  const data = await res.json();
+  return data.map((enc: any) => ({
+    location: enc.location_area.name.replace(/-/g, ' '),
+    versions: enc.version_details.map((v: any) => ({
+      version: v.version.name,
+      methods: v.encounter_details.map((d: any) => d.method.name.replace(/-/g, ' ')),
+    })),
+  }));
+}
+
 export async function fetchPokemonPage(offset: number, limit: number): Promise<{ pokemons: PokemonBasic[]; total: number }> {
   const res = await fetch(`${BASE_URL}/pokemon?offset=${offset}&limit=${limit}`);
   const data = await res.json();
