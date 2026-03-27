@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { fetchPokemonDetail, fetchPokemonEncounters, STAT_TRANSLATIONS, GENERATIONS } from '@/lib/pokeapi';
@@ -5,7 +6,7 @@ import { Header } from '@/components/Header';
 import { TypeBadge } from '@/components/TypeBadge';
 import { EvolutionChainDisplay } from '@/components/EvolutionChain';
 import { Button } from '@/components/ui/button';
-import { ArrowLeft, ChevronLeft, ChevronRight, MapPin } from 'lucide-react';
+import { ArrowLeft, ChevronLeft, ChevronRight, MapPin, Sparkles } from 'lucide-react';
 import { Skeleton } from '@/components/ui/skeleton';
 
 function StatBar({ name, value }: { name: string; value: number }) {
@@ -30,6 +31,7 @@ export default function PokemonDetailPage() {
   const { id } = useParams();
   const navigate = useNavigate();
   const pokemonId = Number(id);
+  const [isShiny, setIsShiny] = useState(false);
 
   const { data: pokemon, isLoading } = useQuery({
     queryKey: ['pokemon-detail', pokemonId],
@@ -76,6 +78,8 @@ export default function PokemonDetailPage() {
   }
 
   const totalStats = pokemon.stats.reduce((sum, s) => sum + s.value, 0);
+  const artworkSrc = isShiny ? pokemon.sprites.artwork_shiny : pokemon.sprites.artwork;
+  const spriteSrc = isShiny ? pokemon.sprites.front_shiny : pokemon.sprites.front_default;
 
   return (
     <div className="min-h-screen bg-background">
@@ -85,7 +89,16 @@ export default function PokemonDetailPage() {
           <Button variant="ghost" size="icon" onClick={() => navigate(gen ? `/generation/${gen.id}` : '/')}>
             <ArrowLeft className="h-5 w-5" />
           </Button>
-          <div className="flex gap-2">
+          <div className="flex gap-2 items-center">
+            <Button
+              variant={isShiny ? "default" : "outline"}
+              size="sm"
+              onClick={() => setIsShiny(!isShiny)}
+              className={`gap-1.5 ${isShiny ? 'bg-gradient-to-r from-yellow-500 to-amber-500 hover:from-yellow-600 hover:to-amber-600 text-white border-0' : ''}`}
+            >
+              <Sparkles className="h-4 w-4" />
+              Shiny
+            </Button>
             {pokemonId > 1 && (
               <Button variant="outline" size="icon" asChild>
                 <Link to={`/pokemon/${pokemonId - 1}`}><ChevronLeft className="h-4 w-4" /></Link>
@@ -115,7 +128,7 @@ export default function PokemonDetailPage() {
           <div className="relative">
             <div className="absolute inset-0 rounded-3xl bg-muted/60 blur-2xl scale-110" />
             <img
-              src={pokemon.sprites.artwork}
+              src={artworkSrc}
               alt={pokemon.name}
               className="relative z-10 h-56 w-56 sm:h-72 sm:w-72 object-contain"
             />
@@ -189,7 +202,7 @@ export default function PokemonDetailPage() {
         </div>
 
         <div className="mb-10">
-          <EvolutionChainDisplay pokemonId={pokemonId} />
+          <EvolutionChainDisplay pokemonId={pokemonId} isShiny={isShiny} />
         </div>
       </main>
     </div>
