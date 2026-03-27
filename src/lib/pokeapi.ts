@@ -64,6 +64,7 @@ export async function fetchPokemonDetail(id: number): Promise<PokemonDetail> {
       front_default: data.sprites.front_default,
       front_shiny: data.sprites.front_shiny,
       artwork: data.sprites.other?.['official-artwork']?.front_default || data.sprites.front_default,
+      artwork_shiny: data.sprites.other?.['official-artwork']?.front_shiny || data.sprites.front_shiny,
     },
     types: data.types.map((t: any) => t.type.name),
     height: data.height,
