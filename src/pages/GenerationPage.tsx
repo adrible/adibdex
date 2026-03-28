@@ -2,7 +2,7 @@ import { useParams, Link } from 'react-router-dom';
 import { GENERATIONS } from '@/lib/pokeapi';
 import { Header } from '@/components/Header';
 import { PokemonGrid } from '@/components/PokemonGrid';
-import { ArrowLeft } from 'lucide-react';
+import { ArrowLeft, ArrowUp } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 
 export default function GenerationPage() {
@@ -14,11 +14,13 @@ export default function GenerationPage() {
       <div className="min-h-screen bg-background">
         <Header />
         <div className="container py-20 text-center">
-          <p className="text-muted-foreground">Geração não encontrada.</p>
+          <p className="text-muted-foreground">Região não encontrada.</p>
         </div>
       </div>
     );
   }
+
+  const scrollToTop = () => window.scrollTo({ top: 0, behavior: 'smooth' });
 
   return (
     <div className="min-h-screen bg-background">
@@ -29,14 +31,21 @@ export default function GenerationPage() {
             <Link to="/"><ArrowLeft className="h-5 w-5" /></Link>
           </Button>
           <div>
-            <h2 className="font-pixel text-sm sm:text-lg text-foreground">{gen.name}</h2>
+            <h2 className="font-pixel text-sm sm:text-lg text-foreground">{gen.region}</h2>
             <p className="text-sm text-muted-foreground">
-              Região de {gen.region} · #{gen.pokemonRange[0]}–#{gen.pokemonRange[1]}
+              {gen.region === '???' ? 'Pokémon sem região' : `Região de ${gen.region}`} · #{gen.pokemonRange[0]}–#{gen.pokemonRange[1]}
             </p>
           </div>
         </div>
 
         <PokemonGrid generation={gen} />
+
+        <div className="flex justify-center mt-10">
+          <Button variant="outline" onClick={scrollToTop} className="gap-2">
+            <ArrowUp className="h-4 w-4" />
+            Voltar ao topo
+          </Button>
+        </div>
       </main>
     </div>
   );

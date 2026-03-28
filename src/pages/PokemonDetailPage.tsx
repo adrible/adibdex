@@ -4,6 +4,8 @@ import { useQuery } from '@tanstack/react-query';
 import { fetchPokemonDetail, fetchPokemonEncounters, STAT_TRANSLATIONS, GENERATIONS } from '@/lib/pokeapi';
 import { Header } from '@/components/Header';
 import { TypeBadge } from '@/components/TypeBadge';
+import { TypeEffectiveness } from '@/components/TypeEffectiveness';
+import { PokemonForms } from '@/components/PokemonForms';
 import { EvolutionChainDisplay } from '@/components/EvolutionChain';
 import { Button } from '@/components/ui/button';
 import { ArrowLeft, ChevronLeft, ChevronRight, MapPin, Sparkles } from 'lucide-react';
@@ -79,7 +81,6 @@ export default function PokemonDetailPage() {
 
   const totalStats = pokemon.stats.reduce((sum, s) => sum + s.value, 0);
   const artworkSrc = isShiny ? pokemon.sprites.artwork_shiny : pokemon.sprites.artwork;
-  const spriteSrc = isShiny ? pokemon.sprites.front_shiny : pokemon.sprites.front_default;
 
   return (
     <div className="min-h-screen bg-background">
@@ -169,6 +170,10 @@ export default function PokemonDetailPage() {
           </div>
         </div>
 
+        <div className="mb-10">
+          <TypeEffectiveness types={pokemon.types} />
+        </div>
+
         <div className="rounded-xl bg-card border border-border p-6 mb-10">
           <div className="flex items-center gap-2 mb-4">
             <MapPin className="h-5 w-5 text-primary" />
@@ -203,6 +208,10 @@ export default function PokemonDetailPage() {
 
         <div className="mb-10">
           <EvolutionChainDisplay pokemonId={pokemonId} isShiny={isShiny} />
+        </div>
+
+        <div className="mb-10">
+          <PokemonForms pokemonId={pokemonId} isShiny={isShiny} />
         </div>
       </main>
     </div>
