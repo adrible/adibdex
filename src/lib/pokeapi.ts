@@ -32,15 +32,17 @@ export interface Generation {
 }
 
 export const GENERATIONS: Generation[] = [
-  { id: 1, name: 'Geração I', region: 'Kanto', pokemonRange: [1, 151] },
-  { id: 2, name: 'Geração II', region: 'Johto', pokemonRange: [152, 251] },
-  { id: 3, name: 'Geração III', region: 'Hoenn', pokemonRange: [252, 386] },
-  { id: 4, name: 'Geração IV', region: 'Sinnoh', pokemonRange: [387, 493] },
-  { id: 5, name: 'Geração V', region: 'Unova', pokemonRange: [494, 649] },
-  { id: 6, name: 'Geração VI', region: 'Kalos', pokemonRange: [650, 721] },
-  { id: 7, name: 'Geração VII', region: 'Alola', pokemonRange: [722, 809] },
-  { id: 8, name: 'Geração VIII', region: 'Galar', pokemonRange: [810, 905] },
-  { id: 9, name: 'Geração IX', region: 'Paldea', pokemonRange: [906, 1025] },
+  { id: 1, name: 'Kanto', region: 'Kanto', pokemonRange: [1, 151] },
+  { id: 2, name: 'Johto', region: 'Johto', pokemonRange: [152, 251] },
+  { id: 3, name: 'Hoenn', region: 'Hoenn', pokemonRange: [252, 386] },
+  { id: 4, name: 'Sinnoh', region: 'Sinnoh', pokemonRange: [387, 493] },
+  { id: 5, name: 'Unova', region: 'Unova', pokemonRange: [494, 649] },
+  { id: 6, name: 'Kalos', region: 'Kalos', pokemonRange: [650, 721] },
+  { id: 7, name: 'Alola', region: 'Alola', pokemonRange: [722, 807] },
+  { id: 10, name: '???', region: '???', pokemonRange: [808, 809] },
+  { id: 8, name: 'Galar', region: 'Galar', pokemonRange: [810, 898] },
+  { id: 11, name: 'Hisui', region: 'Hisui', pokemonRange: [899, 905] },
+  { id: 9, name: 'Paldea', region: 'Paldea', pokemonRange: [906, 1025] },
 ];
 
 export async function fetchPokemonBasic(id: number): Promise<PokemonBasic> {
@@ -277,6 +279,72 @@ export async function fetchMegaEvolutions(pokemonId: number): Promise<MegaEvolut
     );
     
     return megas;
+  } catch {
+    return [];
+  }
+}
+
+export interface PokemonForm {
+  name: string;
+  formName: string;
+  sprite: string;
+  spriteShiny: string;
+  types: string[];
+}
+
+export async function fetchPokemonForms(pokemonId: number): Promise<PokemonForm[]> {
+  try {
+    const speciesRes = await fetch(`${BASE_URL}/pokemon-species/${pokemonId}`);
+    const speciesData = await speciesRes.json();
+    const varieties = speciesData.varieties || [];
+    
+    const altVarieties = varieties.filter((v: any) => 
+      !v.is_default && !v.pokemon.name.includes('-mega') && !v.pokemon.name.includes('-gmax') && !v.pokemon.name.includes('-totem')
+    );
+    
+    if (altVarieties.length === 0) return [];
+    
+    const forms = await Promise.all(
+      altVarieties.map(async (v: any) => {
+        try {
+          const res = await fetch(v.pokemon.url);
+          const data = await res.json();
+          const name = data.name;
+          let formName = name.replace(`${speciesData.name}-`, '').replace(/-/g, ' ');
+          
+          // Translate common form names
+          const FORM_TRANSLATIONS: Record<string, string> = {
+            'alola': 'Alola', 'galar': 'Galar', 'hisui': 'Hisui', 'paldea': 'Paldea',
+            'female': 'Fêmea', 'male': 'Macho',
+            'attack': 'Ataque', 'defense': 'Defesa', 'speed': 'Velocidade',
+            'sandy': 'Areia', 'trash': 'Lixo', 'heat': 'Calor', 'wash': 'Lavagem',
+            'frost': 'Gelo', 'fan': 'Ventilador', 'mow': 'Corte',
+            'origin': 'Origem', 'sky': 'Céu', 'therian': 'Totem',
+            'black': 'Preto', 'white': 'Branco', 'resolute': 'Resoluto',
+            'pirouette': 'Pirueta', 'zen': 'Zen', 'blade': 'Lâmina',
+            'midday': 'Diurno', 'midnight': 'Noturno', 'dusk': 'Crepuscular',
+          };
+          
+          for (const [key, val] of Object.entries(FORM_TRANSLATIONS)) {
+            if (formName.toLowerCase().includes(key)) {
+              formName = formName.replace(new RegExp(key, 'gi'), val);
+            }
+          }
+          
+          return {
+            name,
+            formName: formName.charAt(0).toUpperCase() + formName.slice(1),
+            sprite: data.sprites.other?.['official-artwork']?.front_default || data.sprites.front_default || '',
+            spriteShiny: data.sprites.other?.['official-artwork']?.front_shiny || data.sprites.front_shiny || '',
+            types: data.types.map((t: any) => t.type.name),
+          };
+        } catch {
+          return null;
+        }
+      })
+    );
+    
+    return forms.filter((f): f is PokemonForm => f !== null && f.sprite !== '');
   } catch {
     return [];
   }

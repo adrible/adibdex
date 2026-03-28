@@ -1,0 +1,61 @@
+import { useQuery } from '@tanstack/react-query';
+import { fetchPokemonForms } from '@/lib/pokeapi';
+import { TypeBadge } from '@/components/TypeBadge';
+import { Skeleton } from '@/components/ui/skeleton';
+import { Globe } from 'lucide-react';
+
+interface Props {
+  pokemonId: number;
+  isShiny?: boolean;
+}
+
+export function PokemonForms({ pokemonId, isShiny = false }: Props) {
+  const { data: forms, isLoading } = useQuery({
+    queryKey: ['pokemon-forms', pokemonId],
+    queryFn: () => fetchPokemonForms(pokemonId),
+    staleTime: 1000 * 60 * 60,
+  });
+
+  if (isLoading) {
+    return (
+      <div className="rounded-xl bg-card border border-border p-6">
+        <h3 className="font-bold text-card-foreground mb-4">Formas Alternativas</h3>
+        <div className="flex gap-4">
+          <Skeleton className="h-20 w-20 rounded-xl" />
+          <Skeleton className="h-20 w-20 rounded-xl" />
+        </div>
+      </div>
+    );
+  }
+
+  if (!forms || forms.length === 0) return null;
+
+  return (
+    <div className="rounded-xl bg-card border border-border p-6">
+      <div className="flex items-center gap-2 mb-4">
+        <Globe className="h-5 w-5 text-primary" />
+        <h3 className="font-bold text-card-foreground">Formas Alternativas</h3>
+      </div>
+      <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+        {forms.map((form) => (
+          <div key={form.name} className="flex flex-col items-center p-3 rounded-xl bg-muted/40 border border-border">
+            <img
+              src={isShiny ? form.spriteShiny : form.sprite}
+              alt={form.name}
+              className="h-16 w-16 sm:h-20 sm:w-20 object-contain"
+              loading="lazy"
+            />
+            <span className="text-xs font-semibold capitalize text-card-foreground mt-1 text-center">
+              {form.formName || form.name.replace(/-/g, ' ')}
+            </span>
+            <div className="flex gap-1 mt-1">
+              {form.types.map(t => (
+                <TypeBadge key={t} type={t} size="sm" />
+              ))}
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
