@@ -32,15 +32,17 @@ export interface Generation {
 }
 
 export const GENERATIONS: Generation[] = [
-  { id: 1, name: 'Geração I', region: 'Kanto', pokemonRange: [1, 151] },
-  { id: 2, name: 'Geração II', region: 'Johto', pokemonRange: [152, 251] },
-  { id: 3, name: 'Geração III', region: 'Hoenn', pokemonRange: [252, 386] },
-  { id: 4, name: 'Geração IV', region: 'Sinnoh', pokemonRange: [387, 493] },
-  { id: 5, name: 'Geração V', region: 'Unova', pokemonRange: [494, 649] },
-  { id: 6, name: 'Geração VI', region: 'Kalos', pokemonRange: [650, 721] },
-  { id: 7, name: 'Geração VII', region: 'Alola', pokemonRange: [722, 809] },
-  { id: 8, name: 'Geração VIII', region: 'Galar', pokemonRange: [810, 905] },
-  { id: 9, name: 'Geração IX', region: 'Paldea', pokemonRange: [906, 1025] },
+  { id: 1, name: 'Kanto', region: 'Kanto', pokemonRange: [1, 151] },
+  { id: 2, name: 'Johto', region: 'Johto', pokemonRange: [152, 251] },
+  { id: 3, name: 'Hoenn', region: 'Hoenn', pokemonRange: [252, 386] },
+  { id: 4, name: 'Sinnoh', region: 'Sinnoh', pokemonRange: [387, 493] },
+  { id: 5, name: 'Unova', region: 'Unova', pokemonRange: [494, 649] },
+  { id: 6, name: 'Kalos', region: 'Kalos', pokemonRange: [650, 721] },
+  { id: 7, name: 'Alola', region: 'Alola', pokemonRange: [722, 807] },
+  { id: 10, name: '???', region: '???', pokemonRange: [808, 809] },
+  { id: 8, name: 'Galar', region: 'Galar', pokemonRange: [810, 898] },
+  { id: 11, name: 'Hisui', region: 'Hisui', pokemonRange: [899, 905] },
+  { id: 9, name: 'Paldea', region: 'Paldea', pokemonRange: [906, 1025] },
 ];
 
 export async function fetchPokemonBasic(id: number): Promise<PokemonBasic> {
