@@ -91,14 +91,25 @@ export async function fetchPokemonListByRange(start: number, end: number): Promi
   const res = await fetch(`${BASE_URL}/pokemon?offset=${start - 1}&limit=${limit}`);
   const data = await res.json();
 
-  const promises = data.results.map((_: any, i: number) => fetchPokemonBasic(start + i));
+  // Use names from list endpoint, fetch types in parallel batches of 40
+  const ids = data.results.map((_: any, i: number) => start + i);
+  const names = data.results.map((r: any) => r.name);
+  
+  const results: PokemonBasic[] = ids.map((id: number, i: number) => ({
+    id,
+    name: names[i],
+    sprite: `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/${id}.png`,
+    types: [] as string[],
+  }));
 
-  // Batch in groups of 20
-  const results: PokemonBasic[] = [];
-  for (let i = 0; i < promises.length; i += 20) {
-    const batch = await Promise.all(promises.slice(i, i + 20));
-    results.push(...batch);
+  for (let i = 0; i < ids.length; i += 40) {
+    const batch = ids.slice(i, i + 40);
+    const typesArr = await Promise.all(batch.map((id: number) => fetchPokemonRaw(id)));
+    typesArr.forEach((data, j) => {
+      results[i + j].types = data.types.map((t: any) => t.type.name);
+    });
   }
+
   return results;
 }
 
