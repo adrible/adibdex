@@ -241,7 +241,10 @@ export function EvolutionChainDisplay({ pokemonId, isShiny = false }: EvolutionC
                           Mega Evolução
                         </span>
                       </div>
-                      <div className="flex flex-col items-center p-2 rounded-xl bg-gradient-to-b from-primary/5 to-transparent border border-primary/10">
+                      <Link
+                        to={`/pokemon/${mega.id}`}
+                        className="flex flex-col items-center p-2 rounded-xl bg-gradient-to-b from-primary/5 to-transparent border border-primary/10 transition-all hover:bg-muted/60 hover:scale-105"
+                      >
                         <img
                           src={isShiny ? mega.spriteShiny : mega.sprite}
                           alt={mega.name}
@@ -256,7 +259,7 @@ export function EvolutionChainDisplay({ pokemonId, isShiny = false }: EvolutionC
                             <TypeBadge key={t} type={t} size="sm" />
                           ))}
                         </div>
-                      </div>
+                      </Link>
                     </div>
                   ))}
                 </div>
