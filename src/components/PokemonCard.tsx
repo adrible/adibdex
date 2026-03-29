@@ -20,7 +20,7 @@ export function PokemonCard({ pokemon }: { pokemon: PokemonBasic }) {
       <p className="text-xs font-bold text-muted-foreground mb-1">
         #{String(pokemon.id).padStart(4, '0')}
       </p>
-      <h3 className="text-base font-bold capitalize text-card-foreground mb-2 truncate">
+      <h3 className="font-pixel text-[10px] capitalize text-card-foreground mb-2 truncate">
         {pokemon.name}
       </h3>
       <div className="flex gap-1.5 flex-wrap">
