@@ -7,6 +7,7 @@ import { TypeBadge } from '@/components/TypeBadge';
 import { TypeEffectiveness } from '@/components/TypeEffectiveness';
 import { PokemonForms } from '@/components/PokemonForms';
 import { EvolutionChainDisplay } from '@/components/EvolutionChain';
+import { PokemonMoves } from '@/components/PokemonMoves';
 import { Button } from '@/components/ui/button';
 import { ArrowLeft, ChevronLeft, ChevronRight, MapPin, Sparkles } from 'lucide-react';
 import { Skeleton } from '@/components/ui/skeleton';
