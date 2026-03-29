@@ -255,12 +255,24 @@ export async function fetchPokemonPage(offset: number, limit: number): Promise<{
   const data = await res.json();
   const total = Math.min(data.count, 1025);
 
-  const promises = data.results.map((_: any, i: number) => fetchPokemonBasic(offset + i + 1));
-  const results: PokemonBasic[] = [];
-  for (let i = 0; i < promises.length; i += 20) {
-    const batch = await Promise.all(promises.slice(i, i + 20));
-    results.push(...batch);
+  const ids = data.results.map((_: any, i: number) => offset + i + 1);
+  const names = data.results.map((r: any) => r.name);
+
+  const results: PokemonBasic[] = ids.map((id: number, i: number) => ({
+    id,
+    name: names[i],
+    sprite: `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/${id}.png`,
+    types: [] as string[],
+  }));
+
+  for (let i = 0; i < ids.length; i += 40) {
+    const batch = ids.slice(i, i + 40);
+    const rawArr = await Promise.all(batch.map((id: number) => fetchPokemonRaw(id)));
+    rawArr.forEach((d, j) => {
+      results[i + j].types = d.types.map((t: any) => t.type.name);
+    });
   }
+
   return { pokemons: results, total };
 }
 
