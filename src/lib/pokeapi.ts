@@ -67,8 +67,7 @@ export async function fetchPokemonBasic(id: number): Promise<PokemonBasic> {
 }
 
 export async function fetchPokemonDetail(id: number): Promise<PokemonDetail> {
-  const res = await fetch(`${BASE_URL}/pokemon/${id}`);
-  const data = await res.json();
+  const data = await fetchPokemonRaw(id);
   return {
     id: data.id,
     name: data.name,
