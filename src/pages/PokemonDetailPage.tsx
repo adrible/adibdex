@@ -214,6 +214,10 @@ export default function PokemonDetailPage() {
         <div className="mb-10">
           <PokemonForms pokemonId={pokemonId} isShiny={isShiny} />
         </div>
+
+        <div className="mb-10">
+          <PokemonMoves pokemonId={pokemonId} />
+        </div>
       </main>
     </div>
   );
