@@ -45,13 +45,23 @@ export const GENERATIONS: Generation[] = [
   { id: 9, name: 'Paldea', region: 'Paldea', pokemonRange: [906, 1025] },
 ];
 
-export async function fetchPokemonBasic(id: number): Promise<PokemonBasic> {
+// Cache for pokemon data to avoid refetching
+const pokemonCache = new Map<number, any>();
+
+async function fetchPokemonRaw(id: number): Promise<any> {
+  if (pokemonCache.has(id)) return pokemonCache.get(id)!;
   const res = await fetch(`${BASE_URL}/pokemon/${id}`);
   const data = await res.json();
+  pokemonCache.set(id, data);
+  return data;
+}
+
+export async function fetchPokemonBasic(id: number): Promise<PokemonBasic> {
+  const data = await fetchPokemonRaw(id);
   return {
     id: data.id,
     name: data.name,
-    sprite: data.sprites.other?.['official-artwork']?.front_default || data.sprites.front_default,
+    sprite: `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/${data.id}.png`,
     types: data.types.map((t: any) => t.type.name),
   };
 }
