@@ -45,20 +45,29 @@ export const GENERATIONS: Generation[] = [
   { id: 9, name: 'Paldea', region: 'Paldea', pokemonRange: [906, 1025] },
 ];
 
-export async function fetchPokemonBasic(id: number): Promise<PokemonBasic> {
+// Cache for pokemon data to avoid refetching
+const pokemonCache = new Map<number, any>();
+
+async function fetchPokemonRaw(id: number): Promise<any> {
+  if (pokemonCache.has(id)) return pokemonCache.get(id)!;
   const res = await fetch(`${BASE_URL}/pokemon/${id}`);
   const data = await res.json();
+  pokemonCache.set(id, data);
+  return data;
+}
+
+export async function fetchPokemonBasic(id: number): Promise<PokemonBasic> {
+  const data = await fetchPokemonRaw(id);
   return {
     id: data.id,
     name: data.name,
-    sprite: data.sprites.other?.['official-artwork']?.front_default || data.sprites.front_default,
+    sprite: `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/${data.id}.png`,
     types: data.types.map((t: any) => t.type.name),
   };
 }
 
 export async function fetchPokemonDetail(id: number): Promise<PokemonDetail> {
-  const res = await fetch(`${BASE_URL}/pokemon/${id}`);
-  const data = await res.json();
+  const data = await fetchPokemonRaw(id);
   return {
     id: data.id,
     name: data.name,
@@ -82,14 +91,25 @@ export async function fetchPokemonListByRange(start: number, end: number): Promi
   const res = await fetch(`${BASE_URL}/pokemon?offset=${start - 1}&limit=${limit}`);
   const data = await res.json();
 
-  const promises = data.results.map((_: any, i: number) => fetchPokemonBasic(start + i));
+  // Use names from list endpoint, fetch types in parallel batches of 40
+  const ids = data.results.map((_: any, i: number) => start + i);
+  const names = data.results.map((r: any) => r.name);
+  
+  const results: PokemonBasic[] = ids.map((id: number, i: number) => ({
+    id,
+    name: names[i],
+    sprite: `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/${id}.png`,
+    types: [] as string[],
+  }));
 
-  // Batch in groups of 20
-  const results: PokemonBasic[] = [];
-  for (let i = 0; i < promises.length; i += 20) {
-    const batch = await Promise.all(promises.slice(i, i + 20));
-    results.push(...batch);
+  for (let i = 0; i < ids.length; i += 40) {
+    const batch = ids.slice(i, i + 40);
+    const typesArr = await Promise.all(batch.map((id: number) => fetchPokemonRaw(id)));
+    typesArr.forEach((data, j) => {
+      results[i + j].types = data.types.map((t: any) => t.type.name);
+    });
   }
+
   return results;
 }
 
@@ -235,12 +255,24 @@ export async function fetchPokemonPage(offset: number, limit: number): Promise<{
   const data = await res.json();
   const total = Math.min(data.count, 1025);
 
-  const promises = data.results.map((_: any, i: number) => fetchPokemonBasic(offset + i + 1));
-  const results: PokemonBasic[] = [];
-  for (let i = 0; i < promises.length; i += 20) {
-    const batch = await Promise.all(promises.slice(i, i + 20));
-    results.push(...batch);
+  const ids = data.results.map((_: any, i: number) => offset + i + 1);
+  const names = data.results.map((r: any) => r.name);
+
+  const results: PokemonBasic[] = ids.map((id: number, i: number) => ({
+    id,
+    name: names[i],
+    sprite: `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/${id}.png`,
+    types: [] as string[],
+  }));
+
+  for (let i = 0; i < ids.length; i += 40) {
+    const batch = ids.slice(i, i + 40);
+    const rawArr = await Promise.all(batch.map((id: number) => fetchPokemonRaw(id)));
+    rawArr.forEach((d, j) => {
+      results[i + j].types = d.types.map((t: any) => t.type.name);
+    });
   }
+
   return { pokemons: results, total };
 }
 
