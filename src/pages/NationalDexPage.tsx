@@ -1,13 +1,13 @@
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useCallback } from 'react';
 import { useQuery } from '@tanstack/react-query';
-import { fetchPokemonPage } from '@/lib/pokeapi';
+import { fetchPokemonPage, fetchAllPokemonNames } from '@/lib/pokeapi';
 import { Header } from '@/components/Header';
 import { PokemonCard } from '@/components/PokemonCard';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Search, ArrowLeft, ChevronLeft, ChevronRight } from 'lucide-react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 
 const PAGE_SIZE = 48;
 const TOTAL_POKEMON = 1025;
@@ -15,6 +15,7 @@ const TOTAL_POKEMON = 1025;
 export default function NationalDexPage() {
   const [page, setPage] = useState(0);
   const [search, setSearch] = useState('');
+  const navigate = useNavigate();
 
   const offset = page * PAGE_SIZE;
 
@@ -24,7 +25,23 @@ export default function NationalDexPage() {
     staleTime: 1000 * 60 * 30,
   });
 
+  // Preload all pokemon names for global search
+  const { data: allNames } = useQuery({
+    queryKey: ['all-pokemon-names'],
+    queryFn: fetchAllPokemonNames,
+    staleTime: Infinity,
+  });
+
   const totalPages = Math.ceil(TOTAL_POKEMON / PAGE_SIZE);
+
+  // Global search results
+  const globalResults = useMemo(() => {
+    if (!search.trim() || !allNames) return null;
+    const q = search.toLowerCase();
+    return allNames
+      .filter(p => p.name.includes(q) || String(p.id).includes(q))
+      .slice(0, 20);
+  }, [search, allNames]);
 
   const filtered = useMemo(() => {
     if (!data?.pokemons) return [];
@@ -34,6 +51,10 @@ export default function NationalDexPage() {
       (p) => p.name.includes(q) || String(p.id).includes(q)
     );
   }, [data, search]);
+
+  const handleNavigateToPokemon = useCallback((id: number) => {
+    navigate(`/pokemon/${id}`);
+  }, [navigate]);
 
   return (
     <div className="min-h-screen bg-background">
@@ -54,11 +75,32 @@ export default function NationalDexPage() {
         <div className="relative max-w-md mx-auto mb-8">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
           <Input
-            placeholder="Buscar na página atual..."
+            placeholder="Buscar por nome ou número..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             className="pl-10"
           />
+          {/* Global search dropdown */}
+          {globalResults && globalResults.length > 0 && search.trim() && (
+            <div className="absolute top-full left-0 right-0 mt-1 bg-card border border-border rounded-xl shadow-lg z-50 max-h-64 overflow-y-auto">
+              {globalResults.map((p) => (
+                <button
+                  key={p.id}
+                  onClick={() => handleNavigateToPokemon(p.id)}
+                  className="w-full flex items-center gap-3 px-4 py-2.5 hover:bg-muted/60 transition-colors text-left"
+                >
+                  <img
+                    src={`https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${p.id}.png`}
+                    alt={p.name}
+                    className="h-8 w-8 object-contain"
+                    loading="lazy"
+                  />
+                  <span className="text-sm font-medium text-foreground capitalize">{p.name}</span>
+                  <span className="text-xs text-muted-foreground ml-auto">#{String(p.id).padStart(4, '0')}</span>
+                </button>
+              ))}
+            </div>
+          )}
         </div>
 
         {isLoading ? (
@@ -78,7 +120,7 @@ export default function NationalDexPage() {
               {filtered.map((p) => (
                 <PokemonCard key={p.id} pokemon={p} />
               ))}
-              {filtered.length === 0 && (
+              {filtered.length === 0 && !globalResults?.length && (
                 <p className="col-span-full text-center text-muted-foreground py-12">
                   Nenhum Pokémon encontrado nesta página.
                 </p>

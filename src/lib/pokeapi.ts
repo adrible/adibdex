@@ -250,6 +250,17 @@ export async function fetchPokemonEncounters(pokemonId: number): Promise<Pokemon
   }));
 }
 
+// Lightweight name index for global search
+let allPokemonNames: { id: number; name: string }[] | null = null;
+
+export async function fetchAllPokemonNames(): Promise<{ id: number; name: string }[]> {
+  if (allPokemonNames) return allPokemonNames;
+  const res = await fetch(`${BASE_URL}/pokemon?offset=0&limit=1025`);
+  const data = await res.json();
+  allPokemonNames = data.results.map((r: any, i: number) => ({ id: i + 1, name: r.name }));
+  return allPokemonNames!;
+}
+
 export async function fetchPokemonPage(offset: number, limit: number): Promise<{ pokemons: PokemonBasic[]; total: number }> {
   const res = await fetch(`${BASE_URL}/pokemon?offset=${offset}&limit=${limit}`);
   const data = await res.json();
@@ -331,9 +342,13 @@ export async function fetchPokemonForms(pokemonId: number): Promise<PokemonForm[
     const speciesData = await speciesRes.json();
     const varieties = speciesData.varieties || [];
     
-    const altVarieties = varieties.filter((v: any) => 
-      !v.is_default && !v.pokemon.name.includes('-mega') && !v.pokemon.name.includes('-gmax') && !v.pokemon.name.includes('-totem')
-    );
+    const altVarieties = varieties.filter((v: any) => {
+      if (v.is_default) return false;
+      const name = v.pokemon.name;
+      // Exclude mega, gmax, totem, and battle-bond/ash style forms
+      if (name.includes('-mega') || name.includes('-gmax') || name.includes('-totem')) return false;
+      return true;
+    });
     
     if (altVarieties.length === 0) return [];
     
