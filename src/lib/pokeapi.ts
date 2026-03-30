@@ -338,7 +338,16 @@ export interface PokemonForm {
 
 export async function fetchPokemonForms(pokemonId: number): Promise<PokemonForm[]> {
   try {
-    const speciesRes = await fetch(`${BASE_URL}/pokemon-species/${pokemonId}`);
+    // For alt form IDs (>=10000), resolve the species from the pokemon endpoint first
+    let speciesUrl: string;
+    if (pokemonId >= 10000) {
+      const pokRes = await fetch(`${BASE_URL}/pokemon/${pokemonId}`);
+      const pokData = await pokRes.json();
+      speciesUrl = pokData.species.url;
+    } else {
+      speciesUrl = `${BASE_URL}/pokemon-species/${pokemonId}`;
+    }
+    const speciesRes = await fetch(speciesUrl);
     const speciesData = await speciesRes.json();
     const varieties = speciesData.varieties || [];
     
