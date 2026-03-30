@@ -338,27 +338,42 @@ export interface PokemonForm {
 
 export async function fetchPokemonForms(pokemonId: number): Promise<PokemonForm[]> {
   try {
-    const speciesRes = await fetch(`${BASE_URL}/pokemon-species/${pokemonId}`);
+    // For alt form IDs (>=10000), resolve the species from the pokemon endpoint first
+    let speciesUrl: string;
+    if (pokemonId >= 10000) {
+      const pokRes = await fetch(`${BASE_URL}/pokemon/${pokemonId}`);
+      const pokData = await pokRes.json();
+      speciesUrl = pokData.species.url;
+    } else {
+      speciesUrl = `${BASE_URL}/pokemon-species/${pokemonId}`;
+    }
+    const speciesRes = await fetch(speciesUrl);
     const speciesData = await speciesRes.json();
     const varieties = speciesData.varieties || [];
     
-    const altVarieties = varieties.filter((v: any) => {
-      if (v.is_default) return false;
+    // For alt forms, include the default form so user can navigate back
+    // For the default form, only show alt varieties
+    const isAltForm = pokemonId >= 10000;
+    const filteredVarieties = varieties.filter((v: any) => {
       const name = v.pokemon.name;
-      // Exclude mega, gmax, totem, and battle-bond/ash style forms
       if (name.includes('-mega') || name.includes('-gmax') || name.includes('-totem')) return false;
+      // Get the pokemon ID from the URL
+      const vId = Number(v.pokemon.url.split('/').filter(Boolean).pop());
+      if (vId === pokemonId) return false; // Exclude current form
+      if (!isAltForm && v.is_default) return false; // Default form: skip itself
       return true;
     });
     
-    if (altVarieties.length === 0) return [];
+    if (filteredVarieties.length === 0) return [];
     
     const forms = await Promise.all(
-      altVarieties.map(async (v: any) => {
+      filteredVarieties.map(async (v: any) => {
         try {
           const res = await fetch(v.pokemon.url);
           const data = await res.json();
           const name = data.name;
-          let formName = name.replace(`${speciesData.name}-`, '').replace(/-/g, ' ');
+          const isDefault = v.is_default;
+          let formName = isDefault ? 'Normal' : name.replace(`${speciesData.name}-`, '').replace(/-/g, ' ');
           
           // Translate common form names
           const FORM_TRANSLATIONS: Record<string, string> = {

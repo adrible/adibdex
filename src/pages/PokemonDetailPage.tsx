@@ -101,14 +101,20 @@ export default function PokemonDetailPage() {
               <Sparkles className="h-4 w-4" />
               Shiny
             </Button>
-            {pokemonId > 1 && (
-              <Button variant="outline" size="icon" asChild>
-                <Link to={`/pokemon/${pokemonId - 1}`}><ChevronLeft className="h-4 w-4" /></Link>
-              </Button>
+            {pokemonId <= 1025 && (
+              <>
+                {pokemonId > 1 && (
+                  <Button variant="outline" size="icon" asChild>
+                    <Link to={`/pokemon/${pokemonId - 1}`}><ChevronLeft className="h-4 w-4" /></Link>
+                  </Button>
+                )}
+                {pokemonId < 1025 && (
+                  <Button variant="outline" size="icon" asChild>
+                    <Link to={`/pokemon/${pokemonId + 1}`}><ChevronRight className="h-4 w-4" /></Link>
+                  </Button>
+                )}
+              </>
             )}
-            <Button variant="outline" size="icon" asChild>
-              <Link to={`/pokemon/${pokemonId + 1}`}><ChevronRight className="h-4 w-4" /></Link>
-            </Button>
           </div>
         </div>
 
