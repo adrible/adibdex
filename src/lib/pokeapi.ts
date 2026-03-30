@@ -250,6 +250,17 @@ export async function fetchPokemonEncounters(pokemonId: number): Promise<Pokemon
   }));
 }
 
+// Lightweight name index for global search
+let allPokemonNames: { id: number; name: string }[] | null = null;
+
+export async function fetchAllPokemonNames(): Promise<{ id: number; name: string }[]> {
+  if (allPokemonNames) return allPokemonNames;
+  const res = await fetch(`${BASE_URL}/pokemon?offset=0&limit=1025`);
+  const data = await res.json();
+  allPokemonNames = data.results.map((r: any, i: number) => ({ id: i + 1, name: r.name }));
+  return allPokemonNames!;
+}
+
 export async function fetchPokemonPage(offset: number, limit: number): Promise<{ pokemons: PokemonBasic[]; total: number }> {
   const res = await fetch(`${BASE_URL}/pokemon?offset=${offset}&limit=${limit}`);
   const data = await res.json();
