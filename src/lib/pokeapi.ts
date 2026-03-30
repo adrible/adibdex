@@ -317,6 +317,7 @@ export async function fetchMegaEvolutions(pokemonId: number): Promise<MegaEvolut
 }
 
 export interface PokemonForm {
+  id: number;
   name: string;
   formName: string;
   sprite: string;
@@ -364,6 +365,7 @@ export async function fetchPokemonForms(pokemonId: number): Promise<PokemonForm[
           }
           
           return {
+            id: data.id,
             name,
             formName: formName.charAt(0).toUpperCase() + formName.slice(1),
             sprite: data.sprites.other?.['official-artwork']?.front_default || data.sprites.front_default || '',

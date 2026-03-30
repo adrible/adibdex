@@ -1,4 +1,5 @@
 import { useQuery } from '@tanstack/react-query';
+import { Link } from 'react-router-dom';
 import { fetchPokemonForms } from '@/lib/pokeapi';
 import { TypeBadge } from '@/components/TypeBadge';
 import { Skeleton } from '@/components/ui/skeleton';
@@ -38,7 +39,11 @@ export function PokemonForms({ pokemonId, isShiny = false }: Props) {
       </div>
       <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
         {forms.map((form) => (
-          <div key={form.name} className="flex flex-col items-center p-3 rounded-xl bg-muted/40 border border-border">
+          <Link
+            key={form.name}
+            to={`/pokemon/${form.id}`}
+            className="flex flex-col items-center p-3 rounded-xl bg-muted/40 border border-border transition-all hover:bg-muted/70 hover:scale-105"
+          >
             <img
               src={isShiny ? form.spriteShiny : form.sprite}
               alt={form.name}
@@ -53,7 +58,7 @@ export function PokemonForms({ pokemonId, isShiny = false }: Props) {
                 <TypeBadge key={t} type={t} size="sm" />
               ))}
             </div>
-          </div>
+          </Link>
         ))}
       </div>
     </div>
