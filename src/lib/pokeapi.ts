@@ -351,18 +351,23 @@ export async function fetchPokemonForms(pokemonId: number): Promise<PokemonForm[
     const speciesData = await speciesRes.json();
     const varieties = speciesData.varieties || [];
     
-    const altVarieties = varieties.filter((v: any) => {
-      if (v.is_default) return false;
+    // For alt forms, include the default form so user can navigate back
+    // For the default form, only show alt varieties
+    const isAltForm = pokemonId >= 10000;
+    const filteredVarieties = varieties.filter((v: any) => {
       const name = v.pokemon.name;
-      // Exclude mega, gmax, totem, and battle-bond/ash style forms
       if (name.includes('-mega') || name.includes('-gmax') || name.includes('-totem')) return false;
+      // Get the pokemon ID from the URL
+      const vId = Number(v.pokemon.url.split('/').filter(Boolean).pop());
+      if (vId === pokemonId) return false; // Exclude current form
+      if (!isAltForm && v.is_default) return false; // Default form: skip itself
       return true;
     });
     
-    if (altVarieties.length === 0) return [];
+    if (filteredVarieties.length === 0) return [];
     
     const forms = await Promise.all(
-      altVarieties.map(async (v: any) => {
+      filteredVarieties.map(async (v: any) => {
         try {
           const res = await fetch(v.pokemon.url);
           const data = await res.json();
