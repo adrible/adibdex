@@ -372,7 +372,8 @@ export async function fetchPokemonForms(pokemonId: number): Promise<PokemonForm[
           const res = await fetch(v.pokemon.url);
           const data = await res.json();
           const name = data.name;
-          let formName = name.replace(`${speciesData.name}-`, '').replace(/-/g, ' ');
+          const isDefault = v.is_default;
+          let formName = isDefault ? 'Normal' : name.replace(`${speciesData.name}-`, '').replace(/-/g, ' ');
           
           // Translate common form names
           const FORM_TRANSLATIONS: Record<string, string> = {
