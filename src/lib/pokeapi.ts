@@ -342,9 +342,31 @@ export async function fetchPokemonForms(pokemonId: number): Promise<PokemonForm[
     const speciesData = await speciesRes.json();
     const varieties = speciesData.varieties || [];
     
-    const altVarieties = varieties.filter((v: any) => 
-      !v.is_default && !v.pokemon.name.includes('-mega') && !v.pokemon.name.includes('-gmax') && !v.pokemon.name.includes('-totem')
-    );
+    // Get evolution chain IDs to exclude evolutionary forms from alternative forms
+    let evoIds = new Set<number>();
+    try {
+      if (speciesData.evolution_chain?.url) {
+        const chainRes = await fetch(speciesData.evolution_chain.url);
+        const chainData = await chainRes.json();
+        function collectEvoIds(node: any) {
+          const id = extractIdFromUrl(node.species.url);
+          evoIds.add(id);
+          node.evolves_to?.forEach((n: any) => collectEvoIds(n));
+        }
+        collectEvoIds(chainData.chain);
+      }
+    } catch {}
+    
+    const altVarieties = varieties.filter((v: any) => {
+      if (v.is_default) return false;
+      const name = v.pokemon.name;
+      if (name.includes('-mega') || name.includes('-gmax') || name.includes('-totem')) return false;
+      // Exclude forms that are actually separate evolution chain species
+      const varId = extractIdFromUrl(v.pokemon.url);
+      // Only exclude if the ID is in the main pokemon range (1-1025) AND in the evo chain
+      if (varId <= 1025 && evoIds.has(varId) && varId !== pokemonId) return false;
+      return true;
+    });
     
     if (altVarieties.length === 0) return [];
     
