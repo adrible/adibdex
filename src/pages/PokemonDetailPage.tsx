@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { useParams, Link, useNavigate } from 'react-router-dom';
+import { useParams, Link, useNavigate, useLocation } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { fetchPokemonDetail, fetchPokemonEncounters, STAT_TRANSLATIONS, GENERATIONS } from '@/lib/pokeapi';
 import { Header } from '@/components/Header';
@@ -33,6 +33,7 @@ function StatBar({ name, value }: { name: string; value: number }) {
 export default function PokemonDetailPage() {
   const { id } = useParams();
   const navigate = useNavigate();
+  const location = useLocation();
   const pokemonId = Number(id);
   const [isShiny, setIsShiny] = useState(false);
 
@@ -50,9 +51,21 @@ export default function PokemonDetailPage() {
     staleTime: 1000 * 60 * 30,
   });
 
-  const gen = GENERATIONS.find(
-    (g) => pokemonId >= g.pokemonRange[0] && pokemonId <= g.pokemonRange[1]
-  );
+  // Use speciesId for display (always national dex number)
+  const displayId = pokemon?.speciesId ?? pokemonId;
+  const isBaseForm = pokemonId <= 1025;
+
+  const handleBack = () => {
+    // If there's browser history, go back. Otherwise fallback to home.
+    if (location.key !== 'default') {
+      navigate(-1);
+    } else {
+      const gen = GENERATIONS.find(
+        (g) => displayId >= g.pokemonRange[0] && displayId <= g.pokemonRange[1]
+      );
+      navigate(gen ? `/generation/${gen.id}` : '/');
+    }
+  };
 
   if (isLoading) {
     return (
@@ -88,7 +101,7 @@ export default function PokemonDetailPage() {
       <Header />
       <main className="container py-8 max-w-3xl">
         <div className="flex items-center justify-between mb-8">
-          <Button variant="ghost" size="icon" onClick={() => navigate(gen ? `/generation/${gen.id}` : '/')}>
+          <Button variant="ghost" size="icon" onClick={handleBack}>
             <ArrowLeft className="h-5 w-5" />
           </Button>
           <div className="flex gap-2 items-center">
@@ -101,16 +114,16 @@ export default function PokemonDetailPage() {
               <Sparkles className="h-4 w-4" />
               Shiny
             </Button>
-            {pokemonId <= 1025 && (
+            {isBaseForm && (
               <>
-                {pokemonId > 1 && (
+                {displayId > 1 && (
                   <Button variant="outline" size="icon" asChild>
-                    <Link to={`/pokemon/${pokemonId - 1}`}><ChevronLeft className="h-4 w-4" /></Link>
+                    <Link to={`/pokemon/${displayId - 1}`}><ChevronLeft className="h-4 w-4" /></Link>
                   </Button>
                 )}
-                {pokemonId < 1025 && (
+                {displayId < 1025 && (
                   <Button variant="outline" size="icon" asChild>
-                    <Link to={`/pokemon/${pokemonId + 1}`}><ChevronRight className="h-4 w-4" /></Link>
+                    <Link to={`/pokemon/${displayId + 1}`}><ChevronRight className="h-4 w-4" /></Link>
                   </Button>
                 )}
               </>
@@ -120,10 +133,10 @@ export default function PokemonDetailPage() {
 
         <div className="text-center mb-8">
           <p className="text-sm font-bold text-muted-foreground mb-1">
-            #{String(pokemon.id).padStart(4, '0')}
+            #{String(displayId).padStart(4, '0')}
           </p>
           <h2 className="font-pixel text-lg sm:text-xl text-foreground capitalize mb-4">
-            {pokemon.name}
+            {pokemon.name.replace(/-/g, ' ')}
           </h2>
           <div className="flex justify-center gap-2 mb-6">
             {pokemon.types.map((t) => (
