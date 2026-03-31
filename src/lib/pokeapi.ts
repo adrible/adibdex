@@ -519,6 +519,7 @@ export async function fetchPokemonForms(pokemonId: number): Promise<PokemonForm[
     const isAltForm = pokemonId >= 10000;
     const filteredVarieties = varieties.filter((v: any) => {
       const name = v.pokemon.name;
+      // Exclude mega, gmax, totem — megas belong in evolution chain only
       if (name.includes('-mega') || name.includes('-gmax') || name.includes('-totem')) return false;
       const vId = Number(v.pokemon.url.split('/').filter(Boolean).pop());
       if (vId === pokemonId) return false;
