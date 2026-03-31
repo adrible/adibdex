@@ -56,8 +56,7 @@ export default function PokemonDetailPage() {
   const isBaseForm = pokemonId <= 1025;
 
   const handleBack = () => {
-    // If there's browser history, go back. Otherwise fallback to home.
-    if (location.key !== 'default') {
+    if (window.history.length > 1 && location.key !== 'default') {
       navigate(-1);
     } else {
       const gen = GENERATIONS.find(
