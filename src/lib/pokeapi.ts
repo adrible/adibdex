@@ -9,6 +9,7 @@ export interface PokemonBasic {
 
 export interface PokemonDetail {
   id: number;
+  speciesId: number;
   name: string;
   sprites: {
     front_default: string;
@@ -56,6 +57,11 @@ async function fetchPokemonRaw(id: number): Promise<any> {
   return data;
 }
 
+function extractIdFromUrl(url: string): number {
+  const parts = url.replace(/\/$/, '').split('/');
+  return Number(parts[parts.length - 1]);
+}
+
 export async function fetchPokemonBasic(id: number): Promise<PokemonBasic> {
   const data = await fetchPokemonRaw(id);
   return {
@@ -68,8 +74,10 @@ export async function fetchPokemonBasic(id: number): Promise<PokemonBasic> {
 
 export async function fetchPokemonDetail(id: number): Promise<PokemonDetail> {
   const data = await fetchPokemonRaw(id);
+  const speciesId = extractIdFromUrl(data.species.url);
   return {
     id: data.id,
+    speciesId,
     name: data.name,
     sprites: {
       front_default: data.sprites.front_default,
@@ -91,7 +99,6 @@ export async function fetchPokemonListByRange(start: number, end: number): Promi
   const res = await fetch(`${BASE_URL}/pokemon?offset=${start - 1}&limit=${limit}`);
   const data = await res.json();
 
-  // Use names from list endpoint, fetch types in parallel batches of 40
   const ids = data.results.map((_: any, i: number) => start + i);
   const names = data.results.map((r: any) => r.name);
   
@@ -164,6 +171,159 @@ export const STAT_TRANSLATIONS: Record<string, string> = {
   speed: 'Velocidade',
 };
 
+export const VERSION_GROUP_NAMES: Record<string, string> = {
+  'red-blue': 'Red / Blue',
+  'yellow': 'Yellow',
+  'gold-silver': 'Gold / Silver',
+  'crystal': 'Crystal',
+  'ruby-sapphire': 'Ruby / Sapphire',
+  'emerald': 'Emerald',
+  'firered-leafgreen': 'FireRed / LeafGreen',
+  'diamond-pearl': 'Diamond / Pearl',
+  'platinum': 'Platinum',
+  'heartgold-soulsilver': 'HeartGold / SoulSilver',
+  'black-white': 'Black / White',
+  'black-2-white-2': 'Black 2 / White 2',
+  'x-y': 'X / Y',
+  'omega-ruby-alpha-sapphire': 'Omega Ruby / Alpha Sapphire',
+  'sun-moon': 'Sun / Moon',
+  'ultra-sun-ultra-moon': 'Ultra Sun / Ultra Moon',
+  'lets-go-pikachu-lets-go-eevee': "Let's Go Pikachu / Eevee",
+  'sword-shield': 'Sword / Shield',
+  'brilliant-diamond-and-shining-pearl': 'Brilliant Diamond / Shining Pearl',
+  'legends-arceus': 'Legends: Arceus',
+  'scarlet-violet': 'Scarlet / Violet',
+  'the-teal-mask': 'The Teal Mask',
+  'the-indigo-disk': 'The Indigo Disk',
+};
+
+export const METHOD_LABELS: Record<string, string> = {
+  'level-up': 'Por Nível',
+  'machine': 'TM / HM',
+  'egg': 'Egg Moves',
+  'tutor': 'Tutor',
+};
+
+export interface MoveByGame {
+  name: string;
+  type: string;
+  level: number;
+  method: string;
+  damageClass: string;
+  power: number | null;
+  accuracy: number | null;
+  pp: number | null;
+}
+
+export interface MovesByVersionGroup {
+  versionGroup: string;
+  versionGroupLabel: string;
+  levelUp: MoveByGame[];
+  machine: MoveByGame[];
+  egg: MoveByGame[];
+  tutor: MoveByGame[];
+}
+
+// Move data cache
+const moveDataCache = new Map<string, any>();
+
+async function fetchMoveData(name: string): Promise<any> {
+  if (moveDataCache.has(name)) return moveDataCache.get(name)!;
+  try {
+    const res = await fetch(`${BASE_URL}/move/${name}`);
+    const data = await res.json();
+    moveDataCache.set(name, data);
+    return data;
+  } catch {
+    return null;
+  }
+}
+
+export async function fetchPokemonMovesByGame(pokemonId: number): Promise<MovesByVersionGroup[]> {
+  const data = await fetchPokemonRaw(pokemonId);
+
+  // Group moves by version_group and method
+  const groupMap = new Map<string, Map<string, { name: string; level: number }[]>>();
+
+  for (const m of data.moves) {
+    for (const vg of m.version_group_details) {
+      const vgName = vg.version_group.name;
+      const method = vg.move_learn_method.name;
+      if (!groupMap.has(vgName)) groupMap.set(vgName, new Map());
+      const methodMap = groupMap.get(vgName)!;
+      if (!methodMap.has(method)) methodMap.set(method, []);
+      methodMap.get(method)!.push({
+        name: m.move.name,
+        level: vg.level_learned_at,
+      });
+    }
+  }
+
+  // Collect unique move names to batch-fetch types
+  const allMoveNames = new Set<string>();
+  for (const m of data.moves) {
+    allMoveNames.add(m.move.name);
+  }
+
+  // Batch fetch move data (type, power, accuracy, pp, damage_class)
+  const moveNames = [...allMoveNames];
+  const moveInfo = new Map<string, { type: string; damageClass: string; power: number | null; accuracy: number | null; pp: number | null }>();
+
+  for (let i = 0; i < moveNames.length; i += 30) {
+    const batch = moveNames.slice(i, i + 30);
+    const results = await Promise.all(batch.map(fetchMoveData));
+    results.forEach((d, j) => {
+      if (d) {
+        moveInfo.set(batch[j], {
+          type: d.type.name,
+          damageClass: d.damage_class?.name || 'status',
+          power: d.power,
+          accuracy: d.accuracy,
+          pp: d.pp,
+        });
+      }
+    });
+  }
+
+  // Build result sorted by most recent games first
+  const vgOrder = Object.keys(VERSION_GROUP_NAMES);
+  const sortedGroups = [...groupMap.entries()].sort((a, b) => {
+    const ai = vgOrder.indexOf(a[0]);
+    const bi = vgOrder.indexOf(b[0]);
+    return (bi === -1 ? -999 : bi) - (ai === -1 ? -999 : ai);
+  });
+
+  return sortedGroups.map(([vgName, methodMap]) => {
+    function buildMoves(method: string): MoveByGame[] {
+      const moves = methodMap.get(method) || [];
+      return moves
+        .map(m => {
+          const info = moveInfo.get(m.name);
+          return {
+            name: m.name,
+            type: info?.type || 'normal',
+            level: m.level,
+            method,
+            damageClass: info?.damageClass || 'status',
+            power: info?.power ?? null,
+            accuracy: info?.accuracy ?? null,
+            pp: info?.pp ?? null,
+          };
+        })
+        .sort((a, b) => (method === 'level-up' ? a.level - b.level : a.name.localeCompare(b.name)));
+    }
+
+    return {
+      versionGroup: vgName,
+      versionGroupLabel: VERSION_GROUP_NAMES[vgName] || vgName.replace(/-/g, ' '),
+      levelUp: buildMoves('level-up'),
+      machine: buildMoves('machine'),
+      egg: buildMoves('egg'),
+      tutor: buildMoves('tutor'),
+    };
+  });
+}
+
 export interface EvolutionStep {
   id: number;
   name: string;
@@ -184,11 +344,6 @@ export interface EvolutionStep {
 
 export interface EvolutionChain {
   steps: EvolutionStep[][];
-}
-
-function extractIdFromUrl(url: string): number {
-  const parts = url.replace(/\/$/, '').split('/');
-  return Number(parts[parts.length - 1]);
 }
 
 function flattenChain(chain: any): EvolutionStep[][] {
@@ -225,7 +380,13 @@ function flattenChain(chain: any): EvolutionStep[][] {
 }
 
 export async function fetchEvolutionChain(pokemonId: number): Promise<EvolutionChain> {
-  const speciesRes = await fetch(`${BASE_URL}/pokemon-species/${pokemonId}`);
+  // For alt forms, resolve species first
+  let speciesId = pokemonId;
+  if (pokemonId >= 10000) {
+    const pokData = await fetchPokemonRaw(pokemonId);
+    speciesId = extractIdFromUrl(pokData.species.url);
+  }
+  const speciesRes = await fetch(`${BASE_URL}/pokemon-species/${speciesId}`);
   const speciesData = await speciesRes.json();
   const chainUrl = speciesData.evolution_chain.url;
   const chainRes = await fetch(chainUrl);
@@ -297,7 +458,12 @@ export interface MegaEvolution {
 
 export async function fetchMegaEvolutions(pokemonId: number): Promise<MegaEvolution[]> {
   try {
-    const speciesRes = await fetch(`${BASE_URL}/pokemon-species/${pokemonId}`);
+    let speciesId = pokemonId;
+    if (pokemonId >= 10000) {
+      const pokData = await fetchPokemonRaw(pokemonId);
+      speciesId = extractIdFromUrl(pokData.species.url);
+    }
+    const speciesRes = await fetch(`${BASE_URL}/pokemon-species/${speciesId}`);
     const speciesData = await speciesRes.json();
     const varieties = speciesData.varieties || [];
     
@@ -338,7 +504,6 @@ export interface PokemonForm {
 
 export async function fetchPokemonForms(pokemonId: number): Promise<PokemonForm[]> {
   try {
-    // For alt form IDs (>=10000), resolve the species from the pokemon endpoint first
     let speciesUrl: string;
     if (pokemonId >= 10000) {
       const pokRes = await fetch(`${BASE_URL}/pokemon/${pokemonId}`);
@@ -351,16 +516,13 @@ export async function fetchPokemonForms(pokemonId: number): Promise<PokemonForm[
     const speciesData = await speciesRes.json();
     const varieties = speciesData.varieties || [];
     
-    // For alt forms, include the default form so user can navigate back
-    // For the default form, only show alt varieties
     const isAltForm = pokemonId >= 10000;
     const filteredVarieties = varieties.filter((v: any) => {
       const name = v.pokemon.name;
       if (name.includes('-mega') || name.includes('-gmax') || name.includes('-totem')) return false;
-      // Get the pokemon ID from the URL
       const vId = Number(v.pokemon.url.split('/').filter(Boolean).pop());
-      if (vId === pokemonId) return false; // Exclude current form
-      if (!isAltForm && v.is_default) return false; // Default form: skip itself
+      if (vId === pokemonId) return false;
+      if (!isAltForm && v.is_default) return false;
       return true;
     });
     
@@ -375,7 +537,6 @@ export async function fetchPokemonForms(pokemonId: number): Promise<PokemonForm[
           const isDefault = v.is_default;
           let formName = isDefault ? 'Normal' : name.replace(`${speciesData.name}-`, '').replace(/-/g, ' ');
           
-          // Translate common form names
           const FORM_TRANSLATIONS: Record<string, string> = {
             'alola': 'Alola', 'galar': 'Galar', 'hisui': 'Hisui', 'paldea': 'Paldea',
             'female': 'Fêmea', 'male': 'Macho',
