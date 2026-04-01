@@ -2,11 +2,12 @@ import { useQuery } from '@tanstack/react-query';
 import { fetchPokemonListByRange, type Generation } from '@/lib/pokeapi';
 import { PokemonCard } from './PokemonCard';
 import { Skeleton } from '@/components/ui/skeleton';
-import { Search } from 'lucide-react';
+import { Search, ChevronLeft, ChevronRight, Sparkles } from 'lucide-react';
 import { useState, useMemo } from 'react';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
-import { ChevronLeft, ChevronRight } from 'lucide-react';
+import { useLocation } from 'react-router-dom';
+import { PokemonFilterButton, ActiveFilterChips, applyFilters, hasActiveFilters, DEFAULT_FILTERS, type FilterState } from './PokemonFilters';
 
 const PAGE_SIZE = 48;
 
@@ -14,71 +15,85 @@ export function PokemonGrid({ generation }: { generation: Generation }) {
   const [search, setSearch] = useState('');
   const [showAll, setShowAll] = useState(false);
   const [page, setPage] = useState(0);
+  const [isShiny, setIsShiny] = useState(false);
+  const [filters, setFilters] = useState<FilterState>(DEFAULT_FILTERS);
+  const location = useLocation();
 
   const totalPokemon = generation.pokemonRange[1] - generation.pokemonRange[0] + 1;
-  const isPaginated = !showAll && totalPokemon > PAGE_SIZE;
 
-  const paginatedStart = isPaginated
-    ? generation.pokemonRange[0] + page * PAGE_SIZE
-    : generation.pokemonRange[0];
-  const paginatedEnd = isPaginated
-    ? Math.min(paginatedStart + PAGE_SIZE - 1, generation.pokemonRange[1])
-    : generation.pokemonRange[1];
+  // Always fetch all when filters are active for correct filtering
+  const needsAll = showAll || hasActiveFilters(filters) || search.trim();
+
+  const fetchStart = needsAll ? generation.pokemonRange[0] : generation.pokemonRange[0] + page * PAGE_SIZE;
+  const fetchEnd = needsAll ? generation.pokemonRange[1] : Math.min(fetchStart + PAGE_SIZE - 1, generation.pokemonRange[1]);
 
   const { data: pokemons, isLoading } = useQuery({
-    queryKey: ['pokemon-gen', generation.id, isPaginated ? page : 'all'],
-    queryFn: () => fetchPokemonListByRange(paginatedStart, paginatedEnd),
+    queryKey: ['pokemon-gen', generation.id, needsAll ? 'all' : page],
+    queryFn: () => fetchPokemonListByRange(fetchStart, fetchEnd),
     staleTime: 1000 * 60 * 30,
   });
 
-  const totalPages = Math.ceil(totalPokemon / PAGE_SIZE);
-
-  const filtered = useMemo(() => {
+  const processed = useMemo(() => {
     if (!pokemons) return [];
-    if (!search.trim()) return pokemons;
-    const q = search.toLowerCase();
-    return pokemons.filter(
-      (p) => p.name.includes(q) || String(p.id).includes(q)
-    );
-  }, [pokemons, search]);
+    let result = pokemons;
+
+    if (search.trim()) {
+      const q = search.toLowerCase();
+      result = result.filter(p => p.name.includes(q) || String(p.id).includes(q));
+    }
+
+    result = applyFilters(result, filters);
+
+    return result;
+  }, [pokemons, search, filters]);
+
+  // Paginate the processed results when not showing all
+  const displayPokemon = useMemo(() => {
+    if (needsAll) return processed;
+    return processed;
+  }, [processed, needsAll]);
+
+  const paginatedResults = useMemo(() => {
+    if (!needsAll) return displayPokemon;
+    if (showAll) return displayPokemon;
+    const start = page * PAGE_SIZE;
+    return displayPokemon.slice(start, start + PAGE_SIZE);
+  }, [displayPokemon, needsAll, showAll, page]);
+
+  const totalFilteredPages = needsAll ? Math.ceil(displayPokemon.length / PAGE_SIZE) : Math.ceil(totalPokemon / PAGE_SIZE);
+  const showPagination = !showAll && totalFilteredPages > 1 && !search.trim();
 
   return (
     <div>
-      <div className="flex flex-col sm:flex-row items-center gap-3 max-w-md mx-auto mb-8">
+      <div className="flex flex-col sm:flex-row items-center gap-3 max-w-2xl mx-auto mb-4">
         <div className="relative flex-1 w-full">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-          <Input
-            placeholder="Buscar por nome ou número..."
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-            className="pl-10"
-          />
+          <Input placeholder="Buscar por nome ou número..." value={search} onChange={(e) => { setSearch(e.target.value); setPage(0); }} className="pl-10" />
         </div>
-        {totalPokemon > PAGE_SIZE && (
-          <div className="flex gap-1.5">
-            <Button
-              variant={!showAll ? 'default' : 'outline'}
-              size="sm"
-              onClick={() => { setShowAll(false); setPage(0); }}
-              className="text-xs"
-            >
-              Paginado
-            </Button>
-            <Button
-              variant={showAll ? 'default' : 'outline'}
-              size="sm"
-              onClick={() => setShowAll(true)}
-              className="text-xs"
-            >
-              Todos
-            </Button>
-          </div>
-        )}
+        <div className="flex gap-1.5 items-center">
+          <PokemonFilterButton filters={filters} onChange={(f) => { setFilters(f); setPage(0); }} />
+          <Button
+            variant={isShiny ? "default" : "outline"} size="sm"
+            onClick={() => setIsShiny(!isShiny)}
+            className={`gap-1 ${isShiny ? 'bg-gradient-to-r from-yellow-500 to-amber-500 hover:from-yellow-600 hover:to-amber-600 text-white border-0' : ''}`}
+          >
+            <Sparkles className="h-3.5 w-3.5" />
+            Shiny
+          </Button>
+          {totalPokemon > PAGE_SIZE && (
+            <>
+              <Button variant={!showAll ? 'default' : 'outline'} size="sm" onClick={() => { setShowAll(false); setPage(0); }} className="text-xs">Paginado</Button>
+              <Button variant={showAll ? 'default' : 'outline'} size="sm" onClick={() => setShowAll(true)} className="text-xs">Todos</Button>
+            </>
+          )}
+        </div>
       </div>
+
+      <ActiveFilterChips filters={filters} onChange={(f) => { setFilters(f); setPage(0); }} />
 
       {isLoading ? (
         <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4">
-          {Array.from({ length: Math.min(24, PAGE_SIZE) }).map((_, i) => (
+          {Array.from({ length: 24 }).map((_, i) => (
             <div key={i} className="rounded-xl bg-card border border-border p-4">
               <Skeleton className="h-36 w-full rounded-lg mb-3" />
               <Skeleton className="h-3 w-12 mb-2" />
@@ -90,35 +105,21 @@ export function PokemonGrid({ generation }: { generation: Generation }) {
       ) : (
         <>
           <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4">
-            {filtered.map((p) => (
-              <PokemonCard key={p.id} pokemon={p} />
+            {paginatedResults.map((p) => (
+              <PokemonCard key={p.id} pokemon={p} isShiny={isShiny} originPath={location.pathname} />
             ))}
-            {filtered.length === 0 && (
-              <p className="col-span-full text-center text-muted-foreground py-12">
-                Nenhum Pokémon encontrado.
-              </p>
+            {paginatedResults.length === 0 && (
+              <p className="col-span-full text-center text-muted-foreground py-12">Nenhum Pokémon encontrado.</p>
             )}
           </div>
 
-          {isPaginated && !search.trim() && (
+          {showPagination && (
             <div className="flex items-center justify-center gap-4 mt-8">
-              <Button
-                variant="outline"
-                size="icon"
-                disabled={page === 0}
-                onClick={() => { setPage((p) => p - 1); window.scrollTo(0, 0); }}
-              >
+              <Button variant="outline" size="icon" disabled={page === 0} onClick={() => { setPage(p => p - 1); window.scrollTo(0, 0); }}>
                 <ChevronLeft className="h-4 w-4" />
               </Button>
-              <span className="text-sm font-medium text-foreground">
-                Página {page + 1} de {totalPages}
-              </span>
-              <Button
-                variant="outline"
-                size="icon"
-                disabled={page >= totalPages - 1}
-                onClick={() => { setPage((p) => p + 1); window.scrollTo(0, 0); }}
-              >
+              <span className="text-sm font-medium text-foreground">Página {page + 1} de {totalFilteredPages}</span>
+              <Button variant="outline" size="icon" disabled={page >= totalFilteredPages - 1} onClick={() => { setPage(p => p + 1); window.scrollTo(0, 0); }}>
                 <ChevronRight className="h-4 w-4" />
               </Button>
             </div>

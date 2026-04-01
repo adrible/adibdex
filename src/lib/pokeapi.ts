@@ -4,7 +4,11 @@ export interface PokemonBasic {
   id: number;
   name: string;
   sprite: string;
+  spriteShiny: string;
   types: string[];
+  stats?: { hp: number; attack: number; defense: number; spAtk: number; spDef: number; speed: number };
+  height?: number;
+  weight?: number;
 }
 
 export interface PokemonDetail {
@@ -46,7 +50,18 @@ export const GENERATIONS: Generation[] = [
   { id: 9, name: 'Paldea', region: 'Paldea', pokemonRange: [906, 1025] },
 ];
 
-// Cache for pokemon data to avoid refetching
+// Hardcoded sets for performance
+export const MEGA_POKEMON_IDS = new Set([
+  3,6,9,15,18,65,80,94,115,127,130,142,150,181,208,212,214,229,248,
+  254,257,260,282,302,303,306,308,310,319,323,334,354,359,362,373,
+  376,380,381,384,428,445,448,460,475,531,719
+]);
+
+export const GMAX_POKEMON_IDS = new Set([
+  1,3,6,9,12,25,52,68,94,99,131,133,143,569,809,
+  812,815,818,823,826,834,839,841,842,844,849,851,858,861,869,879,884,892
+]);
+
 const pokemonCache = new Map<number, any>();
 
 async function fetchPokemonRaw(id: number): Promise<any> {
@@ -62,14 +77,35 @@ function extractIdFromUrl(url: string): number {
   return Number(parts[parts.length - 1]);
 }
 
+function extractStats(data: any) {
+  const s = data.stats;
+  return {
+    hp: s[0]?.base_stat || 0,
+    attack: s[1]?.base_stat || 0,
+    defense: s[2]?.base_stat || 0,
+    spAtk: s[3]?.base_stat || 0,
+    spDef: s[4]?.base_stat || 0,
+    speed: s[5]?.base_stat || 0,
+  };
+}
+
+function buildBasicFromRaw(data: any): PokemonBasic {
+  const id = data.id;
+  return {
+    id,
+    name: data.name,
+    sprite: `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/${id}.png`,
+    spriteShiny: `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/shiny/${id}.png`,
+    types: data.types.map((t: any) => t.type.name),
+    stats: extractStats(data),
+    height: data.height,
+    weight: data.weight,
+  };
+}
+
 export async function fetchPokemonBasic(id: number): Promise<PokemonBasic> {
   const data = await fetchPokemonRaw(id);
-  return {
-    id: data.id,
-    name: data.name,
-    sprite: `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/${data.id}.png`,
-    types: data.types.map((t: any) => t.type.name),
-  };
+  return buildBasicFromRaw(data);
 }
 
 export async function fetchPokemonDetail(id: number): Promise<PokemonDetail> {
@@ -100,20 +136,14 @@ export async function fetchPokemonListByRange(start: number, end: number): Promi
   const data = await res.json();
 
   const ids = data.results.map((_: any, i: number) => start + i);
-  const names = data.results.map((r: any) => r.name);
-  
-  const results: PokemonBasic[] = ids.map((id: number, i: number) => ({
-    id,
-    name: names[i],
-    sprite: `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/${id}.png`,
-    types: [] as string[],
-  }));
+
+  const results: PokemonBasic[] = [];
 
   for (let i = 0; i < ids.length; i += 40) {
     const batch = ids.slice(i, i + 40);
-    const typesArr = await Promise.all(batch.map((id: number) => fetchPokemonRaw(id)));
-    typesArr.forEach((data, j) => {
-      results[i + j].types = data.types.map((t: any) => t.type.name);
+    const rawArr = await Promise.all(batch.map((id: number) => fetchPokemonRaw(id)));
+    rawArr.forEach((d) => {
+      results.push(buildBasicFromRaw(d));
     });
   }
 
@@ -121,73 +151,37 @@ export async function fetchPokemonListByRange(start: number, end: number): Promi
 }
 
 export const TYPE_COLORS: Record<string, string> = {
-  normal: 'var(--type-normal)',
-  fire: 'var(--type-fire)',
-  water: 'var(--type-water)',
-  grass: 'var(--type-grass)',
-  electric: 'var(--type-electric)',
-  ice: 'var(--type-ice)',
-  fighting: 'var(--type-fighting)',
-  poison: 'var(--type-poison)',
-  ground: 'var(--type-ground)',
-  flying: 'var(--type-flying)',
-  psychic: 'var(--type-psychic)',
-  bug: 'var(--type-bug)',
-  rock: 'var(--type-rock)',
-  ghost: 'var(--type-ghost)',
-  dragon: 'var(--type-dragon)',
-  dark: 'var(--type-dark)',
-  steel: 'var(--type-steel)',
-  fairy: 'var(--type-fairy)',
+  normal: 'var(--type-normal)', fire: 'var(--type-fire)', water: 'var(--type-water)',
+  grass: 'var(--type-grass)', electric: 'var(--type-electric)', ice: 'var(--type-ice)',
+  fighting: 'var(--type-fighting)', poison: 'var(--type-poison)', ground: 'var(--type-ground)',
+  flying: 'var(--type-flying)', psychic: 'var(--type-psychic)', bug: 'var(--type-bug)',
+  rock: 'var(--type-rock)', ghost: 'var(--type-ghost)', dragon: 'var(--type-dragon)',
+  dark: 'var(--type-dark)', steel: 'var(--type-steel)', fairy: 'var(--type-fairy)',
 };
 
 export const TYPE_TRANSLATIONS: Record<string, string> = {
-  normal: 'Normal',
-  fire: 'Fogo',
-  water: 'Água',
-  grass: 'Planta',
-  electric: 'Elétrico',
-  ice: 'Gelo',
-  fighting: 'Lutador',
-  poison: 'Veneno',
-  ground: 'Terra',
-  flying: 'Voador',
-  psychic: 'Psíquico',
-  bug: 'Inseto',
-  rock: 'Pedra',
-  ghost: 'Fantasma',
-  dragon: 'Dragão',
-  dark: 'Sombrio',
-  steel: 'Aço',
-  fairy: 'Fada',
+  normal: 'Normal', fire: 'Fogo', water: 'Água', grass: 'Planta',
+  electric: 'Elétrico', ice: 'Gelo', fighting: 'Lutador', poison: 'Veneno',
+  ground: 'Terra', flying: 'Voador', psychic: 'Psíquico', bug: 'Inseto',
+  rock: 'Pedra', ghost: 'Fantasma', dragon: 'Dragão', dark: 'Sombrio',
+  steel: 'Aço', fairy: 'Fada',
 };
 
 export const STAT_TRANSLATIONS: Record<string, string> = {
-  hp: 'HP',
-  attack: 'Ataque',
-  defense: 'Defesa',
-  'special-attack': 'Atq. Esp.',
-  'special-defense': 'Def. Esp.',
-  speed: 'Velocidade',
+  hp: 'HP', attack: 'Ataque', defense: 'Defesa',
+  'special-attack': 'Atq. Esp.', 'special-defense': 'Def. Esp.', speed: 'Velocidade',
 };
 
 export const VERSION_GROUP_NAMES: Record<string, string> = {
-  'red-blue': 'Red / Blue',
-  'yellow': 'Yellow',
-  'gold-silver': 'Gold / Silver',
-  'crystal': 'Crystal',
-  'ruby-sapphire': 'Ruby / Sapphire',
-  'emerald': 'Emerald',
+  'red-blue': 'Red / Blue', 'yellow': 'Yellow',
+  'gold-silver': 'Gold / Silver', 'crystal': 'Crystal',
+  'ruby-sapphire': 'Ruby / Sapphire', 'emerald': 'Emerald',
   'firered-leafgreen': 'FireRed / LeafGreen',
-  'diamond-pearl': 'Diamond / Pearl',
-  'platinum': 'Platinum',
+  'diamond-pearl': 'Diamond / Pearl', 'platinum': 'Platinum',
   'heartgold-soulsilver': 'HeartGold / SoulSilver',
-  'black-white': 'Black / White',
-  'black-2-white-2': 'Black 2 / White 2',
-  'x-y': 'X / Y',
-  'omega-ruby-alpha-sapphire': 'Omega Ruby / Alpha Sapphire',
-  'sun-moon': 'Sun / Moon',
-  'ultra-sun-ultra-moon': 'Ultra Sun / Ultra Moon',
+  'black-white': 'Black / White', 'black-2-white-2': 'Black 2 / White 2',
+  'x-y': 'X / Y', 'omega-ruby-alpha-sapphire': 'Omega Ruby / Alpha Sapphire',
+  'sun-moon': 'Sun / Moon', 'ultra-sun-ultra-moon': 'Ultra Sun / Ultra Moon',
   'lets-go-pikachu-lets-go-eevee': "Let's Go Pikachu / Eevee",
   'sword-shield': 'Sword / Shield',
   'brilliant-diamond-and-shining-pearl': 'Brilliant Diamond / Shining Pearl',
@@ -198,10 +192,7 @@ export const VERSION_GROUP_NAMES: Record<string, string> = {
 };
 
 export const METHOD_LABELS: Record<string, string> = {
-  'level-up': 'Por Nível',
-  'machine': 'TM / HM',
-  'egg': 'Egg Moves',
-  'tutor': 'Tutor',
+  'level-up': 'Por Nível', 'machine': 'TM / HM', 'egg': 'Egg Moves', 'tutor': 'Tutor',
 };
 
 export interface MoveByGame {
@@ -224,7 +215,6 @@ export interface MovesByVersionGroup {
   tutor: MoveByGame[];
 }
 
-// Move data cache
 const moveDataCache = new Map<string, any>();
 
 async function fetchMoveData(name: string): Promise<any> {
@@ -239,10 +229,19 @@ async function fetchMoveData(name: string): Promise<any> {
   }
 }
 
+export async function fetchMoveDescription(moveName: string): Promise<string> {
+  const data = await fetchMoveData(moveName);
+  if (!data) return '';
+  const entry = data.effect_entries?.find((e: any) => e.language.name === 'en');
+  if (entry) {
+    return entry.short_effect?.replace('$effect_chance%', `${data.effect_chance || '?'}%`) || entry.effect || '';
+  }
+  const flavor = data.flavor_text_entries?.find((e: any) => e.language.name === 'en');
+  return flavor?.flavor_text || '';
+}
+
 export async function fetchPokemonMovesByGame(pokemonId: number): Promise<MovesByVersionGroup[]> {
   const data = await fetchPokemonRaw(pokemonId);
-
-  // Group moves by version_group and method
   const groupMap = new Map<string, Map<string, { name: string; level: number }[]>>();
 
   for (const m of data.moves) {
@@ -252,20 +251,13 @@ export async function fetchPokemonMovesByGame(pokemonId: number): Promise<MovesB
       if (!groupMap.has(vgName)) groupMap.set(vgName, new Map());
       const methodMap = groupMap.get(vgName)!;
       if (!methodMap.has(method)) methodMap.set(method, []);
-      methodMap.get(method)!.push({
-        name: m.move.name,
-        level: vg.level_learned_at,
-      });
+      methodMap.get(method)!.push({ name: m.move.name, level: vg.level_learned_at });
     }
   }
 
-  // Collect unique move names to batch-fetch types
   const allMoveNames = new Set<string>();
-  for (const m of data.moves) {
-    allMoveNames.add(m.move.name);
-  }
+  for (const m of data.moves) allMoveNames.add(m.move.name);
 
-  // Batch fetch move data (type, power, accuracy, pp, damage_class)
   const moveNames = [...allMoveNames];
   const moveInfo = new Map<string, { type: string; damageClass: string; power: number | null; accuracy: number | null; pp: number | null }>();
 
@@ -285,7 +277,6 @@ export async function fetchPokemonMovesByGame(pokemonId: number): Promise<MovesB
     });
   }
 
-  // Build result sorted by most recent games first
   const vgOrder = Object.keys(VERSION_GROUP_NAMES);
   const sortedGroups = [...groupMap.entries()].sort((a, b) => {
     const ai = vgOrder.indexOf(a[0]);
@@ -300,26 +291,18 @@ export async function fetchPokemonMovesByGame(pokemonId: number): Promise<MovesB
         .map(m => {
           const info = moveInfo.get(m.name);
           return {
-            name: m.name,
-            type: info?.type || 'normal',
-            level: m.level,
-            method,
+            name: m.name, type: info?.type || 'normal', level: m.level, method,
             damageClass: info?.damageClass || 'status',
-            power: info?.power ?? null,
-            accuracy: info?.accuracy ?? null,
-            pp: info?.pp ?? null,
+            power: info?.power ?? null, accuracy: info?.accuracy ?? null, pp: info?.pp ?? null,
           };
         })
         .sort((a, b) => (method === 'level-up' ? a.level - b.level : a.name.localeCompare(b.name)));
     }
-
     return {
       versionGroup: vgName,
       versionGroupLabel: VERSION_GROUP_NAMES[vgName] || vgName.replace(/-/g, ' '),
-      levelUp: buildMoves('level-up'),
-      machine: buildMoves('machine'),
-      egg: buildMoves('egg'),
-      tutor: buildMoves('tutor'),
+      levelUp: buildMoves('level-up'), machine: buildMoves('machine'),
+      egg: buildMoves('egg'), tutor: buildMoves('tutor'),
     };
   });
 }
@@ -348,39 +331,27 @@ export interface EvolutionChain {
 
 function flattenChain(chain: any): EvolutionStep[][] {
   const stages: EvolutionStep[][] = [];
-
   function traverse(node: any, depth: number) {
     if (!stages[depth]) stages[depth] = [];
     const id = extractIdFromUrl(node.species.url);
     const details = node.evolution_details?.[0];
     stages[depth].push({
-      id,
-      name: node.species.name,
+      id, name: node.species.name,
       sprite: `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/${id}.png`,
-      minLevel: details?.min_level || null,
-      trigger: details?.trigger?.name || null,
-      item: details?.item?.name || null,
-      heldItem: details?.held_item?.name || null,
-      minHappiness: details?.min_happiness || null,
-      timeOfDay: details?.time_of_day || null,
-      knownMove: details?.known_move?.name || null,
-      knownMoveType: details?.known_move_type?.name || null,
-      location: details?.location?.name || null,
-      minAffection: details?.min_affection || null,
-      needsRain: details?.needs_overworld_rain || false,
-      turnUpsideDown: details?.turn_upside_down || false,
+      minLevel: details?.min_level || null, trigger: details?.trigger?.name || null,
+      item: details?.item?.name || null, heldItem: details?.held_item?.name || null,
+      minHappiness: details?.min_happiness || null, timeOfDay: details?.time_of_day || null,
+      knownMove: details?.known_move?.name || null, knownMoveType: details?.known_move_type?.name || null,
+      location: details?.location?.name || null, minAffection: details?.min_affection || null,
+      needsRain: details?.needs_overworld_rain || false, turnUpsideDown: details?.turn_upside_down || false,
     });
-    for (const next of node.evolves_to) {
-      traverse(next, depth + 1);
-    }
+    for (const next of node.evolves_to) traverse(next, depth + 1);
   }
-
   traverse(chain, 0);
   return stages;
 }
 
 export async function fetchEvolutionChain(pokemonId: number): Promise<EvolutionChain> {
-  // For alt forms, resolve species first
   let speciesId = pokemonId;
   if (pokemonId >= 10000) {
     const pokData = await fetchPokemonRaw(pokemonId);
@@ -411,44 +382,15 @@ export async function fetchPokemonEncounters(pokemonId: number): Promise<Pokemon
   }));
 }
 
-// Lightweight name index for global search
-let allPokemonNames: { id: number; name: string }[] | null = null;
-
-export async function fetchAllPokemonNames(): Promise<{ id: number; name: string }[]> {
-  if (allPokemonNames) return allPokemonNames;
-  const res = await fetch(`${BASE_URL}/pokemon?offset=0&limit=1025`);
-  const data = await res.json();
-  allPokemonNames = data.results.map((r: any, i: number) => ({ id: i + 1, name: r.name }));
-  return allPokemonNames!;
-}
-
-export async function fetchPokemonPage(offset: number, limit: number): Promise<{ pokemons: PokemonBasic[]; total: number }> {
-  const res = await fetch(`${BASE_URL}/pokemon?offset=${offset}&limit=${limit}`);
-  const data = await res.json();
-  const total = Math.min(data.count, 1025);
-
-  const ids = data.results.map((_: any, i: number) => offset + i + 1);
-  const names = data.results.map((r: any) => r.name);
-
-  const results: PokemonBasic[] = ids.map((id: number, i: number) => ({
-    id,
-    name: names[i],
-    sprite: `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/${id}.png`,
-    types: [] as string[],
-  }));
-
-  for (let i = 0; i < ids.length; i += 40) {
-    const batch = ids.slice(i, i + 40);
-    const rawArr = await Promise.all(batch.map((id: number) => fetchPokemonRaw(id)));
-    rawArr.forEach((d, j) => {
-      results[i + j].types = d.types.map((t: any) => t.type.name);
-    });
-  }
-
-  return { pokemons: results, total };
-}
-
 export interface MegaEvolution {
+  id: number;
+  name: string;
+  sprite: string;
+  spriteShiny: string;
+  types: string[];
+}
+
+export interface GmaxForm {
   id: number;
   name: string;
   sprite: string;
@@ -466,31 +408,76 @@ export async function fetchMegaEvolutions(pokemonId: number): Promise<MegaEvolut
     const speciesRes = await fetch(`${BASE_URL}/pokemon-species/${speciesId}`);
     const speciesData = await speciesRes.json();
     const varieties = speciesData.varieties || [];
-    
-    const megaVarieties = varieties.filter((v: any) => 
-      v.pokemon.name.includes('-mega') && !v.is_default
-    );
-    
+    const megaVarieties = varieties.filter((v: any) => v.pokemon.name.includes('-mega') && !v.is_default);
     if (megaVarieties.length === 0) return [];
-    
     const megas = await Promise.all(
       megaVarieties.map(async (v: any) => {
         const res = await fetch(v.pokemon.url);
         const data = await res.json();
         return {
-          id: data.id,
-          name: data.name,
+          id: data.id, name: data.name,
           sprite: data.sprites.other?.['official-artwork']?.front_default || data.sprites.front_default,
           spriteShiny: data.sprites.other?.['official-artwork']?.front_shiny || data.sprites.front_shiny,
           types: data.types.map((t: any) => t.type.name),
         };
       })
     );
-    
     return megas;
-  } catch {
-    return [];
+  } catch { return []; }
+}
+
+export async function fetchGmaxForms(pokemonId: number): Promise<GmaxForm[]> {
+  try {
+    let speciesId = pokemonId;
+    if (pokemonId >= 10000) {
+      const pokData = await fetchPokemonRaw(pokemonId);
+      speciesId = extractIdFromUrl(pokData.species.url);
+    }
+    const speciesRes = await fetch(`${BASE_URL}/pokemon-species/${speciesId}`);
+    const speciesData = await speciesRes.json();
+    const varieties = speciesData.varieties || [];
+    const gmaxVarieties = varieties.filter((v: any) => v.pokemon.name.includes('-gmax') && !v.is_default);
+    if (gmaxVarieties.length === 0) return [];
+    const gmax = await Promise.all(
+      gmaxVarieties.map(async (v: any) => {
+        const res = await fetch(v.pokemon.url);
+        const data = await res.json();
+        return {
+          id: data.id, name: data.name,
+          sprite: data.sprites.other?.['official-artwork']?.front_default || data.sprites.front_default,
+          spriteShiny: data.sprites.other?.['official-artwork']?.front_shiny || data.sprites.front_shiny,
+          types: data.types.map((t: any) => t.type.name),
+        };
+      })
+    );
+    return gmax;
+  } catch { return []; }
+}
+
+let allPokemonNames: { id: number; name: string }[] | null = null;
+
+export async function fetchAllPokemonNames(): Promise<{ id: number; name: string }[]> {
+  if (allPokemonNames) return allPokemonNames;
+  const res = await fetch(`${BASE_URL}/pokemon?offset=0&limit=1025`);
+  const data = await res.json();
+  allPokemonNames = data.results.map((r: any, i: number) => ({ id: i + 1, name: r.name }));
+  return allPokemonNames!;
+}
+
+export async function fetchPokemonPage(offset: number, limit: number): Promise<{ pokemons: PokemonBasic[]; total: number }> {
+  const res = await fetch(`${BASE_URL}/pokemon?offset=${offset}&limit=${limit}`);
+  const data = await res.json();
+  const total = Math.min(data.count, 1025);
+  const ids = data.results.map((_: any, i: number) => offset + i + 1);
+  const results: PokemonBasic[] = [];
+
+  for (let i = 0; i < ids.length; i += 40) {
+    const batch = ids.slice(i, i + 40);
+    const rawArr = await Promise.all(batch.map((id: number) => fetchPokemonRaw(id)));
+    rawArr.forEach((d) => results.push(buildBasicFromRaw(d)));
   }
+
+  return { pokemons: results, total };
 }
 
 export interface PokemonForm {
@@ -515,20 +502,16 @@ export async function fetchPokemonForms(pokemonId: number): Promise<PokemonForm[
     const speciesRes = await fetch(speciesUrl);
     const speciesData = await speciesRes.json();
     const varieties = speciesData.varieties || [];
-    
     const isAltForm = pokemonId >= 10000;
     const filteredVarieties = varieties.filter((v: any) => {
       const name = v.pokemon.name;
-      // Exclude mega, gmax, totem — megas belong in evolution chain only
       if (name.includes('-mega') || name.includes('-gmax') || name.includes('-totem')) return false;
       const vId = Number(v.pokemon.url.split('/').filter(Boolean).pop());
       if (vId === pokemonId) return false;
       if (!isAltForm && v.is_default) return false;
       return true;
     });
-    
     if (filteredVarieties.length === 0) return [];
-    
     const forms = await Promise.all(
       filteredVarieties.map(async (v: any) => {
         try {
@@ -537,7 +520,6 @@ export async function fetchPokemonForms(pokemonId: number): Promise<PokemonForm[
           const name = data.name;
           const isDefault = v.is_default;
           let formName = isDefault ? 'Normal' : name.replace(`${speciesData.name}-`, '').replace(/-/g, ' ');
-          
           const FORM_TRANSLATIONS: Record<string, string> = {
             'alola': 'Alola', 'galar': 'Galar', 'hisui': 'Hisui', 'paldea': 'Paldea',
             'female': 'Fêmea', 'male': 'Macho',
@@ -549,29 +531,21 @@ export async function fetchPokemonForms(pokemonId: number): Promise<PokemonForm[
             'pirouette': 'Pirueta', 'zen': 'Zen', 'blade': 'Lâmina',
             'midday': 'Diurno', 'midnight': 'Noturno', 'dusk': 'Crepuscular',
           };
-          
           for (const [key, val] of Object.entries(FORM_TRANSLATIONS)) {
             if (formName.toLowerCase().includes(key)) {
               formName = formName.replace(new RegExp(key, 'gi'), val);
             }
           }
-          
           return {
-            id: data.id,
-            name,
+            id: data.id, name,
             formName: formName.charAt(0).toUpperCase() + formName.slice(1),
             sprite: data.sprites.other?.['official-artwork']?.front_default || data.sprites.front_default || '',
             spriteShiny: data.sprites.other?.['official-artwork']?.front_shiny || data.sprites.front_shiny || '',
             types: data.types.map((t: any) => t.type.name),
           };
-        } catch {
-          return null;
-        }
+        } catch { return null; }
       })
     );
-    
     return forms.filter((f): f is PokemonForm => f !== null && f.sprite !== '');
-  } catch {
-    return [];
-  }
+  } catch { return []; }
 }
