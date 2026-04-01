@@ -8,9 +8,10 @@ import { Globe } from 'lucide-react';
 interface Props {
   pokemonId: number;
   isShiny?: boolean;
+  origin?: string;
 }
 
-export function PokemonForms({ pokemonId, isShiny = false }: Props) {
+export function PokemonForms({ pokemonId, isShiny = false, origin }: Props) {
   const { data: forms, isLoading } = useQuery({
     queryKey: ['pokemon-forms', pokemonId],
     queryFn: () => fetchPokemonForms(pokemonId),
@@ -42,21 +43,22 @@ export function PokemonForms({ pokemonId, isShiny = false }: Props) {
           <Link
             key={form.name}
             to={`/pokemon/${form.id}`}
+            state={{ origin }}
             className="flex flex-col items-center p-3 rounded-xl bg-muted/40 border border-border transition-all hover:bg-muted/70 hover:scale-105"
           >
-            <img
-              src={isShiny ? form.spriteShiny : form.sprite}
-              alt={form.name}
-              className="h-16 w-16 sm:h-20 sm:w-20 object-contain"
-              loading="lazy"
-            />
+            <div className="h-16 w-16 sm:h-20 sm:w-20 flex items-center justify-center">
+              <img
+                src={isShiny ? form.spriteShiny : form.sprite}
+                alt={form.name}
+                className="max-h-full max-w-full object-contain"
+                loading="lazy"
+              />
+            </div>
             <span className="text-xs font-semibold capitalize text-card-foreground mt-1 text-center">
               {form.formName || form.name.replace(/-/g, ' ')}
             </span>
             <div className="flex gap-1 mt-1">
-              {form.types.map(t => (
-                <TypeBadge key={t} type={t} size="sm" />
-              ))}
+              {form.types.map(t => <TypeBadge key={t} type={t} size="sm" />)}
             </div>
           </Link>
         ))}

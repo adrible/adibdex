@@ -2,16 +2,23 @@ import { Link } from 'react-router-dom';
 import type { PokemonBasic } from '@/lib/pokeapi';
 import { TypeBadge } from './TypeBadge';
 
-export function PokemonCard({ pokemon }: { pokemon: PokemonBasic }) {
+interface Props {
+  pokemon: PokemonBasic;
+  isShiny?: boolean;
+  originPath?: string;
+}
+
+export function PokemonCard({ pokemon, isShiny = false, originPath }: Props) {
   return (
     <Link
       to={`/pokemon/${pokemon.id}`}
+      state={originPath ? { origin: originPath } : undefined}
       className="group block rounded-xl bg-card border border-border p-4 transition-all hover:shadow-lg hover:-translate-y-1 hover:border-primary/40"
     >
-      <div className="relative flex items-center justify-center h-36 mb-3">
+      <div className="relative flex items-center justify-center h-36 w-full mb-3">
         <div className="absolute inset-0 rounded-lg bg-muted/50 opacity-0 group-hover:opacity-100 transition-opacity" />
         <img
-          src={pokemon.sprite}
+          src={isShiny ? pokemon.spriteShiny : pokemon.sprite}
           alt={pokemon.name}
           className="h-32 w-32 object-contain relative z-10 transition-transform group-hover:scale-110"
           loading="lazy"
