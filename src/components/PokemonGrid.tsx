@@ -3,25 +3,33 @@ import { fetchPokemonListByRange, type Generation } from '@/lib/pokeapi';
 import { PokemonCard } from './PokemonCard';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Search, ChevronLeft, ChevronRight, Sparkles } from 'lucide-react';
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { useLocation } from 'react-router-dom';
-import { PokemonFilterButton, ActiveFilterChips, applyFilters, hasActiveFilters, DEFAULT_FILTERS, type FilterState } from './PokemonFilters';
+import { PokemonFilterButton, ActiveFilterChips, applyFilters, hasActiveFilters, DEFAULT_FILTERS, saveFiltersToSession, loadFiltersFromSession, type FilterState } from './PokemonFilters';
 
 const PAGE_SIZE = 48;
 
 export function PokemonGrid({ generation }: { generation: Generation }) {
+  const storageKey = `gen-${generation.id}`;
+  const saved = loadFiltersFromSession(storageKey);
   const [search, setSearch] = useState('');
   const [showAll, setShowAll] = useState(false);
-  const [page, setPage] = useState(0);
+  const [page, setPage] = useState(saved?.page ?? 0);
   const [isShiny, setIsShiny] = useState(false);
-  const [filters, setFilters] = useState<FilterState>(DEFAULT_FILTERS);
+  const [filters, setFilters] = useState<FilterState>(saved?.filters ?? DEFAULT_FILTERS);
+  const [pageInput, setPageInput] = useState('');
   const location = useLocation();
 
   const totalPokemon = generation.pokemonRange[1] - generation.pokemonRange[0] + 1;
 
-  // Always fetch all when filters are active for correct filtering
+  // Save filters to session on change
+  useEffect(() => {
+    saveFiltersToSession(storageKey, filters, page);
+  }, [filters, page, storageKey]);
+
+  // Always fetch all for this generation (regions are small enough)
   const needsAll = showAll || hasActiveFilters(filters) || search.trim();
 
   const fetchStart = needsAll ? generation.pokemonRange[0] : generation.pokemonRange[0] + page * PAGE_SIZE;
@@ -36,32 +44,34 @@ export function PokemonGrid({ generation }: { generation: Generation }) {
   const processed = useMemo(() => {
     if (!pokemons) return [];
     let result = pokemons;
-
     if (search.trim()) {
       const q = search.toLowerCase();
       result = result.filter(p => p.name.includes(q) || String(p.id).includes(q));
     }
-
     result = applyFilters(result, filters);
-
     return result;
   }, [pokemons, search, filters]);
 
-  // Paginate the processed results when not showing all
-  const displayPokemon = useMemo(() => {
-    if (needsAll) return processed;
-    return processed;
-  }, [processed, needsAll]);
-
   const paginatedResults = useMemo(() => {
-    if (!needsAll) return displayPokemon;
-    if (showAll) return displayPokemon;
+    if (!needsAll) return processed;
+    if (showAll) return processed;
     const start = page * PAGE_SIZE;
-    return displayPokemon.slice(start, start + PAGE_SIZE);
-  }, [displayPokemon, needsAll, showAll, page]);
+    return processed.slice(start, start + PAGE_SIZE);
+  }, [processed, needsAll, showAll, page]);
 
-  const totalFilteredPages = needsAll ? Math.ceil(displayPokemon.length / PAGE_SIZE) : Math.ceil(totalPokemon / PAGE_SIZE);
+  const totalFilteredPages = needsAll ? Math.ceil(processed.length / PAGE_SIZE) : Math.ceil(totalPokemon / PAGE_SIZE);
   const showPagination = !showAll && totalFilteredPages > 1 && !search.trim();
+
+  const handlePageInput = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === 'Enter') {
+      const val = parseInt(pageInput);
+      if (!isNaN(val) && val >= 1 && val <= totalFilteredPages) {
+        setPage(val - 1);
+        window.scrollTo(0, 0);
+      }
+      setPageInput('');
+    }
+  };
 
   return (
     <div>
@@ -114,11 +124,22 @@ export function PokemonGrid({ generation }: { generation: Generation }) {
           </div>
 
           {showPagination && (
-            <div className="flex items-center justify-center gap-4 mt-8">
+            <div className="flex items-center justify-center gap-3 mt-8">
               <Button variant="outline" size="icon" disabled={page === 0} onClick={() => { setPage(p => p - 1); window.scrollTo(0, 0); }}>
                 <ChevronLeft className="h-4 w-4" />
               </Button>
-              <span className="text-sm font-medium text-foreground">Página {page + 1} de {totalFilteredPages}</span>
+              <div className="flex items-center gap-1.5 text-sm font-medium text-foreground">
+                <input
+                  type="text"
+                  value={pageInput}
+                  onChange={(e) => setPageInput(e.target.value.replace(/\D/g, ''))}
+                  onKeyDown={handlePageInput}
+                  onBlur={() => setPageInput('')}
+                  placeholder={String(page + 1)}
+                  className="w-10 text-center rounded border border-input bg-background px-1 py-0.5 text-sm focus:outline-none focus:ring-1 focus:ring-ring"
+                />
+                <span>/ {totalFilteredPages}</span>
+              </div>
               <Button variant="outline" size="icon" disabled={page >= totalFilteredPages - 1} onClick={() => { setPage(p => p + 1); window.scrollTo(0, 0); }}>
                 <ChevronRight className="h-4 w-4" />
               </Button>

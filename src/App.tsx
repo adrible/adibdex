@@ -11,6 +11,7 @@ const Index = lazy(() => import("./pages/Index"));
 const GenerationPage = lazy(() => import("./pages/GenerationPage"));
 const NationalDexPage = lazy(() => import("./pages/NationalDexPage"));
 const PokemonDetailPage = lazy(() => import("./pages/PokemonDetailPage"));
+const SpecialFormsPage = lazy(() => import("./pages/SpecialFormsPage"));
 const NotFound = lazy(() => import("./pages/NotFound"));
 
 const queryClient = new QueryClient({
@@ -49,6 +50,8 @@ const App = () => (
               <Route path="/national" element={<NationalDexPage />} />
               <Route path="/generation/:id" element={<GenerationPage />} />
               <Route path="/pokemon/:id" element={<PokemonDetailPage />} />
+              <Route path="/mega" element={<SpecialFormsPage type="mega" />} />
+              <Route path="/gmax" element={<SpecialFormsPage type="gmax" />} />
               <Route path="*" element={<NotFound />} />
             </Routes>
           </Suspense>
