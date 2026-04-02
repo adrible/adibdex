@@ -1,9 +1,9 @@
-import { useState, useCallback } from 'react';
+import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { TypeBadge } from '@/components/TypeBadge';
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from '@/components/ui/sheet';
 import { MEGA_POKEMON_IDS, GMAX_POKEMON_IDS, TYPE_TRANSLATIONS } from '@/lib/pokeapi';
-import { getDefensiveMatchups } from '@/lib/type-effectiveness';
+import { getDefensiveMatchups, getOffensiveMatchups } from '@/lib/type-effectiveness';
 import { Filter, X, ArrowUpDown } from 'lucide-react';
 
 const ALL_TYPES = Object.keys(TYPE_TRANSLATIONS);
@@ -13,6 +13,7 @@ export type SortOption = 'id' | 'name' | 'hp' | 'attack' | 'defense' | 'spAtk' |
 export interface FilterState {
   types: string[];
   weakTo: string[];
+  strongAgainst: string[];
   hasMega: boolean | null;
   hasGmax: boolean | null;
   sortBy: SortOption;
@@ -20,7 +21,7 @@ export interface FilterState {
 }
 
 export const DEFAULT_FILTERS: FilterState = {
-  types: [], weakTo: [], hasMega: null, hasGmax: null, sortBy: 'id', sortDir: 'asc',
+  types: [], weakTo: [], strongAgainst: [], hasMega: null, hasGmax: null, sortBy: 'id', sortDir: 'asc',
 };
 
 const SORT_OPTIONS: { value: SortOption; label: string }[] = [
@@ -42,7 +43,25 @@ interface Props {
 }
 
 export function hasActiveFilters(f: FilterState): boolean {
-  return f.types.length > 0 || f.weakTo.length > 0 || f.hasMega !== null || f.hasGmax !== null || f.sortBy !== 'id';
+  return f.types.length > 0 || f.weakTo.length > 0 || f.strongAgainst.length > 0 || f.hasMega !== null || f.hasGmax !== null || f.sortBy !== 'id';
+}
+
+// Session storage helpers for filter persistence
+const FILTER_STORAGE_KEY = 'pokedex-filters';
+
+export function saveFiltersToSession(key: string, filters: FilterState, page: number) {
+  try {
+    sessionStorage.setItem(`${FILTER_STORAGE_KEY}-${key}`, JSON.stringify({ filters, page }));
+  } catch {}
+}
+
+export function loadFiltersFromSession(key: string): { filters: FilterState; page: number } | null {
+  try {
+    const raw = sessionStorage.getItem(`${FILTER_STORAGE_KEY}-${key}`);
+    if (!raw) return null;
+    const parsed = JSON.parse(raw);
+    return { filters: { ...DEFAULT_FILTERS, ...parsed.filters }, page: parsed.page || 0 };
+  } catch { return null; }
 }
 
 export function ActiveFilterChips({ filters, onChange }: Props) {
@@ -59,6 +78,13 @@ export function ActiveFilterChips({ filters, onChange }: Props) {
     chips.push({
       label: `Fraco: ${TYPE_TRANSLATIONS[t]}`,
       onRemove: () => onChange({ ...filters, weakTo: filters.weakTo.filter(x => x !== t) }),
+    });
+  });
+
+  filters.strongAgainst.forEach(t => {
+    chips.push({
+      label: `Forte: ${TYPE_TRANSLATIONS[t]}`,
+      onRemove: () => onChange({ ...filters, strongAgainst: filters.strongAgainst.filter(x => x !== t) }),
     });
   });
 
@@ -126,12 +152,18 @@ function FilterContent({ filters, onChange, onClose }: Props & { onClose: () => 
     }));
   };
 
+  const toggleStrong = (t: string) => {
+    setLocal(prev => ({
+      ...prev,
+      strongAgainst: prev.strongAgainst.includes(t) ? prev.strongAgainst.filter(x => x !== t) : [...prev.strongAgainst, t],
+    }));
+  };
+
   const apply = () => { onChange(local); onClose(); };
   const clear = () => { setLocal(DEFAULT_FILTERS); onChange(DEFAULT_FILTERS); onClose(); };
 
   return (
     <div className="space-y-6 py-2">
-      {/* Type Filter */}
       <div>
         <h4 className="text-sm font-semibold text-foreground mb-2">Tipo</h4>
         <div className="flex flex-wrap gap-1.5">
@@ -144,7 +176,6 @@ function FilterContent({ filters, onChange, onClose }: Props & { onClose: () => 
         </div>
       </div>
 
-      {/* Weakness Filter */}
       <div>
         <h4 className="text-sm font-semibold text-foreground mb-2">Fraco contra</h4>
         <div className="flex flex-wrap gap-1.5">
@@ -157,7 +188,18 @@ function FilterContent({ filters, onChange, onClose }: Props & { onClose: () => 
         </div>
       </div>
 
-      {/* Mega / Gmax */}
+      <div>
+        <h4 className="text-sm font-semibold text-foreground mb-2">Forte contra</h4>
+        <div className="flex flex-wrap gap-1.5">
+          {ALL_TYPES.map(t => (
+            <button key={t} onClick={() => toggleStrong(t)}
+              className={`transition-all ${local.strongAgainst.includes(t) ? 'ring-2 ring-green-500 scale-110' : 'opacity-70 hover:opacity-100'}`}>
+              <TypeBadge type={t} size="sm" />
+            </button>
+          ))}
+        </div>
+      </div>
+
       <div>
         <h4 className="text-sm font-semibold text-foreground mb-2">Formas Especiais</h4>
         <div className="flex flex-wrap gap-2">
@@ -180,7 +222,6 @@ function FilterContent({ filters, onChange, onClose }: Props & { onClose: () => 
         </div>
       </div>
 
-      {/* Sort */}
       <div>
         <h4 className="text-sm font-semibold text-foreground mb-2">Ordenar por</h4>
         <div className="flex flex-wrap gap-1.5">
@@ -205,7 +246,6 @@ function FilterContent({ filters, onChange, onClose }: Props & { onClose: () => 
         </div>
       </div>
 
-      {/* Actions */}
       <div className="flex gap-2 pt-2">
         <Button onClick={apply} className="flex-1">Aplicar Filtros</Button>
         <Button variant="outline" onClick={clear}>Limpar</Button>
@@ -226,7 +266,7 @@ export function PokemonFilterButton({ filters, onChange }: Props) {
           Filtros
           {active && (
             <span className="h-4 w-4 rounded-full bg-primary text-primary-foreground text-[10px] flex items-center justify-center font-bold">
-              {filters.types.length + filters.weakTo.length + (filters.hasMega !== null ? 1 : 0) + (filters.hasGmax !== null ? 1 : 0) + (filters.sortBy !== 'id' ? 1 : 0)}
+              {filters.types.length + filters.weakTo.length + filters.strongAgainst.length + (filters.hasMega !== null ? 1 : 0) + (filters.hasGmax !== null ? 1 : 0) + (filters.sortBy !== 'id' ? 1 : 0)}
             </span>
           )}
         </Button>
@@ -260,6 +300,15 @@ export function applyFilters(pokemons: import('@/lib/pokeapi').PokemonBasic[], f
     });
   }
 
+  if (filters.strongAgainst.length > 0) {
+    result = result.filter(p => {
+      const offensive = getOffensiveMatchups(p.types);
+      return filters.strongAgainst.every(t =>
+        offensive.superEffective.includes(t)
+      );
+    });
+  }
+
   if (filters.hasMega === true) result = result.filter(p => MEGA_POKEMON_IDS.has(p.id));
   if (filters.hasMega === false) result = result.filter(p => !MEGA_POKEMON_IDS.has(p.id));
   if (filters.hasGmax === true) result = result.filter(p => GMAX_POKEMON_IDS.has(p.id));
@@ -277,7 +326,6 @@ export function applyFilters(pokemons: import('@/lib/pokeapi').PokemonBasic[], f
   } else if (sortBy === 'weight') {
     result.sort((a, b) => ((a.weight || 0) - (b.weight || 0)) * dir);
   } else {
-    // stat sort
     result.sort((a, b) => {
       const aVal = a.stats?.[sortBy as keyof NonNullable<typeof a.stats>] || 0;
       const bVal = b.stats?.[sortBy as keyof NonNullable<typeof b.stats>] || 0;

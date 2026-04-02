@@ -1,6 +1,6 @@
-import { useState, useMemo, useCallback } from 'react';
+import { useState, useMemo, useCallback, useEffect } from 'react';
 import { useQuery } from '@tanstack/react-query';
-import { fetchPokemonPage, fetchAllPokemonNames } from '@/lib/pokeapi';
+import { fetchPokemonPage, fetchAllPokemonNames, fetchAllPokemonBasic } from '@/lib/pokeapi';
 import { Header } from '@/components/Header';
 import { PokemonCard } from '@/components/PokemonCard';
 import { Skeleton } from '@/components/ui/skeleton';
@@ -8,25 +8,43 @@ import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Search, ArrowLeft, ChevronLeft, ChevronRight, Sparkles } from 'lucide-react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
-import { PokemonFilterButton, ActiveFilterChips, applyFilters, hasActiveFilters, DEFAULT_FILTERS, type FilterState } from '@/components/PokemonFilters';
+import { PokemonFilterButton, ActiveFilterChips, applyFilters, hasActiveFilters, DEFAULT_FILTERS, saveFiltersToSession, loadFiltersFromSession, type FilterState } from '@/components/PokemonFilters';
 
 const PAGE_SIZE = 48;
 const TOTAL_POKEMON = 1025;
 
 export default function NationalDexPage() {
-  const [page, setPage] = useState(0);
+  const saved = loadFiltersFromSession('national');
+  const [page, setPage] = useState(saved?.page ?? 0);
   const [search, setSearch] = useState('');
   const [isShiny, setIsShiny] = useState(false);
-  const [filters, setFilters] = useState<FilterState>(DEFAULT_FILTERS);
+  const [filters, setFilters] = useState<FilterState>(saved?.filters ?? DEFAULT_FILTERS);
+  const [pageInput, setPageInput] = useState('');
   const navigate = useNavigate();
   const location = useLocation();
 
+  const filtersActive = hasActiveFilters(filters);
   const offset = page * PAGE_SIZE;
 
-  const { data, isLoading } = useQuery({
+  // Save filters to session on change
+  useEffect(() => {
+    saveFiltersToSession('national', filters, page);
+  }, [filters, page]);
+
+  // Fetch current page (when no filters active)
+  const { data: pageData, isLoading: pageLoading } = useQuery({
     queryKey: ['national-dex', page],
     queryFn: () => fetchPokemonPage(offset, Math.min(PAGE_SIZE, TOTAL_POKEMON - offset)),
     staleTime: 1000 * 60 * 30,
+    enabled: !filtersActive && !search.trim(),
+  });
+
+  // Fetch ALL pokemon when filters are active (for correct filtering)
+  const { data: allPokemon, isLoading: allLoading } = useQuery({
+    queryKey: ['all-pokemon-basic'],
+    queryFn: fetchAllPokemonBasic,
+    staleTime: 1000 * 60 * 60,
+    enabled: filtersActive || !!search.trim(),
   });
 
   const { data: allNames } = useQuery({
@@ -43,20 +61,48 @@ export default function NationalDexPage() {
     return allNames.filter(p => p.name.includes(q) || String(p.id).includes(q)).slice(0, 20);
   }, [search, allNames]);
 
+  // When filters/search active, filter from ALL pokemon. Otherwise from current page.
   const filtered = useMemo(() => {
-    if (!data?.pokemons) return [];
-    let result = data.pokemons;
+    const source = (filtersActive || search.trim()) ? allPokemon : pageData?.pokemons;
+    if (!source) return [];
+    let result = source;
     if (search.trim()) {
       const q = search.toLowerCase();
       result = result.filter(p => p.name.includes(q) || String(p.id).includes(q));
     }
     result = applyFilters(result, filters);
     return result;
-  }, [data, search, filters]);
+  }, [allPokemon, pageData, search, filters, filtersActive]);
+
+  // Paginate filtered results when filtering full dataset
+  const displayedPokemon = useMemo(() => {
+    if (filtersActive || search.trim()) {
+      const start = page * PAGE_SIZE;
+      return filtered.slice(start, start + PAGE_SIZE);
+    }
+    return filtered;
+  }, [filtered, page, filtersActive, search]);
+
+  const filteredTotalPages = (filtersActive || search.trim())
+    ? Math.ceil(filtered.length / PAGE_SIZE)
+    : totalPages;
+
+  const isLoading = (filtersActive || search.trim()) ? allLoading : pageLoading;
 
   const handleNavigateToPokemon = useCallback((id: number) => {
     navigate(`/pokemon/${id}`, { state: { origin: location.pathname } });
   }, [navigate, location.pathname]);
+
+  const handlePageInput = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === 'Enter') {
+      const val = parseInt(pageInput);
+      if (!isNaN(val) && val >= 1 && val <= filteredTotalPages) {
+        setPage(val - 1);
+        window.scrollTo(0, 0);
+      }
+      setPageInput('');
+    }
+  };
 
   return (
     <div className="min-h-screen bg-background">
@@ -75,7 +121,7 @@ export default function NationalDexPage() {
         <div className="flex flex-col sm:flex-row items-center gap-3 max-w-2xl mx-auto mb-4">
           <div className="relative flex-1 w-full">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-            <Input placeholder="Buscar por nome ou número..." value={search} onChange={(e) => setSearch(e.target.value)} className="pl-10" />
+            <Input placeholder="Buscar por nome ou número..." value={search} onChange={(e) => { setSearch(e.target.value); setPage(0); }} className="pl-10" />
             {globalResults && globalResults.length > 0 && search.trim() && (
               <div className="absolute top-full left-0 right-0 mt-1 bg-card border border-border rounded-xl shadow-lg z-50 max-h-64 overflow-y-auto">
                 {globalResults.map(p => (
@@ -118,21 +164,32 @@ export default function NationalDexPage() {
         ) : (
           <>
             <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4">
-              {filtered.map(p => (
+              {displayedPokemon.map(p => (
                 <PokemonCard key={p.id} pokemon={p} isShiny={isShiny} originPath={location.pathname} />
               ))}
-              {filtered.length === 0 && !globalResults?.length && (
-                <p className="col-span-full text-center text-muted-foreground py-12">Nenhum Pokémon encontrado nesta página.</p>
+              {displayedPokemon.length === 0 && !globalResults?.length && (
+                <p className="col-span-full text-center text-muted-foreground py-12">Nenhum Pokémon encontrado.</p>
               )}
             </div>
 
-            {!search.trim() && !hasActiveFilters(filters) && (
-              <div className="flex items-center justify-center gap-4 mt-10">
-                <Button variant="outline" size="icon" disabled={page === 0} onClick={() => { setPage(p => p - 1); setSearch(''); window.scrollTo(0, 0); }}>
+            {filteredTotalPages > 1 && (
+              <div className="flex items-center justify-center gap-3 mt-10">
+                <Button variant="outline" size="icon" disabled={page === 0} onClick={() => { setPage(p => p - 1); window.scrollTo(0, 0); }}>
                   <ChevronLeft className="h-4 w-4" />
                 </Button>
-                <span className="text-sm font-medium text-foreground">Página {page + 1} de {totalPages}</span>
-                <Button variant="outline" size="icon" disabled={page >= totalPages - 1} onClick={() => { setPage(p => p + 1); setSearch(''); window.scrollTo(0, 0); }}>
+                <div className="flex items-center gap-1.5 text-sm font-medium text-foreground">
+                  <input
+                    type="text"
+                    value={pageInput}
+                    onChange={(e) => setPageInput(e.target.value.replace(/\D/g, ''))}
+                    onKeyDown={handlePageInput}
+                    onBlur={() => setPageInput('')}
+                    placeholder={String(page + 1)}
+                    className="w-10 text-center rounded border border-input bg-background px-1 py-0.5 text-sm focus:outline-none focus:ring-1 focus:ring-ring"
+                  />
+                  <span>/ {filteredTotalPages}</span>
+                </div>
+                <Button variant="outline" size="icon" disabled={page >= filteredTotalPages - 1} onClick={() => { setPage(p => p + 1); window.scrollTo(0, 0); }}>
                   <ChevronRight className="h-4 w-4" />
                 </Button>
               </div>

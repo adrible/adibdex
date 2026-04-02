@@ -50,15 +50,16 @@ export const GENERATIONS: Generation[] = [
   { id: 9, name: 'Paldea', region: 'Paldea', pokemonRange: [906, 1025] },
 ];
 
-// Hardcoded sets for performance
+// Complete Mega Evolution Pokémon (base IDs)
 export const MEGA_POKEMON_IDS = new Set([
   3,6,9,15,18,65,80,94,115,127,130,142,150,181,208,212,214,229,248,
   254,257,260,282,302,303,306,308,310,319,323,334,354,359,362,373,
   376,380,381,384,428,445,448,460,475,531,719
 ]);
 
+// Complete Gigantamax Pokémon (base IDs)
 export const GMAX_POKEMON_IDS = new Set([
-  1,3,6,9,12,25,52,68,94,99,131,133,143,569,809,
+  3,6,9,12,25,52,68,94,99,131,133,143,569,809,
   812,815,818,823,826,834,839,841,842,844,849,851,858,861,869,879,884,892
 ]);
 
@@ -94,8 +95,9 @@ function buildBasicFromRaw(data: any): PokemonBasic {
   return {
     id,
     name: data.name,
-    sprite: `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/${id}.png`,
-    spriteShiny: `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/shiny/${id}.png`,
+    // Use smaller sprites for lists (much faster loading)
+    sprite: `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${id}.png`,
+    spriteShiny: `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/shiny/${id}.png`,
     types: data.types.map((t: any) => t.type.name),
     stats: extractStats(data),
     height: data.height,
@@ -131,20 +133,13 @@ export async function fetchPokemonDetail(id: number): Promise<PokemonDetail> {
 }
 
 export async function fetchPokemonListByRange(start: number, end: number): Promise<PokemonBasic[]> {
-  const limit = end - start + 1;
-  const res = await fetch(`${BASE_URL}/pokemon?offset=${start - 1}&limit=${limit}`);
-  const data = await res.json();
-
-  const ids = data.results.map((_: any, i: number) => start + i);
-
+  const ids = Array.from({ length: end - start + 1 }, (_, i) => start + i);
   const results: PokemonBasic[] = [];
 
   for (let i = 0; i < ids.length; i += 40) {
     const batch = ids.slice(i, i + 40);
     const rawArr = await Promise.all(batch.map((id: number) => fetchPokemonRaw(id)));
-    rawArr.forEach((d) => {
-      results.push(buildBasicFromRaw(d));
-    });
+    rawArr.forEach((d) => results.push(buildBasicFromRaw(d)));
   }
 
   return results;
@@ -238,6 +233,23 @@ export async function fetchMoveDescription(moveName: string): Promise<string> {
   }
   const flavor = data.flavor_text_entries?.find((e: any) => e.language.name === 'en');
   return flavor?.flavor_text || '';
+}
+
+const abilityCache = new Map<string, any>();
+
+export async function fetchAbilityDescription(abilityName: string): Promise<string> {
+  if (abilityCache.has(abilityName)) {
+    const data = abilityCache.get(abilityName)!;
+    const entry = data.effect_entries?.find((e: any) => e.language.name === 'en');
+    return entry?.effect || entry?.short_effect || '';
+  }
+  try {
+    const res = await fetch(`${BASE_URL}/ability/${abilityName}`);
+    const data = await res.json();
+    abilityCache.set(abilityName, data);
+    const entry = data.effect_entries?.find((e: any) => e.language.name === 'en');
+    return entry?.effect || entry?.short_effect || '';
+  } catch { return ''; }
 }
 
 export async function fetchPokemonMovesByGame(pokemonId: number): Promise<MovesByVersionGroup[]> {
@@ -465,10 +477,7 @@ export async function fetchAllPokemonNames(): Promise<{ id: number; name: string
 }
 
 export async function fetchPokemonPage(offset: number, limit: number): Promise<{ pokemons: PokemonBasic[]; total: number }> {
-  const res = await fetch(`${BASE_URL}/pokemon?offset=${offset}&limit=${limit}`);
-  const data = await res.json();
-  const total = Math.min(data.count, 1025);
-  const ids = data.results.map((_: any, i: number) => offset + i + 1);
+  const ids = Array.from({ length: limit }, (_, i) => offset + i + 1).filter(id => id <= 1025);
   const results: PokemonBasic[] = [];
 
   for (let i = 0; i < ids.length; i += 40) {
@@ -477,7 +486,56 @@ export async function fetchPokemonPage(offset: number, limit: number): Promise<{
     rawArr.forEach((d) => results.push(buildBasicFromRaw(d)));
   }
 
-  return { pokemons: results, total };
+  return { pokemons: results, total: 1025 };
+}
+
+// Fetch ALL 1025 Pokemon basic data (for filtering across all pages)
+let allPokemonBasicCache: PokemonBasic[] | null = null;
+
+export async function fetchAllPokemonBasic(): Promise<PokemonBasic[]> {
+  if (allPokemonBasicCache) return allPokemonBasicCache;
+  const results: PokemonBasic[] = [];
+  for (let i = 0; i < 1025; i += 50) {
+    const batch = Array.from({ length: Math.min(50, 1025 - i) }, (_, j) => i + j + 1);
+    const rawArr = await Promise.all(batch.map(id => fetchPokemonRaw(id)));
+    rawArr.forEach(d => results.push(buildBasicFromRaw(d)));
+  }
+  allPokemonBasicCache = results;
+  return results;
+}
+
+// Fetch all mega forms for category display
+export async function fetchAllMegaForms(): Promise<PokemonBasic[]> {
+  const ids = [...MEGA_POKEMON_IDS].sort((a, b) => a - b);
+  const results: PokemonBasic[] = [];
+  for (let i = 0; i < ids.length; i += 10) {
+    const batch = ids.slice(i, i + 10);
+    const batchResults = await Promise.all(batch.map(async (baseId) => {
+      const megas = await fetchMegaEvolutions(baseId);
+      return megas.map(m => ({
+        id: m.id, name: m.name, sprite: m.sprite, spriteShiny: m.spriteShiny, types: m.types,
+      } as PokemonBasic));
+    }));
+    results.push(...batchResults.flat());
+  }
+  return results;
+}
+
+// Fetch all gmax forms for category display
+export async function fetchAllGmaxForms(): Promise<PokemonBasic[]> {
+  const ids = [...GMAX_POKEMON_IDS].sort((a, b) => a - b);
+  const results: PokemonBasic[] = [];
+  for (let i = 0; i < ids.length; i += 10) {
+    const batch = ids.slice(i, i + 10);
+    const batchResults = await Promise.all(batch.map(async (baseId) => {
+      const gmax = await fetchGmaxForms(baseId);
+      return gmax.map(g => ({
+        id: g.id, name: g.name, sprite: g.sprite, spriteShiny: g.spriteShiny, types: g.types,
+      } as PokemonBasic));
+    }));
+    results.push(...batchResults.flat());
+  }
+  return results;
 }
 
 export interface PokemonForm {

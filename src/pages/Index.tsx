@@ -60,6 +60,36 @@ export default function Index() {
               <div className="absolute -bottom-4 -right-4 h-24 w-24 rounded-full bg-primary/5 group-hover:bg-primary/10 transition-colors" />
             </Link>
           ))}
+
+          {/* Mega Evolutions Category */}
+          <Link
+            to="/mega"
+            className="group relative overflow-hidden rounded-xl border border-border bg-card p-6 transition-all hover:shadow-xl hover:-translate-y-1 hover:border-primary/50"
+          >
+            <div className="flex items-start justify-between mb-3">
+              <span className="text-3xl">🔥</span>
+              <ChevronRight className="h-5 w-5 text-muted-foreground group-hover:text-primary transition-colors" />
+            </div>
+            <h3 className="font-bold text-lg text-card-foreground mb-1">Mega Evoluções</h3>
+            <p className="text-sm text-muted-foreground mb-3">Todas as formas Mega</p>
+            <p className="text-xs font-semibold text-primary">46 Pokémon</p>
+            <div className="absolute -bottom-4 -right-4 h-24 w-24 rounded-full bg-primary/5 group-hover:bg-primary/10 transition-colors" />
+          </Link>
+
+          {/* Gigantamax Category */}
+          <Link
+            to="/gmax"
+            className="group relative overflow-hidden rounded-xl border border-border bg-card p-6 transition-all hover:shadow-xl hover:-translate-y-1 hover:border-primary/50"
+          >
+            <div className="flex items-start justify-between mb-3">
+              <span className="text-3xl">👑</span>
+              <ChevronRight className="h-5 w-5 text-muted-foreground group-hover:text-primary transition-colors" />
+            </div>
+            <h3 className="font-bold text-lg text-card-foreground mb-1">Gigantamax</h3>
+            <p className="text-sm text-muted-foreground mb-3">Todas as formas Gigantamax</p>
+            <p className="text-xs font-semibold text-primary">32 Pokémon</p>
+            <div className="absolute -bottom-4 -right-4 h-24 w-24 rounded-full bg-primary/5 group-hover:bg-primary/10 transition-colors" />
+          </Link>
         </div>
       </main>
     </div>

@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useParams, Link, useNavigate, useLocation } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
-import { fetchPokemonDetail, fetchPokemonEncounters, STAT_TRANSLATIONS, GENERATIONS } from '@/lib/pokeapi';
+import { fetchPokemonDetail, fetchPokemonEncounters, fetchAbilityDescription, STAT_TRANSLATIONS, GENERATIONS } from '@/lib/pokeapi';
 import { Header } from '@/components/Header';
 import { TypeBadge } from '@/components/TypeBadge';
 import { TypeEffectiveness } from '@/components/TypeEffectiveness';
@@ -9,7 +9,7 @@ import { PokemonForms } from '@/components/PokemonForms';
 import { EvolutionChainDisplay } from '@/components/EvolutionChain';
 import { PokemonMoves } from '@/components/PokemonMoves';
 import { Button } from '@/components/ui/button';
-import { ArrowLeft, ChevronLeft, ChevronRight, MapPin, Sparkles } from 'lucide-react';
+import { ArrowLeft, ChevronLeft, ChevronRight, MapPin, Sparkles, ChevronDown, ChevronUp } from 'lucide-react';
 import { Skeleton } from '@/components/ui/skeleton';
 
 function StatBar({ name, value }: { name: string; value: number }) {
@@ -26,6 +26,34 @@ function StatBar({ name, value }: { name: string; value: number }) {
   );
 }
 
+function AbilityChip({ ability }: { ability: string }) {
+  const [expanded, setExpanded] = useState(false);
+
+  const { data: description } = useQuery({
+    queryKey: ['ability-desc', ability],
+    queryFn: () => fetchAbilityDescription(ability),
+    enabled: expanded,
+    staleTime: Infinity,
+  });
+
+  return (
+    <div>
+      <button
+        onClick={() => setExpanded(!expanded)}
+        className="rounded-full bg-secondary px-3 py-1 text-sm font-medium capitalize text-secondary-foreground hover:bg-secondary/80 transition-colors inline-flex items-center gap-1"
+      >
+        {ability.replace(/-/g, ' ')}
+        {expanded ? <ChevronUp className="h-3 w-3" /> : <ChevronDown className="h-3 w-3" />}
+      </button>
+      {expanded && (
+        <p className="text-xs text-muted-foreground mt-1.5 ml-1 max-w-md">
+          {description || 'Carregando...'}
+        </p>
+      )}
+    </div>
+  );
+}
+
 export default function PokemonDetailPage() {
   const { id } = useParams();
   const navigate = useNavigate();
@@ -33,7 +61,6 @@ export default function PokemonDetailPage() {
   const pokemonId = Number(id);
   const [isShiny, setIsShiny] = useState(false);
 
-  // Origin tracking: preserve where the user originally came from
   const origin = (location.state as any)?.origin as string | undefined;
 
   const { data: pokemon, isLoading } = useQuery({
@@ -54,10 +81,10 @@ export default function PokemonDetailPage() {
   const isBaseForm = pokemonId <= 1025;
 
   const handleBack = () => {
-    if (origin) {
-      navigate(origin);
-    } else if (window.history.length > 1 && location.key !== 'default') {
+    if (window.history.length > 1 && location.key !== 'default') {
       navigate(-1);
+    } else if (origin) {
+      navigate(origin);
     } else {
       const gen = GENERATIONS.find(g => displayId >= g.pokemonRange[0] && displayId <= g.pokemonRange[1]);
       navigate(gen ? `/generation/${gen.id}` : '/');
@@ -158,12 +185,10 @@ export default function PokemonDetailPage() {
         </div>
 
         <div className="rounded-xl bg-card border border-border p-6 mb-10">
-          <h3 className="font-bold text-card-foreground mb-1">Habilidades</h3>
-          <div className="flex flex-wrap gap-2 mt-3">
+          <h3 className="font-bold text-card-foreground mb-3">Habilidades</h3>
+          <div className="flex flex-wrap gap-2">
             {pokemon.abilities.map(a => (
-              <span key={a} className="rounded-full bg-secondary px-3 py-1 text-sm font-medium capitalize text-secondary-foreground">
-                {a.replace('-', ' ')}
-              </span>
+              <AbilityChip key={a} ability={a} />
             ))}
           </div>
         </div>
