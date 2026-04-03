@@ -504,7 +504,7 @@ export async function fetchAllPokemonBasic(): Promise<PokemonBasic[]> {
   return results;
 }
 
-// Fetch all mega forms for category display
+// Fetch all mega forms for category display – includes baseId for display
 export async function fetchAllMegaForms(): Promise<PokemonBasic[]> {
   const ids = [...MEGA_POKEMON_IDS].sort((a, b) => a - b);
   const results: PokemonBasic[] = [];
@@ -514,7 +514,8 @@ export async function fetchAllMegaForms(): Promise<PokemonBasic[]> {
       const megas = await fetchMegaEvolutions(baseId);
       return megas.map(m => ({
         id: m.id, name: m.name, sprite: m.sprite, spriteShiny: m.spriteShiny, types: m.types,
-      } as PokemonBasic));
+        baseId,
+      } as PokemonBasic & { baseId: number }));
     }));
     results.push(...batchResults.flat());
   }
