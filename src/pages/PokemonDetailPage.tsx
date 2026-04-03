@@ -88,10 +88,9 @@ export default function PokemonDetailPage() {
   const isBaseForm = pokemonId <= 1025;
 
   const handleBack = () => {
-    if (window.history.length > 1 && location.key !== 'default') {
-      navigate(-1);
-    } else if (origin) {
-      navigate(origin);
+    if (stableOrigin) {
+      sessionStorage.removeItem('pokemon-nav-origin');
+      navigate(stableOrigin);
     } else {
       const gen = GENERATIONS.find(g => displayId >= g.pokemonRange[0] && displayId <= g.pokemonRange[1]);
       navigate(gen ? `/generation/${gen.id}` : '/');
