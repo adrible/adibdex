@@ -522,7 +522,7 @@ export async function fetchAllMegaForms(): Promise<PokemonBasic[]> {
   return results;
 }
 
-// Fetch all gmax forms for category display
+// Fetch all gmax forms for category display – includes baseId for display
 export async function fetchAllGmaxForms(): Promise<PokemonBasic[]> {
   const ids = [...GMAX_POKEMON_IDS].sort((a, b) => a - b);
   const results: PokemonBasic[] = [];
@@ -532,7 +532,8 @@ export async function fetchAllGmaxForms(): Promise<PokemonBasic[]> {
       const gmax = await fetchGmaxForms(baseId);
       return gmax.map(g => ({
         id: g.id, name: g.name, sprite: g.sprite, spriteShiny: g.spriteShiny, types: g.types,
-      } as PokemonBasic));
+        baseId,
+      } as PokemonBasic & { baseId: number }));
     }));
     results.push(...batchResults.flat());
   }
