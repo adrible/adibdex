@@ -152,7 +152,7 @@ export default function PokemonDetailPage() {
                 )}
                 {displayId < 1025 && (
                   <Button variant="outline" size="icon" asChild>
-                    <Link to={`/pokemon/${displayId + 1}`} state={{ origin }}><ChevronRight className="h-4 w-4" /></Link>
+                    <Link to={`/pokemon/${displayId + 1}`} state={{ origin: stableOrigin }}><ChevronRight className="h-4 w-4" /></Link>
                   </Button>
                 )}
               </>
