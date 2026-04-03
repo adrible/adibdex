@@ -3,12 +3,14 @@ import type { PokemonBasic } from '@/lib/pokeapi';
 import { TypeBadge } from './TypeBadge';
 
 interface Props {
-  pokemon: PokemonBasic;
+  pokemon: PokemonBasic & { baseId?: number };
   isShiny?: boolean;
   originPath?: string;
 }
 
 export function PokemonCard({ pokemon, isShiny = false, originPath }: Props) {
+  const displayId = (pokemon as any).baseId ?? (pokemon.id <= 1025 ? pokemon.id : null);
+
   return (
     <Link
       to={`/pokemon/${pokemon.id}`}
@@ -24,11 +26,13 @@ export function PokemonCard({ pokemon, isShiny = false, originPath }: Props) {
           loading="lazy"
         />
       </div>
-      <p className="text-xs font-bold text-muted-foreground mb-1">
-        #{String(pokemon.id).padStart(4, '0')}
-      </p>
+      {displayId && (
+        <p className="text-xs font-bold text-muted-foreground mb-1">
+          #{String(displayId).padStart(4, '0')}
+        </p>
+      )}
       <h3 className="font-pixel text-[10px] capitalize text-card-foreground mb-2 truncate">
-        {pokemon.name}
+        {pokemon.name.replace(/-/g, ' ')}
       </h3>
       <div className="flex gap-1.5 flex-wrap">
         {pokemon.types.map((t) => (
