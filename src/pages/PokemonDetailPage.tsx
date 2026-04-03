@@ -61,7 +61,14 @@ export default function PokemonDetailPage() {
   const pokemonId = Number(id);
   const [isShiny, setIsShiny] = useState(false);
 
+  // Preserve the ORIGINAL origin through all internal navigation
   const origin = (location.state as any)?.origin as string | undefined;
+  const stableOrigin = origin || sessionStorage.getItem('pokemon-nav-origin') || undefined;
+
+  // Store origin in sessionStorage when first entering from a list page
+  if (origin) {
+    sessionStorage.setItem('pokemon-nav-origin', origin);
+  }
 
   const { data: pokemon, isLoading } = useQuery({
     queryKey: ['pokemon-detail', pokemonId],
@@ -81,10 +88,9 @@ export default function PokemonDetailPage() {
   const isBaseForm = pokemonId <= 1025;
 
   const handleBack = () => {
-    if (window.history.length > 1 && location.key !== 'default') {
-      navigate(-1);
-    } else if (origin) {
-      navigate(origin);
+    if (stableOrigin) {
+      sessionStorage.removeItem('pokemon-nav-origin');
+      navigate(stableOrigin);
     } else {
       const gen = GENERATIONS.find(g => displayId >= g.pokemonRange[0] && displayId <= g.pokemonRange[1]);
       navigate(gen ? `/generation/${gen.id}` : '/');
@@ -141,12 +147,12 @@ export default function PokemonDetailPage() {
               <>
                 {displayId > 1 && (
                   <Button variant="outline" size="icon" asChild>
-                    <Link to={`/pokemon/${displayId - 1}`} state={{ origin }}><ChevronLeft className="h-4 w-4" /></Link>
+                    <Link to={`/pokemon/${displayId - 1}`} state={{ origin: stableOrigin }}><ChevronLeft className="h-4 w-4" /></Link>
                   </Button>
                 )}
                 {displayId < 1025 && (
                   <Button variant="outline" size="icon" asChild>
-                    <Link to={`/pokemon/${displayId + 1}`} state={{ origin }}><ChevronRight className="h-4 w-4" /></Link>
+                    <Link to={`/pokemon/${displayId + 1}`} state={{ origin: stableOrigin }}><ChevronRight className="h-4 w-4" /></Link>
                   </Button>
                 )}
               </>
@@ -231,11 +237,11 @@ export default function PokemonDetailPage() {
         </div>
 
         <div className="mb-10">
-          <EvolutionChainDisplay pokemonId={pokemonId} isShiny={isShiny} origin={origin} />
+          <EvolutionChainDisplay pokemonId={pokemonId} isShiny={isShiny} origin={stableOrigin} />
         </div>
 
         <div className="mb-10">
-          <PokemonForms pokemonId={pokemonId} isShiny={isShiny} origin={origin} />
+          <PokemonForms pokemonId={pokemonId} isShiny={isShiny} origin={stableOrigin} />
         </div>
 
         <div className="mb-10">

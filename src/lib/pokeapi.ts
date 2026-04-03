@@ -50,7 +50,7 @@ export const GENERATIONS: Generation[] = [
   { id: 9, name: 'Paldea', region: 'Paldea', pokemonRange: [906, 1025] },
 ];
 
-// Complete Mega Evolution Pokémon (base IDs)
+// Complete official Mega Evolution Pokémon (base IDs) – all 46 species
 export const MEGA_POKEMON_IDS = new Set([
   3,6,9,15,18,65,80,94,115,127,130,142,150,181,208,212,214,229,248,
   254,257,260,282,302,303,306,308,310,319,323,334,354,359,362,373,
@@ -504,7 +504,7 @@ export async function fetchAllPokemonBasic(): Promise<PokemonBasic[]> {
   return results;
 }
 
-// Fetch all mega forms for category display
+// Fetch all mega forms for category display – includes baseId for display
 export async function fetchAllMegaForms(): Promise<PokemonBasic[]> {
   const ids = [...MEGA_POKEMON_IDS].sort((a, b) => a - b);
   const results: PokemonBasic[] = [];
@@ -514,14 +514,15 @@ export async function fetchAllMegaForms(): Promise<PokemonBasic[]> {
       const megas = await fetchMegaEvolutions(baseId);
       return megas.map(m => ({
         id: m.id, name: m.name, sprite: m.sprite, spriteShiny: m.spriteShiny, types: m.types,
-      } as PokemonBasic));
+        baseId,
+      } as PokemonBasic & { baseId: number }));
     }));
     results.push(...batchResults.flat());
   }
   return results;
 }
 
-// Fetch all gmax forms for category display
+// Fetch all gmax forms for category display – includes baseId for display
 export async function fetchAllGmaxForms(): Promise<PokemonBasic[]> {
   const ids = [...GMAX_POKEMON_IDS].sort((a, b) => a - b);
   const results: PokemonBasic[] = [];
@@ -531,7 +532,8 @@ export async function fetchAllGmaxForms(): Promise<PokemonBasic[]> {
       const gmax = await fetchGmaxForms(baseId);
       return gmax.map(g => ({
         id: g.id, name: g.name, sprite: g.sprite, spriteShiny: g.spriteShiny, types: g.types,
-      } as PokemonBasic));
+        baseId,
+      } as PokemonBasic & { baseId: number }));
     }));
     results.push(...batchResults.flat());
   }
