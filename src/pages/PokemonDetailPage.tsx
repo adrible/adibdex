@@ -61,7 +61,14 @@ export default function PokemonDetailPage() {
   const pokemonId = Number(id);
   const [isShiny, setIsShiny] = useState(false);
 
+  // Preserve the ORIGINAL origin through all internal navigation
   const origin = (location.state as any)?.origin as string | undefined;
+  const stableOrigin = origin || sessionStorage.getItem('pokemon-nav-origin') || undefined;
+
+  // Store origin in sessionStorage when first entering from a list page
+  if (origin) {
+    sessionStorage.setItem('pokemon-nav-origin', origin);
+  }
 
   const { data: pokemon, isLoading } = useQuery({
     queryKey: ['pokemon-detail', pokemonId],
