@@ -241,7 +241,7 @@ export default function PokemonDetailPage() {
         </div>
 
         <div className="mb-10">
-          <PokemonForms pokemonId={pokemonId} isShiny={isShiny} origin={origin} />
+          <PokemonForms pokemonId={pokemonId} isShiny={isShiny} origin={stableOrigin} />
         </div>
 
         <div className="mb-10">
