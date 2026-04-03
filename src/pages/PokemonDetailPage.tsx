@@ -147,7 +147,7 @@ export default function PokemonDetailPage() {
               <>
                 {displayId > 1 && (
                   <Button variant="outline" size="icon" asChild>
-                    <Link to={`/pokemon/${displayId - 1}`} state={{ origin }}><ChevronLeft className="h-4 w-4" /></Link>
+                    <Link to={`/pokemon/${displayId - 1}`} state={{ origin: stableOrigin }}><ChevronLeft className="h-4 w-4" /></Link>
                   </Button>
                 )}
                 {displayId < 1025 && (
