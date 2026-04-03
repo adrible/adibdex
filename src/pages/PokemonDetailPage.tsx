@@ -237,7 +237,7 @@ export default function PokemonDetailPage() {
         </div>
 
         <div className="mb-10">
-          <EvolutionChainDisplay pokemonId={pokemonId} isShiny={isShiny} origin={origin} />
+          <EvolutionChainDisplay pokemonId={pokemonId} isShiny={isShiny} origin={stableOrigin} />
         </div>
 
         <div className="mb-10">
