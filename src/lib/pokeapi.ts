@@ -50,7 +50,7 @@ export const GENERATIONS: Generation[] = [
   { id: 9, name: 'Paldea', region: 'Paldea', pokemonRange: [906, 1025] },
 ];
 
-// Complete Mega Evolution Pokémon (base IDs)
+// Complete official Mega Evolution Pokémon (base IDs) – all 46 species
 export const MEGA_POKEMON_IDS = new Set([
   3,6,9,15,18,65,80,94,115,127,130,142,150,181,208,212,214,229,248,
   254,257,260,282,302,303,306,308,310,319,323,334,354,359,362,373,
