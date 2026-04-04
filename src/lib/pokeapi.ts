@@ -593,7 +593,10 @@ export async function fetchAllMegaForms(): Promise<PokemonBasic[]> {
     const batchResults = await Promise.all(batch.map(async (baseId) => {
       const megas = await fetchMegaEvolutions(baseId);
       return megas.map(m => ({
-        id: m.id, name: m.name, sprite: m.sprite, spriteShiny: m.spriteShiny, types: m.types,
+        id: m.id, name: m.name,
+        sprite: m.sprite || `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${m.id}.png`,
+        spriteShiny: m.spriteShiny || `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/shiny/${m.id}.png`,
+        types: m.types,
         baseId,
       } as PokemonBasic & { baseId: number }));
     }));
