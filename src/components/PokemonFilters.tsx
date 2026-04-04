@@ -9,6 +9,17 @@ import { Filter, X, ArrowUpDown } from 'lucide-react';
 const ALL_TYPES = Object.keys(TYPE_TRANSLATIONS);
 
 export type SortOption = 'id' | 'name' | 'hp' | 'attack' | 'defense' | 'spAtk' | 'spDef' | 'speed' | 'height' | 'weight';
+export type ClassificationOption = 'starter' | 'legendary' | 'mythical' | 'pseudo' | 'ultra_beast' | 'paradox' | 'baby';
+
+const CLASSIFICATION_LABELS: Record<ClassificationOption, string> = {
+  starter: 'Starter', legendary: 'Lendário', mythical: 'Mítico',
+  pseudo: 'Pseudo-Lendário', ultra_beast: 'Ultra Beast', paradox: 'Paradoxo', baby: 'Bebê',
+};
+
+const CLASSIFICATION_SETS: Record<ClassificationOption, Set<number>> = {
+  starter: STARTER_IDS, legendary: LEGENDARY_IDS, mythical: MYTHICAL_IDS,
+  pseudo: PSEUDO_LEGENDARY_IDS, ultra_beast: ULTRA_BEAST_IDS, paradox: PARADOX_IDS, baby: BABY_IDS,
+};
 
 export interface FilterState {
   types: string[];
@@ -16,12 +27,13 @@ export interface FilterState {
   strongAgainst: string[];
   hasMega: boolean | null;
   hasGmax: boolean | null;
+  classifications: ClassificationOption[];
   sortBy: SortOption;
   sortDir: 'asc' | 'desc';
 }
 
 export const DEFAULT_FILTERS: FilterState = {
-  types: [], weakTo: [], strongAgainst: [], hasMega: null, hasGmax: null, sortBy: 'id', sortDir: 'asc',
+  types: [], weakTo: [], strongAgainst: [], hasMega: null, hasGmax: null, classifications: [], sortBy: 'id', sortDir: 'asc',
 };
 
 const SORT_OPTIONS: { value: SortOption; label: string }[] = [
