@@ -87,7 +87,7 @@ export default function Index() {
             </div>
             <h3 className="font-bold text-lg text-card-foreground mb-1">Gigantamax</h3>
             <p className="text-sm text-muted-foreground mb-3">Todas as formas Gigantamax</p>
-            <p className="text-xs font-semibold text-primary">32 Pokémon</p>
+            <p className="text-xs font-semibold text-primary">POKEMONS GIGANTES!</p>
             <div className="absolute -bottom-4 -right-4 h-24 w-24 rounded-full bg-primary/5 group-hover:bg-primary/10 transition-colors" />
           </Link>
         </div>

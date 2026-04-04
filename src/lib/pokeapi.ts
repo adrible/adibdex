@@ -262,18 +262,28 @@ export async function fetchMoveDescription(moveName: string): Promise<string> {
 const abilityCache = new Map<string, any>();
 
 export async function fetchAbilityDescription(abilityName: string): Promise<string> {
+  let data: any;
   if (abilityCache.has(abilityName)) {
-    const data = abilityCache.get(abilityName)!;
-    const entry = data.effect_entries?.find((e: any) => e.language.name === 'en');
-    return entry?.effect || entry?.short_effect || '';
+    data = abilityCache.get(abilityName)!;
+  } else {
+    try {
+      const res = await fetch(`${BASE_URL}/ability/${abilityName}`);
+      data = await res.json();
+      abilityCache.set(abilityName, data);
+    } catch { return ''; }
   }
-  try {
-    const res = await fetch(`${BASE_URL}/ability/${abilityName}`);
-    const data = await res.json();
-    abilityCache.set(abilityName, data);
-    const entry = data.effect_entries?.find((e: any) => e.language.name === 'en');
-    return entry?.effect || entry?.short_effect || '';
-  } catch { return ''; }
+  const lang = getUserLang();
+
+  // Try user language flavor text
+  if (lang !== 'en') {
+    const localFlavor = data.flavor_text_entries?.filter((e: any) => e.language.name === lang);
+    if (localFlavor?.length > 0) {
+      return localFlavor[localFlavor.length - 1].flavor_text.replace(/\n/g, ' ');
+    }
+  }
+
+  const entry = data.effect_entries?.find((e: any) => e.language.name === 'en');
+  return entry?.effect || entry?.short_effect || '';
 }
 
 export async function fetchPokemonMovesByGame(pokemonId: number): Promise<MovesByVersionGroup[]> {
