@@ -233,9 +233,24 @@ async function fetchMoveData(name: string): Promise<any> {
   }
 }
 
+function getUserLang(): string {
+  const lang = navigator?.language?.split('-')[0] || 'en';
+  return lang;
+}
+
 export async function fetchMoveDescription(moveName: string): Promise<string> {
   const data = await fetchMoveData(moveName);
   if (!data) return '';
+  const lang = getUserLang();
+
+  // Try user language first for flavor text
+  if (lang !== 'en') {
+    const localFlavor = data.flavor_text_entries?.filter((e: any) => e.language.name === lang);
+    if (localFlavor?.length > 0) {
+      return localFlavor[localFlavor.length - 1].flavor_text.replace(/\n/g, ' ');
+    }
+  }
+
   const entry = data.effect_entries?.find((e: any) => e.language.name === 'en');
   if (entry) {
     return entry.short_effect?.replace('$effect_chance%', `${data.effect_chance || '?'}%`) || entry.effect || '';
