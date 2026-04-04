@@ -355,6 +355,13 @@ export function applyFilters(pokemons: import('@/lib/pokeapi').PokemonBasic[], f
   if (filters.hasGmax === true) result = result.filter(p => GMAX_POKEMON_IDS.has(p.id));
   if (filters.hasGmax === false) result = result.filter(p => !GMAX_POKEMON_IDS.has(p.id));
 
+  if (filters.classifications && filters.classifications.length > 0) {
+    result = result.filter(p => {
+      const baseId = (p as any).baseId || p.id;
+      return filters.classifications.some(c => CLASSIFICATION_SETS[c].has(baseId));
+    });
+  }
+
   const { sortBy, sortDir } = filters;
   const dir = sortDir === 'asc' ? 1 : -1;
 
