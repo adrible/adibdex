@@ -50,12 +50,21 @@ export const GENERATIONS: Generation[] = [
   { id: 9, name: 'Paldea', region: 'Paldea', pokemonRange: [906, 1025] },
 ];
 
-// Complete official Mega Evolution Pokémon (base IDs) – all 46 species
+// Complete official Mega Evolution Pokémon (base IDs) – 46 species + Primal forms
 export const MEGA_POKEMON_IDS = new Set([
   3,6,9,15,18,65,80,94,115,127,130,142,150,181,208,212,214,229,248,
   254,257,260,282,302,303,306,308,310,319,323,334,354,359,362,373,
-  376,380,381,384,428,445,448,460,475,531,719
+  376,380,381,382,383,384,428,445,448,460,475,531,719
 ]);
+
+// Classification datasets
+export const STARTER_IDS = new Set([1,4,7,152,155,158,252,255,258,387,390,393,495,498,501,650,653,656,722,725,728,810,813,816,906,909,912]);
+export const LEGENDARY_IDS = new Set([144,145,146,150,243,244,245,249,250,377,378,379,380,381,382,383,384,480,481,482,483,484,485,486,487,488,638,639,640,641,642,643,644,645,646,716,717,718,772,773,785,786,787,788,789,790,791,792,800,888,889,890,891,892,895,896,897,898,905,1001,1002,1003,1004,1007,1008,1009,1010,1014,1015,1016,1017,1024]);
+export const MYTHICAL_IDS = new Set([151,251,385,386,489,490,491,492,493,494,647,648,649,719,720,721,801,802,807,808,809,893,894,1025]);
+export const PSEUDO_LEGENDARY_IDS = new Set([149,248,289,373,376,445,635,706,784,887,998]);
+export const ULTRA_BEAST_IDS = new Set([793,794,795,796,797,798,799,803,804,805,806]);
+export const PARADOX_IDS = new Set([984,985,986,987,988,989,990,991,992,993,994,995,1005,1006,1009,1010]);
+export const BABY_IDS = new Set([172,173,174,175,236,238,239,240,298,360,406,433,438,439,440,446,447,458,848]);
 
 // Complete Gigantamax Pokémon (base IDs)
 export const GMAX_POKEMON_IDS = new Set([
@@ -224,9 +233,24 @@ async function fetchMoveData(name: string): Promise<any> {
   }
 }
 
+function getUserLang(): string {
+  const lang = navigator?.language?.split('-')[0] || 'en';
+  return lang;
+}
+
 export async function fetchMoveDescription(moveName: string): Promise<string> {
   const data = await fetchMoveData(moveName);
   if (!data) return '';
+  const lang = getUserLang();
+
+  // Try user language first for flavor text
+  if (lang !== 'en') {
+    const localFlavor = data.flavor_text_entries?.filter((e: any) => e.language.name === lang);
+    if (localFlavor?.length > 0) {
+      return localFlavor[localFlavor.length - 1].flavor_text.replace(/\n/g, ' ');
+    }
+  }
+
   const entry = data.effect_entries?.find((e: any) => e.language.name === 'en');
   if (entry) {
     return entry.short_effect?.replace('$effect_chance%', `${data.effect_chance || '?'}%`) || entry.effect || '';
@@ -238,18 +262,28 @@ export async function fetchMoveDescription(moveName: string): Promise<string> {
 const abilityCache = new Map<string, any>();
 
 export async function fetchAbilityDescription(abilityName: string): Promise<string> {
+  let data: any;
   if (abilityCache.has(abilityName)) {
-    const data = abilityCache.get(abilityName)!;
-    const entry = data.effect_entries?.find((e: any) => e.language.name === 'en');
-    return entry?.effect || entry?.short_effect || '';
+    data = abilityCache.get(abilityName)!;
+  } else {
+    try {
+      const res = await fetch(`${BASE_URL}/ability/${abilityName}`);
+      data = await res.json();
+      abilityCache.set(abilityName, data);
+    } catch { return ''; }
   }
-  try {
-    const res = await fetch(`${BASE_URL}/ability/${abilityName}`);
-    const data = await res.json();
-    abilityCache.set(abilityName, data);
-    const entry = data.effect_entries?.find((e: any) => e.language.name === 'en');
-    return entry?.effect || entry?.short_effect || '';
-  } catch { return ''; }
+  const lang = getUserLang();
+
+  // Try user language flavor text
+  if (lang !== 'en') {
+    const localFlavor = data.flavor_text_entries?.filter((e: any) => e.language.name === lang);
+    if (localFlavor?.length > 0) {
+      return localFlavor[localFlavor.length - 1].flavor_text.replace(/\n/g, ' ');
+    }
+  }
+
+  const entry = data.effect_entries?.find((e: any) => e.language.name === 'en');
+  return entry?.effect || entry?.short_effect || '';
 }
 
 export async function fetchPokemonMovesByGame(pokemonId: number): Promise<MovesByVersionGroup[]> {
@@ -365,16 +399,60 @@ function flattenChain(chain: any): EvolutionStep[][] {
 
 export async function fetchEvolutionChain(pokemonId: number): Promise<EvolutionChain> {
   let speciesId = pokemonId;
+  let formSuffix = '';
   if (pokemonId >= 10000) {
     const pokData = await fetchPokemonRaw(pokemonId);
     speciesId = extractIdFromUrl(pokData.species.url);
+    // Detect form suffix (e.g., "alola", "galar", "hisui")
+    const speciesName = pokData.species.name;
+    const pokName = pokData.name as string;
+    if (pokName.startsWith(speciesName + '-')) {
+      formSuffix = pokName.substring(speciesName.length + 1);
+    }
   }
   const speciesRes = await fetch(`${BASE_URL}/pokemon-species/${speciesId}`);
   const speciesData = await speciesRes.json();
   const chainUrl = speciesData.evolution_chain.url;
   const chainRes = await fetch(chainUrl);
   const chainData = await chainRes.json();
-  return { steps: flattenChain(chainData.chain) };
+  const baseSteps = flattenChain(chainData.chain);
+
+  // If viewing a regional/alt form, try to swap each step with its corresponding form
+  if (formSuffix && ['alola', 'galar', 'hisui', 'paldea'].includes(formSuffix.split('-')[0])) {
+    const regionKey = formSuffix.split('-')[0]; // e.g., "alola"
+    const swappedSteps: EvolutionStep[][] = [];
+    for (const stage of baseSteps) {
+      const newStage: EvolutionStep[] = [];
+      for (const evo of stage) {
+        // Try to find the regional form for this species
+        try {
+          const spRes = await fetch(`${BASE_URL}/pokemon-species/${evo.id}`);
+          const spData = await spRes.json();
+          const regionVariety = spData.varieties?.find((v: any) =>
+            v.pokemon.name.includes(`-${regionKey}`) && !v.pokemon.name.includes('-mega') && !v.pokemon.name.includes('-gmax')
+          );
+          if (regionVariety) {
+            const vRes = await fetch(regionVariety.pokemon.url);
+            const vData = await vRes.json();
+            newStage.push({
+              ...evo,
+              id: vData.id,
+              name: vData.name,
+              sprite: vData.sprites.other?.['official-artwork']?.front_default || evo.sprite,
+            });
+          } else {
+            newStage.push(evo);
+          }
+        } catch {
+          newStage.push(evo);
+        }
+      }
+      swappedSteps.push(newStage);
+    }
+    return { steps: swappedSteps };
+  }
+
+  return { steps: baseSteps };
 }
 
 export interface PokemonEncounter {
@@ -420,7 +498,9 @@ export async function fetchMegaEvolutions(pokemonId: number): Promise<MegaEvolut
     const speciesRes = await fetch(`${BASE_URL}/pokemon-species/${speciesId}`);
     const speciesData = await speciesRes.json();
     const varieties = speciesData.varieties || [];
-    const megaVarieties = varieties.filter((v: any) => v.pokemon.name.includes('-mega') && !v.is_default);
+    const megaVarieties = varieties.filter((v: any) =>
+      (v.pokemon.name.includes('-mega') || v.pokemon.name.includes('-primal')) && !v.is_default
+    );
     if (megaVarieties.length === 0) return [];
     const megas = await Promise.all(
       megaVarieties.map(async (v: any) => {
@@ -513,7 +593,10 @@ export async function fetchAllMegaForms(): Promise<PokemonBasic[]> {
     const batchResults = await Promise.all(batch.map(async (baseId) => {
       const megas = await fetchMegaEvolutions(baseId);
       return megas.map(m => ({
-        id: m.id, name: m.name, sprite: m.sprite, spriteShiny: m.spriteShiny, types: m.types,
+        id: m.id, name: m.name,
+        sprite: m.sprite || `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${m.id}.png`,
+        spriteShiny: m.spriteShiny || `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/shiny/${m.id}.png`,
+        types: m.types,
         baseId,
       } as PokemonBasic & { baseId: number }));
     }));

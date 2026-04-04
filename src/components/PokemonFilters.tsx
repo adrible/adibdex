@@ -2,13 +2,24 @@ import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { TypeBadge } from '@/components/TypeBadge';
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from '@/components/ui/sheet';
-import { MEGA_POKEMON_IDS, GMAX_POKEMON_IDS, TYPE_TRANSLATIONS } from '@/lib/pokeapi';
+import { MEGA_POKEMON_IDS, GMAX_POKEMON_IDS, TYPE_TRANSLATIONS, STARTER_IDS, LEGENDARY_IDS, MYTHICAL_IDS, PSEUDO_LEGENDARY_IDS, ULTRA_BEAST_IDS, PARADOX_IDS, BABY_IDS } from '@/lib/pokeapi';
 import { getDefensiveMatchups, getOffensiveMatchups } from '@/lib/type-effectiveness';
 import { Filter, X, ArrowUpDown } from 'lucide-react';
 
 const ALL_TYPES = Object.keys(TYPE_TRANSLATIONS);
 
 export type SortOption = 'id' | 'name' | 'hp' | 'attack' | 'defense' | 'spAtk' | 'spDef' | 'speed' | 'height' | 'weight';
+export type ClassificationOption = 'starter' | 'legendary' | 'mythical' | 'pseudo' | 'ultra_beast' | 'paradox' | 'baby';
+
+const CLASSIFICATION_LABELS: Record<ClassificationOption, string> = {
+  starter: 'Starter', legendary: 'Lendário', mythical: 'Mítico',
+  pseudo: 'Pseudo-Lendário', ultra_beast: 'Ultra Beast', paradox: 'Paradoxo', baby: 'Bebê',
+};
+
+const CLASSIFICATION_SETS: Record<ClassificationOption, Set<number>> = {
+  starter: STARTER_IDS, legendary: LEGENDARY_IDS, mythical: MYTHICAL_IDS,
+  pseudo: PSEUDO_LEGENDARY_IDS, ultra_beast: ULTRA_BEAST_IDS, paradox: PARADOX_IDS, baby: BABY_IDS,
+};
 
 export interface FilterState {
   types: string[];
@@ -16,12 +27,13 @@ export interface FilterState {
   strongAgainst: string[];
   hasMega: boolean | null;
   hasGmax: boolean | null;
+  classifications: ClassificationOption[];
   sortBy: SortOption;
   sortDir: 'asc' | 'desc';
 }
 
 export const DEFAULT_FILTERS: FilterState = {
-  types: [], weakTo: [], strongAgainst: [], hasMega: null, hasGmax: null, sortBy: 'id', sortDir: 'asc',
+  types: [], weakTo: [], strongAgainst: [], hasMega: null, hasGmax: null, classifications: [], sortBy: 'id', sortDir: 'asc',
 };
 
 const SORT_OPTIONS: { value: SortOption; label: string }[] = [
@@ -43,7 +55,7 @@ interface Props {
 }
 
 export function hasActiveFilters(f: FilterState): boolean {
-  return f.types.length > 0 || f.weakTo.length > 0 || f.strongAgainst.length > 0 || f.hasMega !== null || f.hasGmax !== null || f.sortBy !== 'id';
+  return f.types.length > 0 || f.weakTo.length > 0 || f.strongAgainst.length > 0 || f.hasMega !== null || f.hasGmax !== null || f.classifications.length > 0 || f.sortBy !== 'id';
 }
 
 // Session storage helpers for filter persistence
@@ -101,6 +113,13 @@ export function ActiveFilterChips({ filters, onChange }: Props) {
       onRemove: () => onChange({ ...filters, hasGmax: null }),
     });
   }
+
+  filters.classifications?.forEach(c => {
+    chips.push({
+      label: CLASSIFICATION_LABELS[c],
+      onRemove: () => onChange({ ...filters, classifications: filters.classifications.filter(x => x !== c) }),
+    });
+  });
 
   if (filters.sortBy !== 'id') {
     const label = SORT_OPTIONS.find(s => s.value === filters.sortBy)?.label || filters.sortBy;
@@ -223,6 +242,28 @@ function FilterContent({ filters, onChange, onClose }: Props & { onClose: () => 
       </div>
 
       <div>
+        <h4 className="text-sm font-semibold text-foreground mb-2">Classificação</h4>
+        <div className="flex flex-wrap gap-2">
+          {(Object.keys(CLASSIFICATION_LABELS) as ClassificationOption[]).map(c => (
+            <button key={c}
+              onClick={() => setLocal(prev => ({
+                ...prev,
+                classifications: prev.classifications.includes(c)
+                  ? prev.classifications.filter(x => x !== c)
+                  : [...prev.classifications, c],
+              }))}
+              className={`px-3 py-1.5 rounded-full text-xs font-medium border transition-colors ${
+                local.classifications.includes(c)
+                  ? 'bg-primary text-primary-foreground border-primary'
+                  : 'bg-muted/40 text-muted-foreground border-border hover:bg-muted/70'
+              }`}>
+              {CLASSIFICATION_LABELS[c]}
+            </button>
+          ))}
+        </div>
+      </div>
+
+      <div>
         <h4 className="text-sm font-semibold text-foreground mb-2">Ordenar por</h4>
         <div className="flex flex-wrap gap-1.5">
           {SORT_OPTIONS.map(opt => (
@@ -266,7 +307,7 @@ export function PokemonFilterButton({ filters, onChange }: Props) {
           Filtros
           {active && (
             <span className="h-4 w-4 rounded-full bg-primary text-primary-foreground text-[10px] flex items-center justify-center font-bold">
-              {filters.types.length + filters.weakTo.length + filters.strongAgainst.length + (filters.hasMega !== null ? 1 : 0) + (filters.hasGmax !== null ? 1 : 0) + (filters.sortBy !== 'id' ? 1 : 0)}
+              {filters.types.length + filters.weakTo.length + filters.strongAgainst.length + filters.classifications.length + (filters.hasMega !== null ? 1 : 0) + (filters.hasGmax !== null ? 1 : 0) + (filters.sortBy !== 'id' ? 1 : 0)}
             </span>
           )}
         </Button>
@@ -313,6 +354,13 @@ export function applyFilters(pokemons: import('@/lib/pokeapi').PokemonBasic[], f
   if (filters.hasMega === false) result = result.filter(p => !MEGA_POKEMON_IDS.has(p.id));
   if (filters.hasGmax === true) result = result.filter(p => GMAX_POKEMON_IDS.has(p.id));
   if (filters.hasGmax === false) result = result.filter(p => !GMAX_POKEMON_IDS.has(p.id));
+
+  if (filters.classifications && filters.classifications.length > 0) {
+    result = result.filter(p => {
+      const baseId = (p as any).baseId || p.id;
+      return filters.classifications.some(c => CLASSIFICATION_SETS[c].has(baseId));
+    });
+  }
 
   const { sortBy, sortDir } = filters;
   const dir = sortDir === 'asc' ? 1 : -1;

@@ -12,7 +12,7 @@ export function Header() {
         <Link to="/" className="flex items-center gap-3 group">
           <div className="h-8 w-8 rounded-full bg-primary-foreground/90 border-2 border-primary-foreground/30 shadow-inner group-hover:scale-110 transition-transform" />
           <h1 className="font-pixel text-xs sm:text-sm text-primary-foreground tracking-wider">
-            POKÉDEX
+            ADIBDEX
           </h1>
         </Link>
         <Button

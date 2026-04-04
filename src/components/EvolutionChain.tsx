@@ -1,6 +1,6 @@
 import { useQuery } from '@tanstack/react-query';
 import { Link } from 'react-router-dom';
-import { fetchEvolutionChain, fetchMegaEvolutions, fetchGmaxForms } from '@/lib/pokeapi';
+import { fetchEvolutionChain, fetchMegaEvolutions, fetchGmaxForms, fetchPokemonForms, type EvolutionStep } from '@/lib/pokeapi';
 import { TypeBadge } from '@/components/TypeBadge';
 import { Skeleton } from '@/components/ui/skeleton';
 import { ArrowDown, Sparkles, Swords, Heart, Moon, Sun, Droplets, Zap, Crown } from 'lucide-react';
