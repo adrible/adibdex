@@ -72,7 +72,7 @@ export default function Index() {
             </div>
             <h3 className="font-bold text-lg text-card-foreground mb-1">Mega Evoluções</h3>
             <p className="text-sm text-muted-foreground mb-3">Todas as formas Mega</p>
-            <p className="text-xs font-semibold text-primary">46 Pokémon</p>
+            <p className="text-xs font-semibold text-primary">MEGA PODER!</p>
             <div className="absolute -bottom-4 -right-4 h-24 w-24 rounded-full bg-primary/5 group-hover:bg-primary/10 transition-colors" />
           </Link>
 
