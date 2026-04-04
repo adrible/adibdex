@@ -1,4 +1,4 @@
-# Welcome 
+# AdibDex 
 
 O AdibDex é uma Pokédex moderna, rápida e completa, desenvolvida para oferecer uma experiência muito mais avançada do que as Pokédex tradicionais. O projeto combina uma interface limpa com um sistema robusto de dados, permitindo explorar Pokémon de forma intuitiva, detalhada e eficiente, tanto no desktop quanto no mobile.
 
