@@ -429,7 +429,9 @@ export async function fetchMegaEvolutions(pokemonId: number): Promise<MegaEvolut
     const speciesRes = await fetch(`${BASE_URL}/pokemon-species/${speciesId}`);
     const speciesData = await speciesRes.json();
     const varieties = speciesData.varieties || [];
-    const megaVarieties = varieties.filter((v: any) => v.pokemon.name.includes('-mega') && !v.is_default);
+    const megaVarieties = varieties.filter((v: any) =>
+      (v.pokemon.name.includes('-mega') || v.pokemon.name.includes('-primal')) && !v.is_default
+    );
     if (megaVarieties.length === 0) return [];
     const megas = await Promise.all(
       megaVarieties.map(async (v: any) => {
