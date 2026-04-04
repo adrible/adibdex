@@ -242,6 +242,28 @@ function FilterContent({ filters, onChange, onClose }: Props & { onClose: () => 
       </div>
 
       <div>
+        <h4 className="text-sm font-semibold text-foreground mb-2">Classificação</h4>
+        <div className="flex flex-wrap gap-2">
+          {(Object.keys(CLASSIFICATION_LABELS) as ClassificationOption[]).map(c => (
+            <button key={c}
+              onClick={() => setLocal(prev => ({
+                ...prev,
+                classifications: prev.classifications.includes(c)
+                  ? prev.classifications.filter(x => x !== c)
+                  : [...prev.classifications, c],
+              }))}
+              className={`px-3 py-1.5 rounded-full text-xs font-medium border transition-colors ${
+                local.classifications.includes(c)
+                  ? 'bg-primary text-primary-foreground border-primary'
+                  : 'bg-muted/40 text-muted-foreground border-border hover:bg-muted/70'
+              }`}>
+              {CLASSIFICATION_LABELS[c]}
+            </button>
+          ))}
+        </div>
+      </div>
+
+      <div>
         <h4 className="text-sm font-semibold text-foreground mb-2">Ordenar por</h4>
         <div className="flex flex-wrap gap-1.5">
           {SORT_OPTIONS.map(opt => (
