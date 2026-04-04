@@ -114,6 +114,13 @@ export function ActiveFilterChips({ filters, onChange }: Props) {
     });
   }
 
+  filters.classifications?.forEach(c => {
+    chips.push({
+      label: CLASSIFICATION_LABELS[c],
+      onRemove: () => onChange({ ...filters, classifications: filters.classifications.filter(x => x !== c) }),
+    });
+  });
+
   if (filters.sortBy !== 'id') {
     const label = SORT_OPTIONS.find(s => s.value === filters.sortBy)?.label || filters.sortBy;
     chips.push({
