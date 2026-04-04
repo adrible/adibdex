@@ -399,16 +399,60 @@ function flattenChain(chain: any): EvolutionStep[][] {
 
 export async function fetchEvolutionChain(pokemonId: number): Promise<EvolutionChain> {
   let speciesId = pokemonId;
+  let formSuffix = '';
   if (pokemonId >= 10000) {
     const pokData = await fetchPokemonRaw(pokemonId);
     speciesId = extractIdFromUrl(pokData.species.url);
+    // Detect form suffix (e.g., "alola", "galar", "hisui")
+    const speciesName = pokData.species.name;
+    const pokName = pokData.name as string;
+    if (pokName.startsWith(speciesName + '-')) {
+      formSuffix = pokName.substring(speciesName.length + 1);
+    }
   }
   const speciesRes = await fetch(`${BASE_URL}/pokemon-species/${speciesId}`);
   const speciesData = await speciesRes.json();
   const chainUrl = speciesData.evolution_chain.url;
   const chainRes = await fetch(chainUrl);
   const chainData = await chainRes.json();
-  return { steps: flattenChain(chainData.chain) };
+  const baseSteps = flattenChain(chainData.chain);
+
+  // If viewing a regional/alt form, try to swap each step with its corresponding form
+  if (formSuffix && ['alola', 'galar', 'hisui', 'paldea'].includes(formSuffix.split('-')[0])) {
+    const regionKey = formSuffix.split('-')[0]; // e.g., "alola"
+    const swappedSteps: EvolutionStep[][] = [];
+    for (const stage of baseSteps) {
+      const newStage: EvolutionStep[] = [];
+      for (const evo of stage) {
+        // Try to find the regional form for this species
+        try {
+          const spRes = await fetch(`${BASE_URL}/pokemon-species/${evo.id}`);
+          const spData = await spRes.json();
+          const regionVariety = spData.varieties?.find((v: any) =>
+            v.pokemon.name.includes(`-${regionKey}`) && !v.pokemon.name.includes('-mega') && !v.pokemon.name.includes('-gmax')
+          );
+          if (regionVariety) {
+            const vRes = await fetch(regionVariety.pokemon.url);
+            const vData = await vRes.json();
+            newStage.push({
+              ...evo,
+              id: vData.id,
+              name: vData.name,
+              sprite: vData.sprites.other?.['official-artwork']?.front_default || evo.sprite,
+            });
+          } else {
+            newStage.push(evo);
+          }
+        } catch {
+          newStage.push(evo);
+        }
+      }
+      swappedSteps.push(newStage);
+    }
+    return { steps: swappedSteps };
+  }
+
+  return { steps: baseSteps };
 }
 
 export interface PokemonEncounter {
