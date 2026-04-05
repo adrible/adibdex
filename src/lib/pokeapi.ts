@@ -393,7 +393,7 @@ export async function fetchPokemonMovesByGame(pokemonId: number): Promise<MovesB
   const sortedGroups = [...groupMap.entries()].sort((a, b) => {
     const ai = vgOrder.indexOf(a[0]);
     const bi = vgOrder.indexOf(b[0]);
-    return (bi === -1 ? -999 : bi) - (ai === -1 ? -999 : ai);
+    return (ai === -1 ? 999 : ai) - (bi === -1 ? 999 : bi);
   });
 
   return sortedGroups.map(([vgName, methodMap]) => {
