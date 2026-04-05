@@ -9,6 +9,7 @@ export interface PokemonBasic {
   stats?: { hp: number; attack: number; defense: number; spAtk: number; spDef: number; speed: number };
   height?: number;
   weight?: number;
+  evolutionStage?: 'basic' | 'stage1' | 'stage2';
 }
 
 export interface PokemonDetail {
@@ -58,19 +59,80 @@ export const MEGA_POKEMON_IDS = new Set([
 ]);
 
 // Classification datasets
-export const STARTER_IDS = new Set([1,4,7,152,155,158,252,255,258,387,390,393,495,498,501,650,653,656,722,725,728,810,813,816,906,909,912]);
+// Starters: base + full evolution lines
+export const STARTER_IDS = new Set([
+  1,2,3,4,5,6,7,8,9, // Kanto
+  152,153,154,155,156,157,158,159,160, // Johto
+  252,253,254,255,256,257,258,259,260, // Hoenn
+  387,388,389,390,391,392,393,394,395, // Sinnoh
+  495,496,497,498,499,500,501,502,503, // Unova
+  650,651,652,653,654,655,656,657,658, // Kalos
+  722,723,724,725,726,727,728,729,730, // Alola
+  810,811,812,813,814,815,816,817,818, // Galar
+  906,907,908,909,910,911,912,913,914, // Paldea
+]);
 export const LEGENDARY_IDS = new Set([144,145,146,150,243,244,245,249,250,377,378,379,380,381,382,383,384,480,481,482,483,484,485,486,487,488,638,639,640,641,642,643,644,645,646,716,717,718,772,773,785,786,787,788,789,790,791,792,800,888,889,890,891,892,895,896,897,898,905,1001,1002,1003,1004,1007,1008,1009,1010,1014,1015,1016,1017,1024]);
 export const MYTHICAL_IDS = new Set([151,251,385,386,489,490,491,492,493,494,647,648,649,719,720,721,801,802,807,808,809,893,894,1025]);
 export const PSEUDO_LEGENDARY_IDS = new Set([149,248,289,373,376,445,635,706,784,887,998]);
 export const ULTRA_BEAST_IDS = new Set([793,794,795,796,797,798,799,803,804,805,806]);
 export const PARADOX_IDS = new Set([984,985,986,987,988,989,990,991,992,993,994,995,1005,1006,1009,1010]);
 export const BABY_IDS = new Set([172,173,174,175,236,238,239,240,298,360,406,433,438,439,440,446,447,458,848]);
+// Fossil Pokémon (revived from fossils) - base + evolutions
+export const FOSSIL_IDS = new Set([
+  138,139, // Omanyte, Omastar
+  140,141, // Kabuto, Kabutops
+  142, // Aerodactyl
+  345,346, // Lileep, Cradily
+  347,348, // Anorith, Armaldo
+  408,409, // Cranidos, Rampardos
+  410,411, // Shieldon, Bastiodon
+  564,565, // Tirtouga, Carracosta
+  566,567, // Archen, Archeops
+  696,697, // Tyrunt, Tyrantrum
+  698,699, // Amaura, Aurorus
+  880,881,882,883, // Dracozolt, Arctozolt, Dracovish, Arctovish
+]);
+
+// All special classification sets for "Regular" exclusion
+export const ALL_SPECIAL_SETS = [STARTER_IDS, LEGENDARY_IDS, MYTHICAL_IDS, PSEUDO_LEGENDARY_IDS, ULTRA_BEAST_IDS, PARADOX_IDS, BABY_IDS, FOSSIL_IDS];
 
 // Complete Gigantamax Pokémon (base IDs)
 export const GMAX_POKEMON_IDS = new Set([
   3,6,9,12,25,52,68,94,99,131,133,143,569,809,
   812,815,818,823,826,834,839,841,842,844,849,851,858,861,869,879,884,892
 ]);
+
+// Evolution stage cache - populated lazily
+const evolutionStageCache = new Map<number, 'basic' | 'stage1' | 'stage2'>();
+const speciesCache = new Map<number, any>();
+
+async function fetchSpeciesRaw(id: number): Promise<any> {
+  if (speciesCache.has(id)) return speciesCache.get(id)!;
+  try {
+    const res = await fetch(`${BASE_URL}/pokemon-species/${id}`);
+    const data = await res.json();
+    speciesCache.set(id, data);
+    return data;
+  } catch { return null; }
+}
+
+async function getEvolutionStage(id: number): Promise<'basic' | 'stage1' | 'stage2'> {
+  if (evolutionStageCache.has(id)) return evolutionStageCache.get(id)!;
+  const species = await fetchSpeciesRaw(id);
+  if (!species || !species.evolves_from_species) {
+    evolutionStageCache.set(id, 'basic');
+    return 'basic';
+  }
+  // Has a pre-evolution - check if that pre-evo also has one
+  const preEvoId = extractIdFromUrl(species.evolves_from_species.url);
+  const preSpecies = await fetchSpeciesRaw(preEvoId);
+  if (!preSpecies || !preSpecies.evolves_from_species) {
+    evolutionStageCache.set(id, 'stage1');
+    return 'stage1';
+  }
+  evolutionStageCache.set(id, 'stage2');
+  return 'stage2';
+}
 
 const pokemonCache = new Map<number, any>();
 
@@ -150,6 +212,10 @@ export async function fetchPokemonListByRange(start: number, end: number): Promi
     const rawArr = await Promise.all(batch.map((id: number) => fetchPokemonRaw(id)));
     rawArr.forEach((d) => results.push(buildBasicFromRaw(d)));
   }
+
+  // Enrich with evolution stages
+  const stages = await Promise.all(results.map(p => getEvolutionStage(p.id)));
+  stages.forEach((stage, idx) => { results[idx].evolutionStage = stage; });
 
   return results;
 }
@@ -566,6 +632,9 @@ export async function fetchPokemonPage(offset: number, limit: number): Promise<{
     rawArr.forEach((d) => results.push(buildBasicFromRaw(d)));
   }
 
+  const stages = await Promise.all(results.map(p => getEvolutionStage(p.id)));
+  stages.forEach((stage, idx) => { results[idx].evolutionStage = stage; });
+
   return { pokemons: results, total: 1025 };
 }
 
@@ -580,6 +649,10 @@ export async function fetchAllPokemonBasic(): Promise<PokemonBasic[]> {
     const rawArr = await Promise.all(batch.map(id => fetchPokemonRaw(id)));
     rawArr.forEach(d => results.push(buildBasicFromRaw(d)));
   }
+  // Enrich with evolution stages in parallel
+  const stagePromises = results.map(p => getEvolutionStage(p.id));
+  const stages = await Promise.all(stagePromises);
+  stages.forEach((stage, idx) => { results[idx].evolutionStage = stage; });
   allPokemonBasicCache = results;
   return results;
 }

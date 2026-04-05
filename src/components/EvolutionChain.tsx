@@ -213,7 +213,7 @@ export function EvolutionChainDisplay({ pokemonId, isShiny = false, origin }: Ev
                       <div className="flex flex-col items-center my-1">
                         <ArrowDown className="h-4 w-4 text-muted-foreground" />
                         <span className="inline-flex items-center gap-1 rounded-full bg-gradient-to-r from-primary/20 to-accent/20 px-2.5 py-0.5 text-[11px] font-bold text-primary border border-primary/30 my-1">
-                          <Zap className="h-3 w-3" /> Mega Evolução
+                          <Zap className="h-3 w-3" /> {mega.name.includes('-primal') || mega.name.includes('primal') ? 'Primal' : 'Mega Evolução'}
                         </span>
                       </div>
                       <Link

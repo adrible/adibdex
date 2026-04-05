@@ -2,23 +2,30 @@ import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { TypeBadge } from '@/components/TypeBadge';
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from '@/components/ui/sheet';
-import { MEGA_POKEMON_IDS, GMAX_POKEMON_IDS, TYPE_TRANSLATIONS, STARTER_IDS, LEGENDARY_IDS, MYTHICAL_IDS, PSEUDO_LEGENDARY_IDS, ULTRA_BEAST_IDS, PARADOX_IDS, BABY_IDS } from '@/lib/pokeapi';
+import { MEGA_POKEMON_IDS, GMAX_POKEMON_IDS, TYPE_TRANSLATIONS, STARTER_IDS, LEGENDARY_IDS, MYTHICAL_IDS, PSEUDO_LEGENDARY_IDS, ULTRA_BEAST_IDS, PARADOX_IDS, BABY_IDS, FOSSIL_IDS, ALL_SPECIAL_SETS } from '@/lib/pokeapi';
 import { getDefensiveMatchups, getOffensiveMatchups } from '@/lib/type-effectiveness';
 import { Filter, X, ArrowUpDown } from 'lucide-react';
 
 const ALL_TYPES = Object.keys(TYPE_TRANSLATIONS);
 
 export type SortOption = 'id' | 'name' | 'hp' | 'attack' | 'defense' | 'spAtk' | 'spDef' | 'speed' | 'height' | 'weight';
-export type ClassificationOption = 'starter' | 'legendary' | 'mythical' | 'pseudo' | 'ultra_beast' | 'paradox' | 'baby';
+export type ClassificationOption = 'starter' | 'legendary' | 'mythical' | 'pseudo' | 'ultra_beast' | 'paradox' | 'baby' | 'fossil' | 'regular';
+export type EvolutionStageOption = 'basic' | 'stage1' | 'stage2';
 
 const CLASSIFICATION_LABELS: Record<ClassificationOption, string> = {
   starter: 'Starter', legendary: 'Lendário', mythical: 'Mítico',
   pseudo: 'Pseudo-Lendário', ultra_beast: 'Ultra Beast', paradox: 'Paradoxo', baby: 'Bebê',
+  fossil: 'Fóssil', regular: 'Regular',
 };
 
-const CLASSIFICATION_SETS: Record<ClassificationOption, Set<number>> = {
+const CLASSIFICATION_SETS: Record<Exclude<ClassificationOption, 'regular'>, Set<number>> = {
   starter: STARTER_IDS, legendary: LEGENDARY_IDS, mythical: MYTHICAL_IDS,
   pseudo: PSEUDO_LEGENDARY_IDS, ultra_beast: ULTRA_BEAST_IDS, paradox: PARADOX_IDS, baby: BABY_IDS,
+  fossil: FOSSIL_IDS,
+};
+
+const EVOLUTION_STAGE_LABELS: Record<EvolutionStageOption, string> = {
+  basic: 'Básico', stage1: 'Estágio 1', stage2: 'Estágio 2',
 };
 
 export interface FilterState {
@@ -28,12 +35,13 @@ export interface FilterState {
   hasMega: boolean | null;
   hasGmax: boolean | null;
   classifications: ClassificationOption[];
+  evolutionStages: EvolutionStageOption[];
   sortBy: SortOption;
   sortDir: 'asc' | 'desc';
 }
 
 export const DEFAULT_FILTERS: FilterState = {
-  types: [], weakTo: [], strongAgainst: [], hasMega: null, hasGmax: null, classifications: [], sortBy: 'id', sortDir: 'asc',
+  types: [], weakTo: [], strongAgainst: [], hasMega: null, hasGmax: null, classifications: [], evolutionStages: [], sortBy: 'id', sortDir: 'asc',
 };
 
 const SORT_OPTIONS: { value: SortOption; label: string }[] = [
@@ -55,7 +63,7 @@ interface Props {
 }
 
 export function hasActiveFilters(f: FilterState): boolean {
-  return f.types.length > 0 || f.weakTo.length > 0 || f.strongAgainst.length > 0 || f.hasMega !== null || f.hasGmax !== null || f.classifications.length > 0 || f.sortBy !== 'id';
+  return f.types.length > 0 || f.weakTo.length > 0 || f.strongAgainst.length > 0 || f.hasMega !== null || f.hasGmax !== null || f.classifications.length > 0 || f.evolutionStages.length > 0 || f.sortBy !== 'id';
 }
 
 // Session storage helpers for filter persistence
@@ -118,6 +126,13 @@ export function ActiveFilterChips({ filters, onChange }: Props) {
     chips.push({
       label: CLASSIFICATION_LABELS[c],
       onRemove: () => onChange({ ...filters, classifications: filters.classifications.filter(x => x !== c) }),
+    });
+  });
+
+  filters.evolutionStages?.forEach(s => {
+    chips.push({
+      label: `Estágio: ${EVOLUTION_STAGE_LABELS[s]}`,
+      onRemove: () => onChange({ ...filters, evolutionStages: filters.evolutionStages.filter(x => x !== s) }),
     });
   });
 
@@ -264,6 +279,25 @@ function FilterContent({ filters, onChange, onClose }: Props & { onClose: () => 
       </div>
 
       <div>
+        <h4 className="text-sm font-semibold text-foreground mb-2">Estágio Evolutivo</h4>
+        <div className="flex flex-wrap gap-2">
+          {(Object.keys(EVOLUTION_STAGE_LABELS) as EvolutionStageOption[]).map(s => (
+            <button key={s}
+              onClick={() => setLocal(prev => ({
+                ...prev,
+                evolutionStages: (prev.evolutionStages || []).includes(s)
+                  ? prev.evolutionStages.filter(x => x !== s)
+                  : [...(prev.evolutionStages || []), s],
+              }))}
+              className={`px-3 py-1.5 rounded-full text-xs font-medium border transition-colors ${
+                (local.evolutionStages || []).includes(s)
+                  ? 'bg-primary text-primary-foreground border-primary'
+                  : 'bg-muted/40 text-muted-foreground border-border hover:bg-muted/70'
+              }`}>
+              {EVOLUTION_STAGE_LABELS[s]}
+            </button>
+          ))}
+        </div>
         <h4 className="text-sm font-semibold text-foreground mb-2">Ordenar por</h4>
         <div className="flex flex-wrap gap-1.5">
           {SORT_OPTIONS.map(opt => (
@@ -307,7 +341,7 @@ export function PokemonFilterButton({ filters, onChange }: Props) {
           Filtros
           {active && (
             <span className="h-4 w-4 rounded-full bg-primary text-primary-foreground text-[10px] flex items-center justify-center font-bold">
-              {filters.types.length + filters.weakTo.length + filters.strongAgainst.length + filters.classifications.length + (filters.hasMega !== null ? 1 : 0) + (filters.hasGmax !== null ? 1 : 0) + (filters.sortBy !== 'id' ? 1 : 0)}
+              {filters.types.length + filters.weakTo.length + filters.strongAgainst.length + filters.classifications.length + (filters.evolutionStages?.length || 0) + (filters.hasMega !== null ? 1 : 0) + (filters.hasGmax !== null ? 1 : 0) + (filters.sortBy !== 'id' ? 1 : 0)}
             </span>
           )}
         </Button>
@@ -358,7 +392,20 @@ export function applyFilters(pokemons: import('@/lib/pokeapi').PokemonBasic[], f
   if (filters.classifications && filters.classifications.length > 0) {
     result = result.filter(p => {
       const baseId = (p as any).baseId || p.id;
-      return filters.classifications.some(c => CLASSIFICATION_SETS[c].has(baseId));
+      return filters.classifications.some(c => {
+        if (c === 'regular') {
+          return !ALL_SPECIAL_SETS.some(set => set.has(baseId));
+        }
+        return CLASSIFICATION_SETS[c].has(baseId);
+      });
+    });
+  }
+
+  if (filters.evolutionStages && filters.evolutionStages.length > 0) {
+    result = result.filter(p => {
+      const stage = (p as any).evolutionStage as string | undefined;
+      if (!stage) return filters.evolutionStages.includes('basic');
+      return filters.evolutionStages.includes(stage as EvolutionStageOption);
     });
   }
 
