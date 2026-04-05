@@ -35,12 +35,13 @@ export interface FilterState {
   hasMega: boolean | null;
   hasGmax: boolean | null;
   classifications: ClassificationOption[];
+  evolutionStages: EvolutionStageOption[];
   sortBy: SortOption;
   sortDir: 'asc' | 'desc';
 }
 
 export const DEFAULT_FILTERS: FilterState = {
-  types: [], weakTo: [], strongAgainst: [], hasMega: null, hasGmax: null, classifications: [], sortBy: 'id', sortDir: 'asc',
+  types: [], weakTo: [], strongAgainst: [], hasMega: null, hasGmax: null, classifications: [], evolutionStages: [], sortBy: 'id', sortDir: 'asc',
 };
 
 const SORT_OPTIONS: { value: SortOption; label: string }[] = [
