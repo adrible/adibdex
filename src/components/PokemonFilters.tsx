@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { TypeBadge } from '@/components/TypeBadge';
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from '@/components/ui/sheet';
-import { MEGA_POKEMON_IDS, GMAX_POKEMON_IDS, TYPE_TRANSLATIONS, STARTER_IDS, LEGENDARY_IDS, MYTHICAL_IDS, PSEUDO_LEGENDARY_IDS, ULTRA_BEAST_IDS, PARADOX_IDS, BABY_IDS } from '@/lib/pokeapi';
+import { MEGA_POKEMON_IDS, GMAX_POKEMON_IDS, TYPE_TRANSLATIONS, STARTER_IDS, LEGENDARY_IDS, MYTHICAL_IDS, PSEUDO_LEGENDARY_IDS, ULTRA_BEAST_IDS, PARADOX_IDS, BABY_IDS, FOSSIL_IDS, ALL_SPECIAL_SETS } from '@/lib/pokeapi';
 import { getDefensiveMatchups, getOffensiveMatchups } from '@/lib/type-effectiveness';
 import { Filter, X, ArrowUpDown } from 'lucide-react';
 
