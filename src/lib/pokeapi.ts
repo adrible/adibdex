@@ -213,6 +213,10 @@ export async function fetchPokemonListByRange(start: number, end: number): Promi
     rawArr.forEach((d) => results.push(buildBasicFromRaw(d)));
   }
 
+  // Enrich with evolution stages
+  const stages = await Promise.all(results.map(p => getEvolutionStage(p.id)));
+  stages.forEach((stage, idx) => { results[idx].evolutionStage = stage; });
+
   return results;
 }
 
