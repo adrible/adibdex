@@ -642,6 +642,10 @@ export async function fetchAllPokemonBasic(): Promise<PokemonBasic[]> {
     const rawArr = await Promise.all(batch.map(id => fetchPokemonRaw(id)));
     rawArr.forEach(d => results.push(buildBasicFromRaw(d)));
   }
+  // Enrich with evolution stages in parallel
+  const stagePromises = results.map(p => getEvolutionStage(p.id));
+  const stages = await Promise.all(stagePromises);
+  stages.forEach((stage, idx) => { results[idx].evolutionStage = stage; });
   allPokemonBasicCache = results;
   return results;
 }
