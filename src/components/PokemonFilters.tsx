@@ -392,7 +392,20 @@ export function applyFilters(pokemons: import('@/lib/pokeapi').PokemonBasic[], f
   if (filters.classifications && filters.classifications.length > 0) {
     result = result.filter(p => {
       const baseId = (p as any).baseId || p.id;
-      return filters.classifications.some(c => CLASSIFICATION_SETS[c].has(baseId));
+      return filters.classifications.some(c => {
+        if (c === 'regular') {
+          return !ALL_SPECIAL_SETS.some(set => set.has(baseId));
+        }
+        return CLASSIFICATION_SETS[c].has(baseId);
+      });
+    });
+  }
+
+  if (filters.evolutionStages && filters.evolutionStages.length > 0) {
+    result = result.filter(p => {
+      const stage = (p as any).evolutionStage as string | undefined;
+      if (!stage) return filters.evolutionStages.includes('basic');
+      return filters.evolutionStages.includes(stage as EvolutionStageOption);
     });
   }
 
