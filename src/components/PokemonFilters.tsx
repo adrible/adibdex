@@ -63,7 +63,7 @@ interface Props {
 }
 
 export function hasActiveFilters(f: FilterState): boolean {
-  return f.types.length > 0 || f.weakTo.length > 0 || f.strongAgainst.length > 0 || f.hasMega !== null || f.hasGmax !== null || f.classifications.length > 0 || f.sortBy !== 'id';
+  return f.types.length > 0 || f.weakTo.length > 0 || f.strongAgainst.length > 0 || f.hasMega !== null || f.hasGmax !== null || f.classifications.length > 0 || f.evolutionStages.length > 0 || f.sortBy !== 'id';
 }
 
 // Session storage helpers for filter persistence
