@@ -9,6 +9,7 @@ export interface PokemonBasic {
   stats?: { hp: number; attack: number; defense: number; spAtk: number; spDef: number; speed: number };
   height?: number;
   weight?: number;
+  evolutionStage?: 'basic' | 'stage1' | 'stage2';
 }
 
 export interface PokemonDetail {
