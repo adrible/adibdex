@@ -102,7 +102,38 @@ export const GMAX_POKEMON_IDS = new Set([
   812,815,818,823,826,834,839,841,842,844,849,851,858,861,869,879,884,892
 ]);
 
-const pokemonCache = new Map<number, any>();
+// Evolution stage cache - populated lazily
+const evolutionStageCache = new Map<number, 'basic' | 'stage1' | 'stage2'>();
+const speciesCache = new Map<number, any>();
+
+async function fetchSpeciesRaw(id: number): Promise<any> {
+  if (speciesCache.has(id)) return speciesCache.get(id)!;
+  try {
+    const res = await fetch(`${BASE_URL}/pokemon-species/${id}`);
+    const data = await res.json();
+    speciesCache.set(id, data);
+    return data;
+  } catch { return null; }
+}
+
+async function getEvolutionStage(id: number): Promise<'basic' | 'stage1' | 'stage2'> {
+  if (evolutionStageCache.has(id)) return evolutionStageCache.get(id)!;
+  const species = await fetchSpeciesRaw(id);
+  if (!species || !species.evolves_from_species) {
+    evolutionStageCache.set(id, 'basic');
+    return 'basic';
+  }
+  // Has a pre-evolution - check if that pre-evo also has one
+  const preEvoId = extractIdFromUrl(species.evolves_from_species.url);
+  const preSpecies = await fetchSpeciesRaw(preEvoId);
+  if (!preSpecies || !preSpecies.evolves_from_species) {
+    evolutionStageCache.set(id, 'stage1');
+    return 'stage1';
+  }
+  evolutionStageCache.set(id, 'stage2');
+  return 'stage2';
+}
+
 
 async function fetchPokemonRaw(id: number): Promise<any> {
   if (pokemonCache.has(id)) return pokemonCache.get(id)!;
