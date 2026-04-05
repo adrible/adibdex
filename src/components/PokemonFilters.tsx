@@ -279,6 +279,25 @@ function FilterContent({ filters, onChange, onClose }: Props & { onClose: () => 
       </div>
 
       <div>
+        <h4 className="text-sm font-semibold text-foreground mb-2">Estágio Evolutivo</h4>
+        <div className="flex flex-wrap gap-2">
+          {(Object.keys(EVOLUTION_STAGE_LABELS) as EvolutionStageOption[]).map(s => (
+            <button key={s}
+              onClick={() => setLocal(prev => ({
+                ...prev,
+                evolutionStages: (prev.evolutionStages || []).includes(s)
+                  ? prev.evolutionStages.filter(x => x !== s)
+                  : [...(prev.evolutionStages || []), s],
+              }))}
+              className={`px-3 py-1.5 rounded-full text-xs font-medium border transition-colors ${
+                (local.evolutionStages || []).includes(s)
+                  ? 'bg-primary text-primary-foreground border-primary'
+                  : 'bg-muted/40 text-muted-foreground border-border hover:bg-muted/70'
+              }`}>
+              {EVOLUTION_STAGE_LABELS[s]}
+            </button>
+          ))}
+        </div>
         <h4 className="text-sm font-semibold text-foreground mb-2">Ordenar por</h4>
         <div className="flex flex-wrap gap-1.5">
           {SORT_OPTIONS.map(opt => (
