@@ -129,6 +129,13 @@ export function ActiveFilterChips({ filters, onChange }: Props) {
     });
   });
 
+  filters.evolutionStages?.forEach(s => {
+    chips.push({
+      label: `Estágio: ${EVOLUTION_STAGE_LABELS[s]}`,
+      onRemove: () => onChange({ ...filters, evolutionStages: filters.evolutionStages.filter(x => x !== s) }),
+    });
+  });
+
   if (filters.sortBy !== 'id') {
     const label = SORT_OPTIONS.find(s => s.value === filters.sortBy)?.label || filters.sortBy;
     chips.push({
