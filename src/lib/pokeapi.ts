@@ -632,6 +632,9 @@ export async function fetchPokemonPage(offset: number, limit: number): Promise<{
     rawArr.forEach((d) => results.push(buildBasicFromRaw(d)));
   }
 
+  const stages = await Promise.all(results.map(p => getEvolutionStage(p.id)));
+  stages.forEach((stage, idx) => { results[idx].evolutionStage = stage; });
+
   return { pokemons: results, total: 1025 };
 }
 
