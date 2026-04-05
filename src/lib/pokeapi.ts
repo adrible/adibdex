@@ -721,7 +721,7 @@ export async function fetchPokemonForms(pokemonId: number): Promise<PokemonForm[
     const isAltForm = pokemonId >= 10000;
     const filteredVarieties = varieties.filter((v: any) => {
       const name = v.pokemon.name;
-      if (name.includes('-mega') || name.includes('-gmax') || name.includes('-totem')) return false;
+      if (name.includes('-mega') || name.includes('-gmax') || name.includes('-totem') || name.includes('-primal')) return false;
       const vId = Number(v.pokemon.url.split('/').filter(Boolean).pop());
       if (vId === pokemonId) return false;
       if (!isAltForm && v.is_default) return false;
