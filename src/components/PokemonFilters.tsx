@@ -9,16 +9,23 @@ import { Filter, X, ArrowUpDown } from 'lucide-react';
 const ALL_TYPES = Object.keys(TYPE_TRANSLATIONS);
 
 export type SortOption = 'id' | 'name' | 'hp' | 'attack' | 'defense' | 'spAtk' | 'spDef' | 'speed' | 'height' | 'weight';
-export type ClassificationOption = 'starter' | 'legendary' | 'mythical' | 'pseudo' | 'ultra_beast' | 'paradox' | 'baby';
+export type ClassificationOption = 'starter' | 'legendary' | 'mythical' | 'pseudo' | 'ultra_beast' | 'paradox' | 'baby' | 'fossil' | 'regular';
+export type EvolutionStageOption = 'basic' | 'stage1' | 'stage2';
 
 const CLASSIFICATION_LABELS: Record<ClassificationOption, string> = {
   starter: 'Starter', legendary: 'Lendário', mythical: 'Mítico',
   pseudo: 'Pseudo-Lendário', ultra_beast: 'Ultra Beast', paradox: 'Paradoxo', baby: 'Bebê',
+  fossil: 'Fóssil', regular: 'Regular',
 };
 
-const CLASSIFICATION_SETS: Record<ClassificationOption, Set<number>> = {
+const CLASSIFICATION_SETS: Record<Exclude<ClassificationOption, 'regular'>, Set<number>> = {
   starter: STARTER_IDS, legendary: LEGENDARY_IDS, mythical: MYTHICAL_IDS,
   pseudo: PSEUDO_LEGENDARY_IDS, ultra_beast: ULTRA_BEAST_IDS, paradox: PARADOX_IDS, baby: BABY_IDS,
+  fossil: FOSSIL_IDS,
+};
+
+const EVOLUTION_STAGE_LABELS: Record<EvolutionStageOption, string> = {
+  basic: 'Básico', stage1: 'Estágio 1', stage2: 'Estágio 2',
 };
 
 export interface FilterState {
