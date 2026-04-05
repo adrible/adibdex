@@ -341,7 +341,7 @@ export function PokemonFilterButton({ filters, onChange }: Props) {
           Filtros
           {active && (
             <span className="h-4 w-4 rounded-full bg-primary text-primary-foreground text-[10px] flex items-center justify-center font-bold">
-              {filters.types.length + filters.weakTo.length + filters.strongAgainst.length + filters.classifications.length + (filters.hasMega !== null ? 1 : 0) + (filters.hasGmax !== null ? 1 : 0) + (filters.sortBy !== 'id' ? 1 : 0)}
+              {filters.types.length + filters.weakTo.length + filters.strongAgainst.length + filters.classifications.length + (filters.evolutionStages?.length || 0) + (filters.hasMega !== null ? 1 : 0) + (filters.hasGmax !== null ? 1 : 0) + (filters.sortBy !== 'id' ? 1 : 0)}
             </span>
           )}
         </Button>
