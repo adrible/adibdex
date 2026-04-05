@@ -134,6 +134,7 @@ async function getEvolutionStage(id: number): Promise<'basic' | 'stage1' | 'stag
   return 'stage2';
 }
 
+const pokemonCache = new Map<number, any>();
 
 async function fetchPokemonRaw(id: number): Promise<any> {
   if (pokemonCache.has(id)) return pokemonCache.get(id)!;
