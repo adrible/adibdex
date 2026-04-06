@@ -139,6 +139,21 @@ export default function PokemonDetailPage() {
           </Button>
           <div className="flex gap-2 items-center">
             <Button
+              variant={inCompare ? "default" : "outline"} size="sm"
+              onClick={() => {
+                if (inCompare) {
+                  remove(pokemonId);
+                } else {
+                  add({ id: pokemonId, name: pokemon.name, sprite: pokemon.sprites.artwork, types: pokemon.types });
+                }
+              }}
+              disabled={!inCompare && isFull}
+              className={`gap-1.5 ${inCompare ? '' : ''}`}
+            >
+              {inCompare ? <Check className="h-4 w-4" /> : <GitCompareArrows className="h-4 w-4" />}
+              <span className="hidden sm:inline">{inCompare ? 'Adicionado' : 'Comparar'}</span>
+            </Button>
+            <Button
               variant={isShiny ? "default" : "outline"} size="sm"
               onClick={() => setIsShiny(!isShiny)}
               className={`gap-1.5 ${isShiny ? 'bg-gradient-to-r from-yellow-500 to-amber-500 hover:from-yellow-600 hover:to-amber-600 text-white border-0' : ''}`}
