@@ -22,7 +22,7 @@ export function PokemonCard({ pokemon, isShiny = false, originPath }: Props) {
         <img
           src={isShiny ? pokemon.spriteShiny : pokemon.sprite}
           alt={pokemon.name}
-          className="h-32 w-32 object-contain relative z-10 transition-transform group-hover:scale-110"
+          className="h-32 w-32 object-contain relative z-10 transition-all duration-300 group-hover:scale-110"
           loading="lazy"
         />
       </div>

@@ -14,7 +14,7 @@ const REGION_EMOJIS: Record<string, string> = {
   Galar: '🏰',
   Hisui: '⛰️',
   Paldea: '🏟️',
-  '???': '❓',
+  Desconhecida: '❓',
 };
 
 export default function Index() {
@@ -52,7 +52,7 @@ export default function Index() {
               </div>
               <h3 className="font-bold text-lg text-card-foreground mb-1">{gen.region}</h3>
               <p className="text-sm text-muted-foreground mb-3">
-                {gen.region === '???' ? 'Pokémon sem região definida' : `Região de ${gen.region}`}
+                {gen.region === 'Desconhecida' ? 'Pokémon sem região definida' : `Região de ${gen.region}`}
               </p>
               <p className="text-xs font-semibold text-primary">
                 #{gen.pokemonRange[0]} — #{gen.pokemonRange[1]}
