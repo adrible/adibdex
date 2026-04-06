@@ -85,9 +85,9 @@ export function PokemonGrid({ generation }: { generation: Generation }) {
           <Button
             variant={isShiny ? "default" : "outline"} size="sm"
             onClick={() => setIsShiny(!isShiny)}
-            className={`gap-1 ${isShiny ? 'bg-gradient-to-r from-yellow-500 to-amber-500 hover:from-yellow-600 hover:to-amber-600 text-white border-0' : ''}`}
+            className={`gap-1 transition-all duration-300 ${isShiny ? 'bg-gradient-to-r from-yellow-500 to-amber-500 hover:from-yellow-600 hover:to-amber-600 text-white border-0 shadow-md shadow-yellow-500/25' : ''}`}
           >
-            <Sparkles className="h-3.5 w-3.5" />
+            <Sparkles className={`h-3.5 w-3.5 transition-transform duration-300 ${isShiny ? 'animate-pulse' : ''}`} />
             Shiny
           </Button>
           {totalPokemon > PAGE_SIZE && (

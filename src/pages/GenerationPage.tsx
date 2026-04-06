@@ -33,7 +33,7 @@ export default function GenerationPage() {
           <div>
             <h2 className="font-pixel text-sm sm:text-lg text-foreground">{gen.region}</h2>
             <p className="text-sm text-muted-foreground">
-              {gen.region === '???' ? 'Pokémon sem região' : `Região de ${gen.region}`} · #{gen.pokemonRange[0]}–#{gen.pokemonRange[1]}
+              {gen.region === 'Desconhecida' ? 'Pokémon sem região definida' : `Região de ${gen.region}`} · #{gen.pokemonRange[0]}–#{gen.pokemonRange[1]}
             </p>
           </div>
         </div>
