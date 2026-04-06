@@ -45,7 +45,7 @@ export const GENERATIONS: Generation[] = [
   { id: 5, name: 'Unova', region: 'Unova', pokemonRange: [494, 649] },
   { id: 6, name: 'Kalos', region: 'Kalos', pokemonRange: [650, 721] },
   { id: 7, name: 'Alola', region: 'Alola', pokemonRange: [722, 807] },
-  { id: 10, name: '???', region: '???', pokemonRange: [808, 809] },
+  { id: 10, name: 'Desconhecida', region: 'Desconhecida', pokemonRange: [808, 809] },
   { id: 8, name: 'Galar', region: 'Galar', pokemonRange: [810, 898] },
   { id: 11, name: 'Hisui', region: 'Hisui', pokemonRange: [899, 905] },
   { id: 9, name: 'Paldea', region: 'Paldea', pokemonRange: [906, 1025] },
