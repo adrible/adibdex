@@ -8,8 +8,9 @@ import { TypeEffectiveness } from '@/components/TypeEffectiveness';
 import { PokemonForms } from '@/components/PokemonForms';
 import { EvolutionChainDisplay } from '@/components/EvolutionChain';
 import { PokemonMoves } from '@/components/PokemonMoves';
+import { useCompare } from '@/contexts/CompareContext';
 import { Button } from '@/components/ui/button';
-import { ArrowLeft, ChevronLeft, ChevronRight, MapPin, Sparkles, ChevronDown, ChevronUp } from 'lucide-react';
+import { ArrowLeft, ChevronLeft, ChevronRight, MapPin, Sparkles, ChevronDown, ChevronUp, GitCompareArrows, Check } from 'lucide-react';
 import { Skeleton } from '@/components/ui/skeleton';
 
 function StatBar({ name, value }: { name: string; value: number }) {
@@ -60,6 +61,8 @@ export default function PokemonDetailPage() {
   const location = useLocation();
   const pokemonId = Number(id);
   const [isShiny, setIsShiny] = useState(false);
+  const { add, remove, isSelected, isFull } = useCompare();
+  const inCompare = isSelected(pokemonId);
 
   // Preserve the ORIGINAL origin through all internal navigation
   const origin = (location.state as any)?.origin as string | undefined;
@@ -135,6 +138,21 @@ export default function PokemonDetailPage() {
             <ArrowLeft className="h-5 w-5" />
           </Button>
           <div className="flex gap-2 items-center">
+            <Button
+              variant={inCompare ? "default" : "outline"} size="sm"
+              onClick={() => {
+                if (inCompare) {
+                  remove(pokemonId);
+                } else {
+                  add({ id: pokemonId, name: pokemon.name, sprite: pokemon.sprites.artwork, types: pokemon.types });
+                }
+              }}
+              disabled={!inCompare && isFull}
+              className={`gap-1.5 ${inCompare ? '' : ''}`}
+            >
+              {inCompare ? <Check className="h-4 w-4" /> : <GitCompareArrows className="h-4 w-4" />}
+              <span className="hidden sm:inline">{inCompare ? 'Adicionado' : 'Comparar'}</span>
+            </Button>
             <Button
               variant={isShiny ? "default" : "outline"} size="sm"
               onClick={() => setIsShiny(!isShiny)}
