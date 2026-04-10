@@ -13,7 +13,7 @@ const REGION_EMOJIS: Record<string, string> = {
   Alola: '🌴',
   Galar: '🏰',
   Hisui: '⛰️',
-  Paldea: '🏟️',
+  Paldea: '💎',
   Desconhecida: '❓',
 };
 
