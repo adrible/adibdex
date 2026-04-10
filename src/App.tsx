@@ -5,15 +5,12 @@ import { Toaster as Sonner } from "@/components/ui/sonner";
 import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { ThemeProvider } from "@/components/ThemeProvider";
-import { CompareProvider } from "@/contexts/CompareContext";
-import { ComparePanel } from "@/components/ComparePanel";
 import { Skeleton } from "@/components/ui/skeleton";
 
 const Index = lazy(() => import("./pages/Index"));
 const GenerationPage = lazy(() => import("./pages/GenerationPage"));
 const NationalDexPage = lazy(() => import("./pages/NationalDexPage"));
 const PokemonDetailPage = lazy(() => import("./pages/PokemonDetailPage"));
-const ComparePage = lazy(() => import("./pages/ComparePage"));
 const SpecialFormsPage = lazy(() => import("./pages/SpecialFormsPage"));
 const NotFound = lazy(() => import("./pages/NotFound"));
 
@@ -47,21 +44,17 @@ const App = () => (
         <Toaster />
         <Sonner />
         <BrowserRouter>
-          <CompareProvider>
-            <Suspense fallback={<PageLoader />}>
-              <Routes>
-                <Route path="/" element={<Index />} />
-                <Route path="/national" element={<NationalDexPage />} />
-                <Route path="/generation/:id" element={<GenerationPage />} />
-                <Route path="/pokemon/:id" element={<PokemonDetailPage />} />
-                <Route path="/compare" element={<ComparePage />} />
-                <Route path="/mega" element={<SpecialFormsPage type="mega" />} />
-                <Route path="/gmax" element={<SpecialFormsPage type="gmax" />} />
-                <Route path="*" element={<NotFound />} />
-              </Routes>
-            </Suspense>
-            <ComparePanel />
-          </CompareProvider>
+          <Suspense fallback={<PageLoader />}>
+            <Routes>
+              <Route path="/" element={<Index />} />
+              <Route path="/national" element={<NationalDexPage />} />
+              <Route path="/generation/:id" element={<GenerationPage />} />
+              <Route path="/pokemon/:id" element={<PokemonDetailPage />} />
+              <Route path="/mega" element={<SpecialFormsPage type="mega" />} />
+              <Route path="/gmax" element={<SpecialFormsPage type="gmax" />} />
+              <Route path="*" element={<NotFound />} />
+            </Routes>
+          </Suspense>
         </BrowserRouter>
       </TooltipProvider>
     </ThemeProvider>
