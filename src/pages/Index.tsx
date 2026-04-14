@@ -132,7 +132,41 @@ export default function Index() {
               <div className="absolute -bottom-4 -right-4 h-24 w-24 rounded-full bg-primary/5 group-hover:bg-primary/10 transition-colors" />
             </Link>
           ))}
+<Link
+  to="/regional-forms"
+  className="group relative overflow-hidden rounded-xl border border-border bg-card p-6 transition-all hover:shadow-xl hover:-translate-y-1 hover:border-primary/50"
+>
+  <div className="flex items-start justify-between mb-3">
+    <div className="flex items-center gap-2 justify-center">
+      <img
+        src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/19.png" // Rattata
+        className="w-12 h-12 object-contain"
+      />
+      <img
+        src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/52.png" // Meowth
+        className="w-12 h-12 object-contain"
+      />
+      <img
+        src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/83.png" // Farfetch’d
+        className="w-12 h-12 object-contain"
+      />
+    </div>
 
+    <ChevronRight className="h-5 w-5 text-muted-foreground group-hover:text-primary transition-colors" />
+  </div>
+
+  <h3 className="font-bold text-lg text-card-foreground mb-1">Formas Regionais</h3>
+
+  <p className="text-sm text-muted-foreground mb-3">
+    Alolan, Galarian, Hisuian e Paldean forms
+  </p>
+
+  <p className="text-xs font-semibold text-primary">
+    VARIAÇÕES POR REGIÃO
+  </p>
+
+  <div className="absolute -bottom-4 -right-4 h-24 w-24 rounded-full bg-primary/5 group-hover:bg-primary/10 transition-colors" />
+</Link>
           <Link
             to="/mega"
             className="group relative overflow-hidden rounded-xl border border-border bg-card p-6 transition-all hover:shadow-xl hover:-translate-y-1 hover:border-primary/50"
