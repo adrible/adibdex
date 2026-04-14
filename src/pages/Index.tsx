@@ -139,16 +139,16 @@ export default function Index() {
   <div className="flex items-start justify-between mb-3">
     <div className="flex items-center gap-2 justify-center">
       <img
-        src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/19.png" // Rattata
-        className="w-12 h-12 object-contain"
+        src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/10091.png" // Rattata
+        className="w-14 h-14 object-contain transition-transform group-hover:scale-110"
       />
       <img
-        src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/52.png" // Meowth
-        className="w-12 h-12 object-contain"
+        src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/10107.png" // Meowth
+        className="w-14 h-14 object-contain transition-transform group-hover:scale-110"
       />
       <img
-        src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/83.png" // Farfetch’d
-        className="w-12 h-12 object-contain"
+        src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/10166.png" // Farfetch’d
+        className="w-14 h-14 object-contain transition-transform group-hover:scale-110"
       />
     </div>
 
