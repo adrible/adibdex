@@ -2,30 +2,78 @@ import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { TypeBadge } from '@/components/TypeBadge';
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from '@/components/ui/sheet';
-import { MEGA_POKEMON_IDS, GMAX_POKEMON_IDS, REGIONAL_FORM_IDS, TYPE_TRANSLATIONS, STARTER_IDS, LEGENDARY_IDS, MYTHICAL_IDS, PSEUDO_LEGENDARY_IDS, ULTRA_BEAST_IDS, PARADOX_IDS, BABY_IDS, FOSSIL_IDS, ALL_SPECIAL_SETS } from '@/lib/pokeapi';
+import {
+  MEGA_POKEMON_IDS,
+  GMAX_POKEMON_IDS,
+  REGIONAL_FORM_IDS,
+  TYPE_TRANSLATIONS,
+  STARTER_IDS,
+  LEGENDARY_IDS,
+  MYTHICAL_IDS,
+  PSEUDO_LEGENDARY_IDS,
+  ULTRA_BEAST_IDS,
+  PARADOX_IDS,
+  BABY_IDS,
+  FOSSIL_IDS,
+  ALL_SPECIAL_SETS,
+} from '@/lib/pokeapi';
 import { getDefensiveMatchups, getOffensiveMatchups } from '@/lib/type-effectiveness';
 import { Filter, X, ArrowUpDown } from 'lucide-react';
 
 const ALL_TYPES = Object.keys(TYPE_TRANSLATIONS);
 
-export type SortOption = 'id' | 'name' | 'hp' | 'attack' | 'defense' | 'spAtk' | 'spDef' | 'speed' | 'height' | 'weight';
-export type ClassificationOption = 'starter' | 'legendary' | 'mythical' | 'pseudo' | 'ultra_beast' | 'paradox' | 'baby' | 'fossil' | 'regular';
+export type SortOption =
+  | 'id'
+  | 'name'
+  | 'hp'
+  | 'attack'
+  | 'defense'
+  | 'spAtk'
+  | 'spDef'
+  | 'speed'
+  | 'height'
+  | 'weight';
+
+export type ClassificationOption =
+  | 'starter'
+  | 'legendary'
+  | 'mythical'
+  | 'pseudo'
+  | 'ultra_beast'
+  | 'paradox'
+  | 'baby'
+  | 'fossil'
+  | 'regular';
+
 export type EvolutionStageOption = 'basic' | 'stage1' | 'stage2';
 
 const CLASSIFICATION_LABELS: Record<ClassificationOption, string> = {
-  starter: 'Starter', legendary: 'Lendário', mythical: 'Mítico',
-  pseudo: 'Pseudo-Lendário', ultra_beast: 'Ultra Beast', paradox: 'Paradoxo', baby: 'Bebê',
-  fossil: 'Fóssil', regular: 'Regular',
+  starter: 'Starter',
+  legendary: 'Lendário',
+  mythical: 'Mítico',
+  pseudo: 'Pseudo-Lendário',
+  ultra_beast: 'Ultra Beast',
+  paradox: 'Paradoxo',
+  baby: 'Bebê',
+  fossil: 'Fóssil',
+  regular: 'Regular',
 };
 
 const CLASSIFICATION_SETS: Record<Exclude<ClassificationOption, 'regular'>, Set<number>> = {
-  starter: STARTER_IDS, legendary: LEGENDARY_IDS, mythical: MYTHICAL_IDS,
-  pseudo: PSEUDO_LEGENDARY_IDS, ultra_beast: ULTRA_BEAST_IDS, paradox: PARADOX_IDS, baby: BABY_IDS,
+  starter: STARTER_IDS,
+  legendary: LEGENDARY_IDS,
+  mythical: MYTHICAL_IDS,
+  pseudo: PSEUDO_LEGENDARY_IDS,
+  ultra_beast: ULTRA_BEAST_IDS,
+  paradox: PARADOX_IDS,
+  baby: BABY_IDS,
   fossil: FOSSIL_IDS,
 };
 
 const EVOLUTION_STAGE_LABELS: Record<EvolutionStageOption, string> = {
-  basic: 'Básico', stage1: 'Estágio 1', stage2: 'Estágio 2',
+  basic: 'Básico',
+  stage1: 'Estágio 1',
+  stage2: 'Estágio 2',
 };
 
 export interface FilterState {
@@ -86,7 +134,6 @@ export function hasActiveFilters(f: FilterState): boolean {
   );
 }
 
-// Session storage helpers for filter persistence
 const FILTER_STORAGE_KEY = 'pokedex-filters';
 
 export function saveFiltersToSession(key: string, filters: FilterState, page: number) {
@@ -101,30 +148,32 @@ export function loadFiltersFromSession(key: string): { filters: FilterState; pag
     if (!raw) return null;
     const parsed = JSON.parse(raw);
     return { filters: { ...DEFAULT_FILTERS, ...parsed.filters }, page: parsed.page || 0 };
-  } catch { return null; }
+  } catch {
+    return null;
+  }
 }
 
 export function ActiveFilterChips({ filters, onChange }: Props) {
   const chips: { label: string; onRemove: () => void }[] = [];
 
-  filters.types.forEach(t => {
+  filters.types.forEach((t) => {
     chips.push({
       label: `Tipo: ${TYPE_TRANSLATIONS[t]}`,
-      onRemove: () => onChange({ ...filters, types: filters.types.filter(x => x !== t) }),
+      onRemove: () => onChange({ ...filters, types: filters.types.filter((x) => x !== t) }),
     });
   });
 
-  filters.weakTo.forEach(t => {
+  filters.weakTo.forEach((t) => {
     chips.push({
       label: `Fraco: ${TYPE_TRANSLATIONS[t]}`,
-      onRemove: () => onChange({ ...filters, weakTo: filters.weakTo.filter(x => x !== t) }),
+      onRemove: () => onChange({ ...filters, weakTo: filters.weakTo.filter((x) => x !== t) }),
     });
   });
 
-  filters.strongAgainst.forEach(t => {
+  filters.strongAgainst.forEach((t) => {
     chips.push({
       label: `Forte: ${TYPE_TRANSLATIONS[t]}`,
-      onRemove: () => onChange({ ...filters, strongAgainst: filters.strongAgainst.filter(x => x !== t) }),
+      onRemove: () => onChange({ ...filters, strongAgainst: filters.strongAgainst.filter((x) => x !== t) }),
     });
   });
 
@@ -149,22 +198,30 @@ export function ActiveFilterChips({ filters, onChange }: Props) {
     });
   }
 
-  filters.classifications?.forEach(c => {
+  filters.classifications?.forEach((c) => {
     chips.push({
       label: CLASSIFICATION_LABELS[c],
-      onRemove: () => onChange({ ...filters, classifications: filters.classifications.filter(x => x !== c) }),
+      onRemove: () =>
+        onChange({
+          ...filters,
+          classifications: filters.classifications.filter((x) => x !== c),
+        }),
     });
   });
 
-  filters.evolutionStages?.forEach(s => {
+  filters.evolutionStages?.forEach((s) => {
     chips.push({
       label: `Estágio: ${EVOLUTION_STAGE_LABELS[s]}`,
-      onRemove: () => onChange({ ...filters, evolutionStages: filters.evolutionStages.filter(x => x !== s) }),
+      onRemove: () =>
+        onChange({
+          ...filters,
+          evolutionStages: filters.evolutionStages.filter((x) => x !== s),
+        }),
     });
   });
 
   if (filters.sortBy !== 'id') {
-    const label = SORT_OPTIONS.find(s => s.value === filters.sortBy)?.label || filters.sortBy;
+    const label = SORT_OPTIONS.find((s) => s.value === filters.sortBy)?.label || filters.sortBy;
     chips.push({
       label: `Ordem: ${label}`,
       onRemove: () => onChange({ ...filters, sortBy: 'id', sortDir: 'asc' }),
@@ -200,37 +257,52 @@ function FilterContent({ filters, onChange, onClose }: Props & { onClose: () => 
   const [local, setLocal] = useState<FilterState>(filters);
 
   const toggleType = (t: string) => {
-    setLocal(prev => ({
+    setLocal((prev) => ({
       ...prev,
-      types: prev.types.includes(t) ? prev.types.filter(x => x !== t) : [...prev.types, t],
+      types: prev.types.includes(t) ? prev.types.filter((x) => x !== t) : [...prev.types, t],
     }));
   };
 
   const toggleWeak = (t: string) => {
-    setLocal(prev => ({
+    setLocal((prev) => ({
       ...prev,
-      weakTo: prev.weakTo.includes(t) ? prev.weakTo.filter(x => x !== t) : [...prev.weakTo, t],
+      weakTo: prev.weakTo.includes(t) ? prev.weakTo.filter((x) => x !== t) : [...prev.weakTo, t],
     }));
   };
 
   const toggleStrong = (t: string) => {
-    setLocal(prev => ({
+    setLocal((prev) => ({
       ...prev,
-      strongAgainst: prev.strongAgainst.includes(t) ? prev.strongAgainst.filter(x => x !== t) : [...prev.strongAgainst, t],
+      strongAgainst: prev.strongAgainst.includes(t)
+        ? prev.strongAgainst.filter((x) => x !== t)
+        : [...prev.strongAgainst, t],
     }));
   };
 
-  const apply = () => { onChange(local); onClose(); };
-  const clear = () => { setLocal(DEFAULT_FILTERS); onChange(DEFAULT_FILTERS); onClose(); };
+  const apply = () => {
+    onChange(local);
+    onClose();
+  };
+
+  const clear = () => {
+    setLocal(DEFAULT_FILTERS);
+    onChange(DEFAULT_FILTERS);
+    onClose();
+  };
 
   return (
     <div className="space-y-6 py-2">
       <div>
         <h4 className="text-sm font-semibold text-foreground mb-2">Tipo</h4>
         <div className="flex flex-wrap gap-1.5">
-          {ALL_TYPES.map(t => (
-            <button key={t} onClick={() => toggleType(t)}
-              className={`transition-all ${local.types.includes(t) ? 'ring-2 ring-primary scale-110' : 'opacity-70 hover:opacity-100'}`}>
+          {ALL_TYPES.map((t) => (
+            <button
+              key={t}
+              onClick={() => toggleType(t)}
+              className={`transition-all ${
+                local.types.includes(t) ? 'ring-2 ring-primary scale-110' : 'opacity-70 hover:opacity-100'
+              }`}
+            >
               <TypeBadge type={t} size="sm" />
             </button>
           ))}
@@ -240,9 +312,14 @@ function FilterContent({ filters, onChange, onClose }: Props & { onClose: () => 
       <div>
         <h4 className="text-sm font-semibold text-foreground mb-2">Fraco contra</h4>
         <div className="flex flex-wrap gap-1.5">
-          {ALL_TYPES.map(t => (
-            <button key={t} onClick={() => toggleWeak(t)}
-              className={`transition-all ${local.weakTo.includes(t) ? 'ring-2 ring-destructive scale-110' : 'opacity-70 hover:opacity-100'}`}>
+          {ALL_TYPES.map((t) => (
+            <button
+              key={t}
+              onClick={() => toggleWeak(t)}
+              className={`transition-all ${
+                local.weakTo.includes(t) ? 'ring-2 ring-destructive scale-110' : 'opacity-70 hover:opacity-100'
+              }`}
+            >
               <TypeBadge type={t} size="sm" />
             </button>
           ))}
@@ -252,9 +329,16 @@ function FilterContent({ filters, onChange, onClose }: Props & { onClose: () => 
       <div>
         <h4 className="text-sm font-semibold text-foreground mb-2">Forte contra</h4>
         <div className="flex flex-wrap gap-1.5">
-          {ALL_TYPES.map(t => (
-            <button key={t} onClick={() => toggleStrong(t)}
-              className={`transition-all ${local.strongAgainst.includes(t) ? 'ring-2 ring-green-500 scale-110' : 'opacity-70 hover:opacity-100'}`}>
+          {ALL_TYPES.map((t) => (
+            <button
+              key={t}
+              onClick={() => toggleStrong(t)}
+              className={`transition-all ${
+                local.strongAgainst.includes(t)
+                  ? 'ring-2 ring-green-500 scale-110'
+                  : 'opacity-70 hover:opacity-100'
+              }`}
+            >
               <TypeBadge type={t} size="sm" />
             </button>
           ))}
@@ -265,22 +349,27 @@ function FilterContent({ filters, onChange, onClose }: Props & { onClose: () => 
         <h4 className="text-sm font-semibold text-foreground mb-2">Formas Especiais</h4>
         <div className="flex flex-wrap gap-2">
           {[
-            [
-  { label: 'Tem Mega', val: true, key: 'hasMega' as const },
-  { label: 'Sem Mega', val: false, key: 'hasMega' as const },
-  { label: 'Tem Gmax', val: true, key: 'hasGmax' as const },
-  { label: 'Sem Gmax', val: false, key: 'hasGmax' as const },
-  { label: 'Tem Regional', val: true, key: 'hasRegional' as const },
-  { label: 'Sem Regional', val: false, key: 'hasRegional' as const },
-]
-          ].map(opt => (
-            <button key={`${opt.key}-${opt.val}`}
-              onClick={() => setLocal(prev => ({ ...prev, [opt.key]: prev[opt.key] === opt.val ? null : opt.val }))}
+            { label: 'Tem Mega', val: true, key: 'hasMega' as const },
+            { label: 'Sem Mega', val: false, key: 'hasMega' as const },
+            { label: 'Tem Gmax', val: true, key: 'hasGmax' as const },
+            { label: 'Sem Gmax', val: false, key: 'hasGmax' as const },
+            { label: 'Tem Regional', val: true, key: 'hasRegional' as const },
+            { label: 'Sem Regional', val: false, key: 'hasRegional' as const },
+          ].map((opt) => (
+            <button
+              key={`${opt.key}-${opt.val}`}
+              onClick={() =>
+                setLocal((prev) => ({
+                  ...prev,
+                  [opt.key]: prev[opt.key] === opt.val ? null : opt.val,
+                }))
+              }
               className={`px-3 py-1.5 rounded-full text-xs font-medium border transition-colors ${
                 local[opt.key] === opt.val
                   ? 'bg-primary text-primary-foreground border-primary'
                   : 'bg-muted/40 text-muted-foreground border-border hover:bg-muted/70'
-              }`}>
+              }`}
+            >
               {opt.label}
             </button>
           ))}
@@ -290,19 +379,23 @@ function FilterContent({ filters, onChange, onClose }: Props & { onClose: () => 
       <div>
         <h4 className="text-sm font-semibold text-foreground mb-2">Classificação</h4>
         <div className="flex flex-wrap gap-2">
-          {(Object.keys(CLASSIFICATION_LABELS) as ClassificationOption[]).map(c => (
-            <button key={c}
-              onClick={() => setLocal(prev => ({
-                ...prev,
-                classifications: prev.classifications.includes(c)
-                  ? prev.classifications.filter(x => x !== c)
-                  : [...prev.classifications, c],
-              }))}
+          {(Object.keys(CLASSIFICATION_LABELS) as ClassificationOption[]).map((c) => (
+            <button
+              key={c}
+              onClick={() =>
+                setLocal((prev) => ({
+                  ...prev,
+                  classifications: prev.classifications.includes(c)
+                    ? prev.classifications.filter((x) => x !== c)
+                    : [...prev.classifications, c],
+                }))
+              }
               className={`px-3 py-1.5 rounded-full text-xs font-medium border transition-colors ${
                 local.classifications.includes(c)
                   ? 'bg-primary text-primary-foreground border-primary'
                   : 'bg-muted/40 text-muted-foreground border-border hover:bg-muted/70'
-              }`}>
+              }`}
+            >
               {CLASSIFICATION_LABELS[c]}
             </button>
           ))}
@@ -312,37 +405,53 @@ function FilterContent({ filters, onChange, onClose }: Props & { onClose: () => 
       <div>
         <h4 className="text-sm font-semibold text-foreground mb-2">Estágio Evolutivo</h4>
         <div className="flex flex-wrap gap-2">
-          {(Object.keys(EVOLUTION_STAGE_LABELS) as EvolutionStageOption[]).map(s => (
-            <button key={s}
-              onClick={() => setLocal(prev => ({
-                ...prev,
-                evolutionStages: (prev.evolutionStages || []).includes(s)
-                  ? prev.evolutionStages.filter(x => x !== s)
-                  : [...(prev.evolutionStages || []), s],
-              }))}
+          {(Object.keys(EVOLUTION_STAGE_LABELS) as EvolutionStageOption[]).map((s) => (
+            <button
+              key={s}
+              onClick={() =>
+                setLocal((prev) => ({
+                  ...prev,
+                  evolutionStages: (prev.evolutionStages || []).includes(s)
+                    ? prev.evolutionStages.filter((x) => x !== s)
+                    : [...(prev.evolutionStages || []), s],
+                }))
+              }
               className={`px-3 py-1.5 rounded-full text-xs font-medium border transition-colors ${
                 (local.evolutionStages || []).includes(s)
                   ? 'bg-primary text-primary-foreground border-primary'
                   : 'bg-muted/40 text-muted-foreground border-border hover:bg-muted/70'
-              }`}>
+              }`}
+            >
               {EVOLUTION_STAGE_LABELS[s]}
             </button>
           ))}
         </div>
+
         <h4 className="text-sm font-semibold text-foreground mb-2">Ordenar por</h4>
         <div className="flex flex-wrap gap-1.5">
-          {SORT_OPTIONS.map(opt => (
-            <button key={opt.value}
-              onClick={() => setLocal(prev => ({
-                ...prev,
-                sortBy: opt.value,
-                sortDir: prev.sortBy === opt.value ? (prev.sortDir === 'asc' ? 'desc' : 'asc') : (opt.value === 'name' ? 'asc' : 'desc'),
-              }))}
+          {SORT_OPTIONS.map((opt) => (
+            <button
+              key={opt.value}
+              onClick={() =>
+                setLocal((prev) => ({
+                  ...prev,
+                  sortBy: opt.value,
+                  sortDir:
+                    prev.sortBy === opt.value
+                      ? prev.sortDir === 'asc'
+                        ? 'desc'
+                        : 'asc'
+                      : opt.value === 'name'
+                        ? 'asc'
+                        : 'desc',
+                }))
+              }
               className={`px-3 py-1.5 rounded-full text-xs font-medium border transition-colors flex items-center gap-1 ${
                 local.sortBy === opt.value
                   ? 'bg-primary text-primary-foreground border-primary'
                   : 'bg-muted/40 text-muted-foreground border-border hover:bg-muted/70'
-              }`}>
+              }`}
+            >
               {opt.label}
               {local.sortBy === opt.value && (
                 <span className="text-[10px]">{local.sortDir === 'asc' ? '↑' : '↓'}</span>
@@ -372,19 +481,20 @@ export function PokemonFilterButton({ filters, onChange }: Props) {
           Filtros
           {active && (
             <span className="h-4 w-4 rounded-full bg-primary text-primary-foreground text-[10px] flex items-center justify-center font-bold">
-{filters.types.length +
-  filters.weakTo.length +
-  filters.strongAgainst.length +
-  filters.classifications.length +
-  (filters.evolutionStages?.length || 0) +
-  (filters.hasMega !== null ? 1 : 0) +
-  (filters.hasGmax !== null ? 1 : 0) +
-  (filters.hasRegional !== null ? 1 : 0) +
-  (filters.sortBy !== 'id' ? 1 : 0)}
+              {filters.types.length +
+                filters.weakTo.length +
+                filters.strongAgainst.length +
+                filters.classifications.length +
+                (filters.evolutionStages?.length || 0) +
+                (filters.hasMega !== null ? 1 : 0) +
+                (filters.hasGmax !== null ? 1 : 0) +
+                (filters.hasRegional !== null ? 1 : 0) +
+                (filters.sortBy !== 'id' ? 1 : 0)}
             </span>
           )}
         </Button>
       </SheetTrigger>
+
       <SheetContent side="right" className="w-full sm:max-w-md overflow-y-auto">
         <SheetHeader>
           <SheetTitle className="flex items-center gap-2">
@@ -398,55 +508,56 @@ export function PokemonFilterButton({ filters, onChange }: Props) {
   );
 }
 
-export function applyFilters(pokemons: import('@/lib/pokeapi').PokemonBasic[], filters: FilterState): import('@/lib/pokeapi').PokemonBasic[] {
+export function applyFilters(
+  pokemons: import('@/lib/pokeapi').PokemonBasic[],
+  filters: FilterState
+): import('@/lib/pokeapi').PokemonBasic[] {
   let result = [...pokemons];
 
   if (filters.types.length > 0) {
-    result = result.filter(p => filters.types.some(t => p.types.includes(t)));
+    result = result.filter((p) => filters.types.some((t) => p.types.includes(t)));
   }
 
   if (filters.weakTo.length > 0) {
-    result = result.filter(p => {
+    result = result.filter((p) => {
       const matchups = getDefensiveMatchups(p.types);
-      return filters.weakTo.every(t =>
-        matchups.weaknesses.some(w => w.type === t)
-      );
+      return filters.weakTo.every((t) => matchups.weaknesses.some((w) => w.type === t));
     });
   }
 
   if (filters.strongAgainst.length > 0) {
-    result = result.filter(p => {
+    result = result.filter((p) => {
       const offensive = getOffensiveMatchups(p.types);
-      return filters.strongAgainst.every(t =>
-        offensive.superEffective.includes(t)
-      );
+      return filters.strongAgainst.every((t) => offensive.superEffective.includes(t));
     });
   }
 
-  if (filters.hasMega === true) result = result.filter(p => MEGA_POKEMON_IDS.has(p.id));
-  if (filters.hasMega === false) result = result.filter(p => !MEGA_POKEMON_IDS.has(p.id));
-  if (filters.hasGmax === true) result = result.filter(p => GMAX_POKEMON_IDS.has(p.id));
-  if (filters.hasGmax === false) result = result.filter(p => !GMAX_POKEMON_IDS.has(p.id));
+  if (filters.hasMega === true) result = result.filter((p) => MEGA_POKEMON_IDS.has(p.id));
+  if (filters.hasMega === false) result = result.filter((p) => !MEGA_POKEMON_IDS.has(p.id));
+
+  if (filters.hasGmax === true) result = result.filter((p) => GMAX_POKEMON_IDS.has(p.id));
+  if (filters.hasGmax === false) result = result.filter((p) => !GMAX_POKEMON_IDS.has(p.id));
+
   if (filters.hasRegional === true) {
-    result = result.filter(p => {
+    result = result.filter((p) => {
       const baseId = (p as any).baseId || p.id;
       return REGIONAL_FORM_IDS.has(baseId);
     });
   }
 
   if (filters.hasRegional === false) {
-    result = result.filter(p => {
+    result = result.filter((p) => {
       const baseId = (p as any).baseId || p.id;
       return !REGIONAL_FORM_IDS.has(baseId);
     });
   }
 
   if (filters.classifications && filters.classifications.length > 0) {
-    result = result.filter(p => {
+    result = result.filter((p) => {
       const baseId = (p as any).baseId || p.id;
-      return filters.classifications.some(c => {
+      return filters.classifications.some((c) => {
         if (c === 'regular') {
-          return !ALL_SPECIAL_SETS.some(set => set.has(baseId));
+          return !ALL_SPECIAL_SETS.some((set) => set.has(baseId));
         }
         return CLASSIFICATION_SETS[c].has(baseId);
       });
@@ -454,7 +565,7 @@ export function applyFilters(pokemons: import('@/lib/pokeapi').PokemonBasic[], f
   }
 
   if (filters.evolutionStages && filters.evolutionStages.length > 0) {
-    result = result.filter(p => {
+    result = result.filter((p) => {
       const stage = (p as any).evolutionStage as string | undefined;
       if (!stage) return filters.evolutionStages.includes('basic');
       return filters.evolutionStages.includes(stage as EvolutionStageOption);
