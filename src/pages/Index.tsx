@@ -147,7 +147,7 @@ export default function Index() {
         className="w-14 h-14 object-contain transition-transform group-hover:scale-110"
       />
       <img
-        src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/10166.png" // Farfetch’d
+        src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/10103.png" // Vulpix
         className="w-14 h-14 object-contain transition-transform group-hover:scale-110"
       />
     </div>
