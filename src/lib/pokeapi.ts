@@ -53,9 +53,9 @@ export const GENERATIONS: Generation[] = [
 
 // Complete official Mega Evolution Pokémon (base IDs) – 46 species + Primal forms
 export const MEGA_POKEMON_IDS = new Set([
-  3,6,9,15,18,65,80,94,115,127,130,142,150,181,208,212,214,229,248,
-  254,257,260,282,302,303,306,308,310,319,323,334,354,359,362,373,
-  376,380,381,382,383,384,428,445,448,460,475,531,719
+  3, 6, 9, 15, 18, 26, 65, 80, 94, 115, 127, 130, 142, 150, 181, 208, 212, 214, 229, 248,
+254, 257, 260, 282, 302, 303, 306, 308, 310, 354, 359, 362, 373, 376, 380, 381, 384,
+428, 445, 448, 460, 475, 531, 652, 655, 658, 719, 807, 998
 ]);
 
 // Classification datasets
@@ -103,9 +103,12 @@ export const GMAX_POKEMON_IDS = new Set([
 ]);
 
 export const REGIONAL_FORM_POKEMON_IDS = new Set([
-  19, 20, 26, 27, 28, 37, 38, 50, 51, 52, 53, 58, 59, 74, 75, 76,
-  77, 78, 88, 89, 100, 101, 103, 105, 110, 122, 128, 144, 145, 146,
-  157, 211, 215, 222, 263, 264, 503, 549, 570, 571,
+  19, 20, 26, 27, 28, 37, 38, 50, 51, 52, 53, 58, 59, 74, 75, 76, 77, 78,
+79, 80, 83, 88, 89, 100, 101, 102, 103, 105, 110, 122, 144, 145, 146,
+157, 211, 215, 222, 263, 264, 554, 555, 562, 563, 618,
+705, 706, 713,
+724,
+899, 901, 902, 903, 904
 ]);
 
 // Evolution stage cache - populated lazily
@@ -791,7 +794,12 @@ export async function fetchAllRegionalForms(): Promise<PokemonBasic[]> {
             const name = v.pokemon.name as string;
 
             if (v.is_default) return false;
-            if (name.includes('-mega') || name.includes('-gmax') || name.includes('-totem') || name.includes('-primal')) {
+            if (
+              name.includes('-mega') ||
+              name.includes('-gmax') ||
+              name.includes('-totem') ||
+              name.includes('-primal')
+            ) {
               return false;
             }
 
@@ -832,6 +840,37 @@ export async function fetchAllRegionalForms(): Promise<PokemonBasic[]> {
     );
 
     results.push(...batchResults.flat());
+  }
+
+  // PATCH: starters de Hisui não vêm como varieties normais
+  const HISUI_EXTRA = [
+    { id: 10077, baseId: 724 }, // decidueye-hisui
+    { id: 10078, baseId: 157 }, // typhlosion-hisui
+    { id: 10079, baseId: 503 }, // samurott-hisui
+  ];
+
+  for (const p of HISUI_EXTRA) {
+    const alreadyExists = results.some((r: any) => r.id === p.id);
+    if (alreadyExists) continue;
+
+    try {
+      const data = await fetchPokemonRaw(p.id);
+
+      results.push({
+        id: data.id,
+        name: data.name,
+        sprite:
+          data.sprites.other?.['official-artwork']?.front_default ||
+          data.sprites.front_default ||
+          `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${data.id}.png`,
+        spriteShiny:
+          data.sprites.other?.['official-artwork']?.front_shiny ||
+          data.sprites.front_shiny ||
+          `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/shiny/${data.id}.png`,
+        types: data.types.map((t: any) => t.type.name),
+        baseId: p.baseId,
+      } as PokemonBasic & { baseId: number });
+    } catch {}
   }
 
   return results.sort((a: any, b: any) => {
