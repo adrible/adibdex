@@ -102,6 +102,12 @@ export const GMAX_POKEMON_IDS = new Set([
   812,815,818,823,826,834,839,841,842,844,849,851,858,861,869,879,884,892
 ]);
 
+export const REGIONAL_FORM_POKEMON_IDS = new Set([
+  19, 20, 26, 27, 28, 37, 38, 50, 51, 52, 53, 58, 59, 74, 75, 76,
+  77, 78, 88, 89, 100, 101, 103, 105, 110, 122, 128, 144, 145, 146,
+  157, 211, 215, 222, 263, 264, 503, 549, 570, 571,
+]);
+
 // Evolution stage cache - populated lazily
 const evolutionStageCache = new Map<number, 'basic' | 'stage1' | 'stage2'>();
 const speciesCache = new Map<number, any>();
@@ -764,4 +770,75 @@ export async function fetchPokemonForms(pokemonId: number): Promise<PokemonForm[
     );
     return forms.filter((f): f is PokemonForm => f !== null && f.sprite !== '');
   } catch { return []; }
+}
+export async function fetchAllRegionalForms(): Promise<PokemonBasic[]> {
+  const ids = [...REGIONAL_FORM_POKEMON_IDS].sort((a, b) => a - b);
+  const results: PokemonBasic[] = [];
+
+  const allowedRegionalKeys = ['alola', 'galar', 'hisui', 'paldea'];
+
+  for (let i = 0; i < ids.length; i += 10) {
+    const batch = ids.slice(i, i + 10);
+
+    const batchResults = await Promise.all(
+      batch.map(async (baseId) => {
+        try {
+          const speciesRes = await fetch(`${BASE_URL}/pokemon-species/${baseId}`);
+          const speciesData = await speciesRes.json();
+          const varieties = speciesData.varieties || [];
+
+          const regionalVarieties = varieties.filter((v: any) => {
+            const name = v.pokemon.name as string;
+
+            if (v.is_default) return false;
+            if (name.includes('-mega') || name.includes('-gmax') || name.includes('-totem') || name.includes('-primal')) {
+              return false;
+            }
+
+            return allowedRegionalKeys.some((key) => name.includes(`-${key}`));
+          });
+
+          const forms = await Promise.all(
+            regionalVarieties.map(async (v: any) => {
+              try {
+                const res = await fetch(v.pokemon.url);
+                const data = await res.json();
+
+                return {
+                  id: data.id,
+                  name: data.name,
+                  sprite:
+                    data.sprites.other?.['official-artwork']?.front_default ||
+                    data.sprites.front_default ||
+                    `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${data.id}.png`,
+                  spriteShiny:
+                    data.sprites.other?.['official-artwork']?.front_shiny ||
+                    data.sprites.front_shiny ||
+                    `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/shiny/${data.id}.png`,
+                  types: data.types.map((t: any) => t.type.name),
+                  baseId,
+                } as PokemonBasic & { baseId: number };
+              } catch {
+                return null;
+              }
+            })
+          );
+
+          return forms.filter(Boolean) as (PokemonBasic & { baseId: number })[];
+        } catch {
+          return [];
+        }
+      })
+    );
+
+    results.push(...batchResults.flat());
+  }
+
+  return results.sort((a: any, b: any) => {
+    const aBase = a.baseId ?? a.id;
+    const bBase = b.baseId ?? b.id;
+
+    if (aBase !== bBase) return aBase - bBase;
+    return a.name.localeCompare(b.name);
+  });
 }
