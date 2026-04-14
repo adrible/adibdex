@@ -349,30 +349,30 @@ function FilterContent({ filters, onChange, onClose }: Props & { onClose: () => 
         <h4 className="text-sm font-semibold text-foreground mb-2">Formas Especiais</h4>
         <div className="flex flex-wrap gap-2">
           {[
-            { label: 'Tem Mega', val: true, key: 'hasMega' as const },
-            { label: 'Sem Mega', val: false, key: 'hasMega' as const },
-            { label: 'Tem Gmax', val: true, key: 'hasGmax' as const },
-            { label: 'Sem Gmax', val: false, key: 'hasGmax' as const },
-            { label: 'Tem Regional', val: true, key: 'hasRegional' as const },
-            { label: 'Sem Regional', val: false, key: 'hasRegional' as const },
-          ].map((opt) => (
-            <button
-              key={`${opt.key}-${opt.val}`}
-              onClick={() =>
-                setLocal((prev) => ({
-                  ...prev,
-                  [opt.key]: prev[opt.key] === opt.val ? null : opt.val,
-                }))
-              }
-              className={`px-3 py-1.5 rounded-full text-xs font-medium border transition-colors ${
-                local[opt.key] === opt.val
-                  ? 'bg-primary text-primary-foreground border-primary'
-                  : 'bg-muted/40 text-muted-foreground border-border hover:bg-muted/70'
-              }`}
-            >
-              {opt.label}
-            </button>
-          ))}
+  { label: 'Tem Mega', val: true, key: 'hasMega' as const },
+  { label: 'Sem Mega', val: false, key: 'hasMega' as const },
+  { label: 'Tem Gmax', val: true, key: 'hasGmax' as const },
+  { label: 'Sem Gmax', val: false, key: 'hasGmax' as const },
+  { label: 'Tem Regional', val: true, key: 'hasRegional' as const },
+  { label: 'Sem Regional', val: false, key: 'hasRegional' as const },
+].map((opt) => (
+  <button
+    key={`${opt.key}-${String(opt.val)}`}
+    onClick={() =>
+      setLocal((prev) => ({
+        ...prev,
+        [opt.key]: (prev as any)[opt.key] === opt.val ? null : opt.val,
+      }))
+    }
+    className={`px-3 py-1.5 rounded-full text-xs font-medium border transition-colors ${
+      (local as any)[opt.key] === opt.val
+        ? 'bg-primary text-primary-foreground border-primary'
+        : 'bg-muted/40 text-muted-foreground border-border hover:bg-muted/70'
+    }`}
+  >
+    {opt.label}
+  </button>
+))}
         </div>
       </div>
 
