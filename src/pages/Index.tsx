@@ -143,7 +143,7 @@ export default function Index() {
         className="w-14 h-14 object-contain transition-transform group-hover:scale-110"
       />
       <img
-        src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/10107.png" // Meowth
+        src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/10100.png" // Raichu
         className="w-14 h-14 object-contain transition-transform group-hover:scale-110"
       />
       <img
