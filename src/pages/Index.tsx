@@ -67,9 +67,9 @@ const MEGA_SPRITES = [
 ];
 
 const GMAX_SPRITES = [
-  'https://play.pokemonshowdown.com/sprites/gen8/charizard.png',
-  'https://play.pokemonshowdown.com/sprites/gen8/pikachu.png',
-  'https://play.pokemonshowdown.com/sprites/gen8/gengar.png',
+  'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/25.png',   // Charizard
+  'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/6.png',  // Pikachu
+  'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/94.png',  // Gengar
 ];
 
 export default function Index() {
