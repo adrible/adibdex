@@ -108,7 +108,7 @@ export default function Index() {
                       key={index}
                       src={sprite}
                       alt={`${gen.region} sprite ${index + 1}`}
-                      className="w-12 h-12 object-contain transition-transform group-hover:scale-110"
+                      className="w-14 h-14 object-contain transition-transform group-hover:scale-110"
                       loading="lazy"
                     />
                   ))}
@@ -144,7 +144,7 @@ export default function Index() {
                     key={index}
                     src={sprite}
                     alt={`Mega sprite ${index + 1}`}
-                    className="w-16 h-16 object-contain transition-transform group-hover:scale-110"
+                    className="w-18 h-18 object-contain transition-transform group-hover:scale-110"
                     loading="lazy"
                   />
                 ))}
@@ -171,7 +171,7 @@ export default function Index() {
                     key={index}
                     src={sprite}
                     alt={`Gigantamax sprite ${index + 1}`}
-                    className="w-16 h-16 object-contain"
+                    className="w-18 h-18 object-contain"
                     loading="lazy"
                   />
                 ))}
