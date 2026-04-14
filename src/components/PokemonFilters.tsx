@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { TypeBadge } from '@/components/TypeBadge';
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from '@/components/ui/sheet';
-import { MEGA_POKEMON_IDS, GMAX_POKEMON_IDS, TYPE_TRANSLATIONS, STARTER_IDS, LEGENDARY_IDS, MYTHICAL_IDS, PSEUDO_LEGENDARY_IDS, ULTRA_BEAST_IDS, PARADOX_IDS, BABY_IDS, FOSSIL_IDS, ALL_SPECIAL_SETS } from '@/lib/pokeapi';
+import { MEGA_POKEMON_IDS, GMAX_POKEMON_IDS, REGIONAL_FORM_IDS, TYPE_TRANSLATIONS, STARTER_IDS, LEGENDARY_IDS, MYTHICAL_IDS, PSEUDO_LEGENDARY_IDS, ULTRA_BEAST_IDS, PARADOX_IDS, BABY_IDS, FOSSIL_IDS, ALL_SPECIAL_SETS } from '@/lib/pokeapi';
 import { getDefensiveMatchups, getOffensiveMatchups } from '@/lib/type-effectiveness';
 import { Filter, X, ArrowUpDown } from 'lucide-react';
 
@@ -34,6 +34,7 @@ export interface FilterState {
   strongAgainst: string[];
   hasMega: boolean | null;
   hasGmax: boolean | null;
+  hasRegional: boolean | null;
   classifications: ClassificationOption[];
   evolutionStages: EvolutionStageOption[];
   sortBy: SortOption;
@@ -41,7 +42,16 @@ export interface FilterState {
 }
 
 export const DEFAULT_FILTERS: FilterState = {
-  types: [], weakTo: [], strongAgainst: [], hasMega: null, hasGmax: null, classifications: [], evolutionStages: [], sortBy: 'id', sortDir: 'asc',
+  types: [],
+  weakTo: [],
+  strongAgainst: [],
+  hasMega: null,
+  hasGmax: null,
+  hasRegional: null,
+  classifications: [],
+  evolutionStages: [],
+  sortBy: 'id',
+  sortDir: 'asc',
 };
 
 const SORT_OPTIONS: { value: SortOption; label: string }[] = [
@@ -63,7 +73,17 @@ interface Props {
 }
 
 export function hasActiveFilters(f: FilterState): boolean {
-  return f.types.length > 0 || f.weakTo.length > 0 || f.strongAgainst.length > 0 || f.hasMega !== null || f.hasGmax !== null || f.classifications.length > 0 || f.evolutionStages.length > 0 || f.sortBy !== 'id';
+  return (
+    f.types.length > 0 ||
+    f.weakTo.length > 0 ||
+    f.strongAgainst.length > 0 ||
+    f.hasMega !== null ||
+    f.hasGmax !== null ||
+    f.hasRegional !== null ||
+    f.classifications.length > 0 ||
+    f.evolutionStages.length > 0 ||
+    f.sortBy !== 'id'
+  );
 }
 
 // Session storage helpers for filter persistence
@@ -119,6 +139,13 @@ export function ActiveFilterChips({ filters, onChange }: Props) {
     chips.push({
       label: filters.hasGmax ? 'Tem Gmax' : 'Sem Gmax',
       onRemove: () => onChange({ ...filters, hasGmax: null }),
+    });
+  }
+
+  if (filters.hasRegional !== null) {
+    chips.push({
+      label: filters.hasRegional ? 'Tem Regional' : 'Sem Regional',
+      onRemove: () => onChange({ ...filters, hasRegional: null }),
     });
   }
 
@@ -238,10 +265,14 @@ function FilterContent({ filters, onChange, onClose }: Props & { onClose: () => 
         <h4 className="text-sm font-semibold text-foreground mb-2">Formas Especiais</h4>
         <div className="flex flex-wrap gap-2">
           {[
-            { label: 'Tem Mega', val: true, key: 'hasMega' as const },
-            { label: 'Sem Mega', val: false, key: 'hasMega' as const },
-            { label: 'Tem Gmax', val: true, key: 'hasGmax' as const },
-            { label: 'Sem Gmax', val: false, key: 'hasGmax' as const },
+            [
+  { label: 'Tem Mega', val: true, key: 'hasMega' as const },
+  { label: 'Sem Mega', val: false, key: 'hasMega' as const },
+  { label: 'Tem Gmax', val: true, key: 'hasGmax' as const },
+  { label: 'Sem Gmax', val: false, key: 'hasGmax' as const },
+  { label: 'Tem Regional', val: true, key: 'hasRegional' as const },
+  { label: 'Sem Regional', val: false, key: 'hasRegional' as const },
+]
           ].map(opt => (
             <button key={`${opt.key}-${opt.val}`}
               onClick={() => setLocal(prev => ({ ...prev, [opt.key]: prev[opt.key] === opt.val ? null : opt.val }))}
@@ -341,7 +372,15 @@ export function PokemonFilterButton({ filters, onChange }: Props) {
           Filtros
           {active && (
             <span className="h-4 w-4 rounded-full bg-primary text-primary-foreground text-[10px] flex items-center justify-center font-bold">
-              {filters.types.length + filters.weakTo.length + filters.strongAgainst.length + filters.classifications.length + (filters.evolutionStages?.length || 0) + (filters.hasMega !== null ? 1 : 0) + (filters.hasGmax !== null ? 1 : 0) + (filters.sortBy !== 'id' ? 1 : 0)}
+{filters.types.length +
+  filters.weakTo.length +
+  filters.strongAgainst.length +
+  filters.classifications.length +
+  (filters.evolutionStages?.length || 0) +
+  (filters.hasMega !== null ? 1 : 0) +
+  (filters.hasGmax !== null ? 1 : 0) +
+  (filters.hasRegional !== null ? 1 : 0) +
+  (filters.sortBy !== 'id' ? 1 : 0)}
             </span>
           )}
         </Button>
@@ -388,6 +427,19 @@ export function applyFilters(pokemons: import('@/lib/pokeapi').PokemonBasic[], f
   if (filters.hasMega === false) result = result.filter(p => !MEGA_POKEMON_IDS.has(p.id));
   if (filters.hasGmax === true) result = result.filter(p => GMAX_POKEMON_IDS.has(p.id));
   if (filters.hasGmax === false) result = result.filter(p => !GMAX_POKEMON_IDS.has(p.id));
+  if (filters.hasRegional === true) {
+    result = result.filter(p => {
+      const baseId = (p as any).baseId || p.id;
+      return REGIONAL_FORM_IDS.has(baseId);
+    });
+  }
+
+  if (filters.hasRegional === false) {
+    result = result.filter(p => {
+      const baseId = (p as any).baseId || p.id;
+      return !REGIONAL_FORM_IDS.has(baseId);
+    });
+  }
 
   if (filters.classifications && filters.classifications.length > 0) {
     result = result.filter(p => {
