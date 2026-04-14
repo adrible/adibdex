@@ -5,7 +5,6 @@ import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from '@/co
 import {
   MEGA_POKEMON_IDS,
   GMAX_POKEMON_IDS,
-  REGIONAL_FORM_IDS,
   TYPE_TRANSLATIONS,
   STARTER_IDS,
   LEGENDARY_IDS,
@@ -82,7 +81,6 @@ export interface FilterState {
   strongAgainst: string[];
   hasMega: boolean | null;
   hasGmax: boolean | null;
-  hasRegional: boolean | null;
   classifications: ClassificationOption[];
   evolutionStages: EvolutionStageOption[];
   sortBy: SortOption;
@@ -95,7 +93,6 @@ export const DEFAULT_FILTERS: FilterState = {
   strongAgainst: [],
   hasMega: null,
   hasGmax: null,
-  hasRegional: null,
   classifications: [],
   evolutionStages: [],
   sortBy: 'id',
@@ -127,7 +124,6 @@ export function hasActiveFilters(f: FilterState): boolean {
     f.strongAgainst.length > 0 ||
     f.hasMega !== null ||
     f.hasGmax !== null ||
-    f.hasRegional !== null ||
     f.classifications.length > 0 ||
     f.evolutionStages.length > 0 ||
     f.sortBy !== 'id'
@@ -188,13 +184,6 @@ export function ActiveFilterChips({ filters, onChange }: Props) {
     chips.push({
       label: filters.hasGmax ? 'Tem Gmax' : 'Sem Gmax',
       onRemove: () => onChange({ ...filters, hasGmax: null }),
-    });
-  }
-
-  if (filters.hasRegional !== null) {
-    chips.push({
-      label: filters.hasRegional ? 'Tem Regional' : 'Sem Regional',
-      onRemove: () => onChange({ ...filters, hasRegional: null }),
     });
   }
 
@@ -345,106 +334,74 @@ function FilterContent({ filters, onChange, onClose }: Props & { onClose: () => 
         </div>
       </div>
 
-    <div>
-  <h4 className="text-sm font-semibold text-foreground mb-2">Formas Especiais</h4>
-  <div className="flex flex-wrap gap-2">
-    <button
-      onClick={() =>
-        setLocal((prev) => ({
-          ...prev,
-          hasMega: prev.hasMega === true ? null : true,
-        }))
-      }
-      className={`px-3 py-1.5 rounded-full text-xs font-medium border transition-colors ${
-        local.hasMega === true
-          ? 'bg-primary text-primary-foreground border-primary'
-          : 'bg-muted/40 text-muted-foreground border-border hover:bg-muted/70'
-      }`}
-    >
-      Tem Mega
-    </button>
+      <div>
+        <h4 className="text-sm font-semibold text-foreground mb-2">Formas Especiais</h4>
+        <div className="flex flex-wrap gap-2">
+          <button
+            onClick={() =>
+              setLocal((prev) => ({
+                ...prev,
+                hasMega: prev.hasMega === true ? null : true,
+              }))
+            }
+            className={`px-3 py-1.5 rounded-full text-xs font-medium border transition-colors ${
+              local.hasMega === true
+                ? 'bg-primary text-primary-foreground border-primary'
+                : 'bg-muted/40 text-muted-foreground border-border hover:bg-muted/70'
+            }`}
+          >
+            Tem Mega
+          </button>
 
-    <button
-      onClick={() =>
-        setLocal((prev) => ({
-          ...prev,
-          hasMega: prev.hasMega === false ? null : false,
-        }))
-      }
-      className={`px-3 py-1.5 rounded-full text-xs font-medium border transition-colors ${
-        local.hasMega === false
-          ? 'bg-primary text-primary-foreground border-primary'
-          : 'bg-muted/40 text-muted-foreground border-border hover:bg-muted/70'
-      }`}
-    >
-      Sem Mega
-    </button>
+          <button
+            onClick={() =>
+              setLocal((prev) => ({
+                ...prev,
+                hasMega: prev.hasMega === false ? null : false,
+              }))
+            }
+            className={`px-3 py-1.5 rounded-full text-xs font-medium border transition-colors ${
+              local.hasMega === false
+                ? 'bg-primary text-primary-foreground border-primary'
+                : 'bg-muted/40 text-muted-foreground border-border hover:bg-muted/70'
+            }`}
+          >
+            Sem Mega
+          </button>
 
-    <button
-      onClick={() =>
-        setLocal((prev) => ({
-          ...prev,
-          hasGmax: prev.hasGmax === true ? null : true,
-        }))
-      }
-      className={`px-3 py-1.5 rounded-full text-xs font-medium border transition-colors ${
-        local.hasGmax === true
-          ? 'bg-primary text-primary-foreground border-primary'
-          : 'bg-muted/40 text-muted-foreground border-border hover:bg-muted/70'
-      }`}
-    >
-      Tem Gmax
-    </button>
+          <button
+            onClick={() =>
+              setLocal((prev) => ({
+                ...prev,
+                hasGmax: prev.hasGmax === true ? null : true,
+              }))
+            }
+            className={`px-3 py-1.5 rounded-full text-xs font-medium border transition-colors ${
+              local.hasGmax === true
+                ? 'bg-primary text-primary-foreground border-primary'
+                : 'bg-muted/40 text-muted-foreground border-border hover:bg-muted/70'
+            }`}
+          >
+            Tem Gmax
+          </button>
 
-    <button
-      onClick={() =>
-        setLocal((prev) => ({
-          ...prev,
-          hasGmax: prev.hasGmax === false ? null : false,
-        }))
-      }
-      className={`px-3 py-1.5 rounded-full text-xs font-medium border transition-colors ${
-        local.hasGmax === false
-          ? 'bg-primary text-primary-foreground border-primary'
-          : 'bg-muted/40 text-muted-foreground border-border hover:bg-muted/70'
-      }`}
-    >
-      Sem Gmax
-    </button>
-
-    <button
-      onClick={() =>
-        setLocal((prev) => ({
-          ...prev,
-          hasRegional: prev.hasRegional === true ? null : true,
-        }))
-      }
-      className={`px-3 py-1.5 rounded-full text-xs font-medium border transition-colors ${
-        local.hasRegional === true
-          ? 'bg-primary text-primary-foreground border-primary'
-          : 'bg-muted/40 text-muted-foreground border-border hover:bg-muted/70'
-      }`}
-    >
-      Tem Regional
-    </button>
-
-    <button
-      onClick={() =>
-        setLocal((prev) => ({
-          ...prev,
-          hasRegional: prev.hasRegional === false ? null : false,
-        }))
-      }
-      className={`px-3 py-1.5 rounded-full text-xs font-medium border transition-colors ${
-        local.hasRegional === false
-          ? 'bg-primary text-primary-foreground border-primary'
-          : 'bg-muted/40 text-muted-foreground border-border hover:bg-muted/70'
-      }`}
-    >
-      Sem Regional
-    </button>
-  </div>
-</div>
+          <button
+            onClick={() =>
+              setLocal((prev) => ({
+                ...prev,
+                hasGmax: prev.hasGmax === false ? null : false,
+              }))
+            }
+            className={`px-3 py-1.5 rounded-full text-xs font-medium border transition-colors ${
+              local.hasGmax === false
+                ? 'bg-primary text-primary-foreground border-primary'
+                : 'bg-muted/40 text-muted-foreground border-border hover:bg-muted/70'
+            }`}
+          >
+            Sem Gmax
+          </button>
+        </div>
+      </div>
 
       <div>
         <h4 className="text-sm font-semibold text-foreground mb-2">Classificação</h4>
@@ -558,7 +515,6 @@ export function PokemonFilterButton({ filters, onChange }: Props) {
                 (filters.evolutionStages?.length || 0) +
                 (filters.hasMega !== null ? 1 : 0) +
                 (filters.hasGmax !== null ? 1 : 0) +
-                (filters.hasRegional !== null ? 1 : 0) +
                 (filters.sortBy !== 'id' ? 1 : 0)}
             </span>
           )}
@@ -607,20 +563,6 @@ export function applyFilters(
 
   if (filters.hasGmax === true) result = result.filter((p) => GMAX_POKEMON_IDS.has(p.id));
   if (filters.hasGmax === false) result = result.filter((p) => !GMAX_POKEMON_IDS.has(p.id));
-
-  if (filters.hasRegional === true) {
-    result = result.filter((p) => {
-      const baseId = (p as any).baseId || p.id;
-      return REGIONAL_FORM_IDS.has(baseId);
-    });
-  }
-
-  if (filters.hasRegional === false) {
-    result = result.filter((p) => {
-      const baseId = (p as any).baseId || p.id;
-      return !REGIONAL_FORM_IDS.has(baseId);
-    });
-  }
 
   if (filters.classifications && filters.classifications.length > 0) {
     result = result.filter((p) => {
