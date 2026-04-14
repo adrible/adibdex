@@ -345,35 +345,106 @@ function FilterContent({ filters, onChange, onClose }: Props & { onClose: () => 
         </div>
       </div>
 
-      <div>
-        <h4 className="text-sm font-semibold text-foreground mb-2">Formas Especiais</h4>
-        <div className="flex flex-wrap gap-2">
-          {[
-  { label: 'Tem Mega', val: true, key: 'hasMega' as const },
-  { label: 'Sem Mega', val: false, key: 'hasMega' as const },
-  { label: 'Tem Gmax', val: true, key: 'hasGmax' as const },
-  { label: 'Sem Gmax', val: false, key: 'hasGmax' as const },
-  
-].map((opt) => (
-  <button
-    key={`${opt.key}-${String(opt.val)}`}
-    onClick={() =>
-      setLocal((prev) => ({
-        ...prev,
-        [opt.key]: (prev as any)[opt.key] === opt.val ? null : opt.val,
-      }))
-    }
-    className={`px-3 py-1.5 rounded-full text-xs font-medium border transition-colors ${
-      (local as any)[opt.key] === opt.val
-        ? 'bg-primary text-primary-foreground border-primary'
-        : 'bg-muted/40 text-muted-foreground border-border hover:bg-muted/70'
-    }`}
-  >
-    {opt.label}
-  </button>
-))}
-        </div>
-      </div>
+    <div>
+  <h4 className="text-sm font-semibold text-foreground mb-2">Formas Especiais</h4>
+  <div className="flex flex-wrap gap-2">
+    <button
+      onClick={() =>
+        setLocal((prev) => ({
+          ...prev,
+          hasMega: prev.hasMega === true ? null : true,
+        }))
+      }
+      className={`px-3 py-1.5 rounded-full text-xs font-medium border transition-colors ${
+        local.hasMega === true
+          ? 'bg-primary text-primary-foreground border-primary'
+          : 'bg-muted/40 text-muted-foreground border-border hover:bg-muted/70'
+      }`}
+    >
+      Tem Mega
+    </button>
+
+    <button
+      onClick={() =>
+        setLocal((prev) => ({
+          ...prev,
+          hasMega: prev.hasMega === false ? null : false,
+        }))
+      }
+      className={`px-3 py-1.5 rounded-full text-xs font-medium border transition-colors ${
+        local.hasMega === false
+          ? 'bg-primary text-primary-foreground border-primary'
+          : 'bg-muted/40 text-muted-foreground border-border hover:bg-muted/70'
+      }`}
+    >
+      Sem Mega
+    </button>
+
+    <button
+      onClick={() =>
+        setLocal((prev) => ({
+          ...prev,
+          hasGmax: prev.hasGmax === true ? null : true,
+        }))
+      }
+      className={`px-3 py-1.5 rounded-full text-xs font-medium border transition-colors ${
+        local.hasGmax === true
+          ? 'bg-primary text-primary-foreground border-primary'
+          : 'bg-muted/40 text-muted-foreground border-border hover:bg-muted/70'
+      }`}
+    >
+      Tem Gmax
+    </button>
+
+    <button
+      onClick={() =>
+        setLocal((prev) => ({
+          ...prev,
+          hasGmax: prev.hasGmax === false ? null : false,
+        }))
+      }
+      className={`px-3 py-1.5 rounded-full text-xs font-medium border transition-colors ${
+        local.hasGmax === false
+          ? 'bg-primary text-primary-foreground border-primary'
+          : 'bg-muted/40 text-muted-foreground border-border hover:bg-muted/70'
+      }`}
+    >
+      Sem Gmax
+    </button>
+
+    <button
+      onClick={() =>
+        setLocal((prev) => ({
+          ...prev,
+          hasRegional: prev.hasRegional === true ? null : true,
+        }))
+      }
+      className={`px-3 py-1.5 rounded-full text-xs font-medium border transition-colors ${
+        local.hasRegional === true
+          ? 'bg-primary text-primary-foreground border-primary'
+          : 'bg-muted/40 text-muted-foreground border-border hover:bg-muted/70'
+      }`}
+    >
+      Tem Regional
+    </button>
+
+    <button
+      onClick={() =>
+        setLocal((prev) => ({
+          ...prev,
+          hasRegional: prev.hasRegional === false ? null : false,
+        }))
+      }
+      className={`px-3 py-1.5 rounded-full text-xs font-medium border transition-colors ${
+        local.hasRegional === false
+          ? 'bg-primary text-primary-foreground border-primary'
+          : 'bg-muted/40 text-muted-foreground border-border hover:bg-muted/70'
+      }`}
+    >
+      Sem Regional
+    </button>
+  </div>
+</div>
 
       <div>
         <h4 className="text-sm font-semibold text-foreground mb-2">Classificação</h4>
