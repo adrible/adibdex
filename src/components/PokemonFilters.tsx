@@ -353,8 +353,7 @@ function FilterContent({ filters, onChange, onClose }: Props & { onClose: () => 
   { label: 'Sem Mega', val: false, key: 'hasMega' as const },
   { label: 'Tem Gmax', val: true, key: 'hasGmax' as const },
   { label: 'Sem Gmax', val: false, key: 'hasGmax' as const },
-  { label: 'Tem Regional', val: true, key: 'hasRegional' as const },
-  { label: 'Sem Regional', val: false, key: 'hasRegional' as const },
+  
 ].map((opt) => (
   <button
     key={`${opt.key}-${String(opt.val)}`}
