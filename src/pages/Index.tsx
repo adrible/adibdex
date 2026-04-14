@@ -102,13 +102,13 @@ export default function Index() {
               className="group relative overflow-hidden rounded-xl border border-border bg-card p-6 transition-all hover:shadow-xl hover:-translate-y-1 hover:border-primary/50"
             >
               <div className="flex items-start justify-between mb-3">
-                <div className="flex items-center gap-1">
+                <div className="flex items-center gap-2 justify-center">
                   {REGION_STARTERS[gen.region]?.map((sprite, index) => (
                     <img
                       key={index}
                       src={sprite}
                       alt={`${gen.region} sprite ${index + 1}`}
-                      className="w-10 h-10 object-contain"
+                      className="w-12 h-12 object-contain transition-transform group-hover:scale-110"
                       loading="lazy"
                     />
                   ))}
@@ -138,13 +138,13 @@ export default function Index() {
             className="group relative overflow-hidden rounded-xl border border-border bg-card p-6 transition-all hover:shadow-xl hover:-translate-y-1 hover:border-primary/50"
           >
             <div className="flex items-start justify-between mb-3">
-              <div className="flex items-center gap-1">
+              <div className="flex items-center gap-2 justify-center">
                 {MEGA_SPRITES.map((sprite, index) => (
                   <img
                     key={index}
                     src={sprite}
                     alt={`Mega sprite ${index + 1}`}
-                    className="w-12 h-12 object-contain"
+                    className="w-16 h-16 object-contain transition-transform group-hover:scale-110"
                     loading="lazy"
                   />
                 ))}
@@ -165,13 +165,13 @@ export default function Index() {
             className="group relative overflow-hidden rounded-xl border border-border bg-card p-6 transition-all hover:shadow-xl hover:-translate-y-1 hover:border-primary/50"
           >
             <div className="flex items-start justify-between mb-3">
-              <div className="flex items-center gap-1">
+              <div className="flex items-center gap-2 justify-center">
                 {GMAX_SPRITES.map((sprite, index) => (
                   <img
                     key={index}
                     src={sprite}
                     alt={`Gigantamax sprite ${index + 1}`}
-                    className="w-12 h-12 object-contain"
+                    className="w-16 h-16 object-contain"
                     loading="lazy"
                   />
                 ))}
