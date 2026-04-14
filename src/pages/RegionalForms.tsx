@@ -1,6 +1,14 @@
+import { useQuery } from '@tanstack/react-query';
+import { fetchAllRegionalForms } from '@/lib/pokeapi';
 import { Header } from '@/components/Header';
 
 export default function RegionalForms() {
+  const { data: forms, isLoading } = useQuery({
+    queryKey: ['all-regional-forms'],
+    queryFn: fetchAllRegionalForms,
+    staleTime: 1000 * 60 * 60,
+  });
+
   return (
     <div className="min-h-screen bg-background">
       <Header />
@@ -10,9 +18,11 @@ export default function RegionalForms() {
           Formas Regionais
         </h1>
 
-        <p className="text-center text-muted-foreground">
-          Aqui vão aparecer todas as formas regionais em ordem da Pokédex.
-        </p>
+        {isLoading ? (
+          <p>Carregando...</p>
+        ) : (
+          <pre>{JSON.stringify(forms, null, 2)}</pre>
+        )}
       </main>
     </div>
   );
