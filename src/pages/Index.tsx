@@ -61,9 +61,9 @@ const REGION_STARTERS: Record<string, string[]> = {
 };
 
 const MEGA_SPRITES = [
-  'https://play.pokemonshowdown.com/sprites/gen5/charizard-mega-x.png',
-  'https://play.pokemonshowdown.com/sprites/gen5/mewtwo-mega-y.png',
-  'https://play.pokemonshowdown.com/sprites/gen5/lucario-mega.png',
+  'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/10034.png', // Charizard Mega X
+  'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/10043.png', // Mewtwo Mega Y
+  'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/10059.png', // Lucario Mega
 ];
 
 const GMAX_SPRITES = [
