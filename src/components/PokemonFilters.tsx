@@ -21,6 +21,7 @@ import { getDefensiveMatchups, getOffensiveMatchups } from '@/lib/type-effective
 import { Filter, X, ArrowUpDown } from 'lucide-react';
 
 const ALL_TYPES = Object.keys(TYPE_TRANSLATIONS);
+const WEAKNESS_FILTER_TYPES = ALL_TYPES.filter((t) => t !== 'normal');
 const ALL_REGIONS = GENERATIONS.map((g) => g.region);
 
 export type SortOption =
@@ -48,7 +49,6 @@ export type ClassificationOption =
   | 'regular';
 
 export type EvolutionStageOption = 'basic' | 'stage1' | 'stage2';
-
 export type RegionOption =
   | 'Kanto'
   | 'Johto'
@@ -61,6 +61,8 @@ export type RegionOption =
   | 'Galar'
   | 'Hisui'
   | 'Paldea';
+
+export type TypeMatchMode = 'any' | 'all';
 
 const CLASSIFICATION_LABELS: Record<ClassificationOption, string> = {
   starter: 'Starter',
@@ -107,7 +109,9 @@ const SORT_OPTIONS: { value: SortOption; label: string }[] = [
 
 export interface FilterState {
   types: string[];
+  typeMatchMode: TypeMatchMode;
   weakTo: string[];
+  immuneTo: string[];
   strongAgainst: string[];
   hasMega: boolean | null;
   hasGmax: boolean | null;
@@ -121,7 +125,9 @@ export interface FilterState {
 function createDefaultFilters(): FilterState {
   return {
     types: [],
+    typeMatchMode: 'any',
     weakTo: [],
+    immuneTo: [],
     strongAgainst: [],
     hasMega: null,
     hasGmax: null,
@@ -149,6 +155,7 @@ function cloneFilters(filters?: Partial<FilterState>): FilterState {
     ...filters,
     types: [...(filters?.types ?? base.types)],
     weakTo: [...(filters?.weakTo ?? base.weakTo)],
+    immuneTo: [...(filters?.immuneTo ?? base.immuneTo)],
     strongAgainst: [...(filters?.strongAgainst ?? base.strongAgainst)],
     regions: [...(filters?.regions ?? base.regions)],
     classifications: [...(filters?.classifications ?? base.classifications)],
@@ -166,11 +173,9 @@ function getBaseId(pokemon: { id: number; baseId?: number }) {
 
 function getRegionForPokemon(pokemon: { id: number; baseId?: number }): RegionOption | null {
   const baseId = getBaseId(pokemon);
-
   const generation = GENERATIONS.find(
     (g) => baseId >= g.pokemonRange[0] && baseId <= g.pokemonRange[1]
   );
-
   return (generation?.region as RegionOption) ?? null;
 }
 
@@ -197,7 +202,9 @@ function countActiveFilters(filters: FilterState, showRegionFilter = true): numb
   return (
     filters.types.length +
     filters.weakTo.length +
+    filters.immuneTo.length +
     filters.strongAgainst.length +
+    (filters.typeMatchMode !== 'any' ? 1 : 0) +
     (showRegionFilter ? filters.regions.length : 0) +
     filters.classifications.length +
     filters.evolutionStages.length +
@@ -217,10 +224,7 @@ export function saveFiltersToSession(key: string, filters: FilterState, page: nu
   try {
     sessionStorage.setItem(
       `${FILTER_STORAGE_KEY}-${key}`,
-      JSON.stringify({
-        filters,
-        page,
-      })
+      JSON.stringify({ filters, page })
     );
   } catch {}
 }
@@ -229,9 +233,7 @@ export function loadFiltersFromSession(key: string): { filters: FilterState; pag
   try {
     const raw = sessionStorage.getItem(`${FILTER_STORAGE_KEY}-${key}`);
     if (!raw) return null;
-
     const parsed = JSON.parse(raw);
-
     return {
       filters: cloneFilters(parsed.filters),
       page: parsed.page || 0,
@@ -260,6 +262,17 @@ export function ActiveFilterChips({
       });
     });
 
+    if (filters.types.length > 1 && filters.typeMatchMode !== 'any') {
+      items.push({
+        label: 'Tipos: E',
+        onRemove: () =>
+          onChange({
+            ...cloneFilters(filters),
+            typeMatchMode: 'any',
+          }),
+      });
+    }
+
     filters.weakTo.forEach((type) => {
       items.push({
         label: `Fraco: ${TYPE_TRANSLATIONS[type]}`,
@@ -267,6 +280,17 @@ export function ActiveFilterChips({
           onChange({
             ...cloneFilters(filters),
             weakTo: filters.weakTo.filter((x) => x !== type),
+          }),
+      });
+    });
+
+    filters.immuneTo.forEach((type) => {
+      items.push({
+        label: `Imune: ${TYPE_TRANSLATIONS[type]}`,
+        onRemove: () =>
+          onChange({
+            ...cloneFilters(filters),
+            immuneTo: filters.immuneTo.filter((x) => x !== type),
           }),
       });
     });
@@ -409,7 +433,36 @@ function FilterContent({
   return (
     <div className="space-y-6 py-2">
       <div>
-        <h4 className="text-sm font-semibold text-foreground mb-2">Tipo</h4>
+        <div className="flex items-center justify-between mb-2">
+          <h4 className="text-sm font-semibold text-foreground">Tipo</h4>
+          <div className="flex gap-1">
+            <button
+              onClick={() =>
+                setLocal((prev) => ({ ...prev, typeMatchMode: 'any' }))
+              }
+              className={`px-2 py-1 rounded-md text-[11px] font-medium border ${
+                local.typeMatchMode === 'any'
+                  ? 'bg-primary text-primary-foreground border-primary'
+                  : 'bg-muted/40 text-muted-foreground border-border hover:bg-muted/70'
+              }`}
+            >
+              OU
+            </button>
+            <button
+              onClick={() =>
+                setLocal((prev) => ({ ...prev, typeMatchMode: 'all' }))
+              }
+              className={`px-2 py-1 rounded-md text-[11px] font-medium border ${
+                local.typeMatchMode === 'all'
+                  ? 'bg-primary text-primary-foreground border-primary'
+                  : 'bg-muted/40 text-muted-foreground border-border hover:bg-muted/70'
+              }`}
+            >
+              E
+            </button>
+          </div>
+        </div>
+
         <div className="flex flex-wrap gap-1.5">
           {ALL_TYPES.map((type) => (
             <button
@@ -435,7 +488,7 @@ function FilterContent({
       <div>
         <h4 className="text-sm font-semibold text-foreground mb-2">Fraco contra</h4>
         <div className="flex flex-wrap gap-1.5">
-          {ALL_TYPES.map((type) => (
+          {WEAKNESS_FILTER_TYPES.map((type) => (
             <button
               key={type}
               onClick={() =>
@@ -447,6 +500,30 @@ function FilterContent({
               className={`transition-all ${
                 local.weakTo.includes(type)
                   ? 'ring-2 ring-destructive scale-110'
+                  : 'opacity-70 hover:opacity-100'
+              }`}
+            >
+              <TypeBadge type={type} size="sm" />
+            </button>
+          ))}
+        </div>
+      </div>
+
+      <div>
+        <h4 className="text-sm font-semibold text-foreground mb-2">Imune a</h4>
+        <div className="flex flex-wrap gap-1.5">
+          {ALL_TYPES.map((type) => (
+            <button
+              key={type}
+              onClick={() =>
+                setLocal((prev) => ({
+                  ...prev,
+                  immuneTo: toggleInArray(prev.immuneTo, type),
+                }))
+              }
+              className={`transition-all ${
+                local.immuneTo.includes(type)
+                  ? 'ring-2 ring-cyan-500 scale-110'
                   : 'opacity-70 hover:opacity-100'
               }`}
             >
@@ -684,9 +761,15 @@ export function applyFilters(
   let result = [...pokemons];
 
   if (filters.types.length > 0) {
-    result = result.filter((pokemon) =>
-      filters.types.some((type) => pokemon.types.includes(type))
-    );
+    if (filters.typeMatchMode === 'all') {
+      result = result.filter((pokemon) =>
+        filters.types.every((type) => pokemon.types.includes(type))
+      );
+    } else {
+      result = result.filter((pokemon) =>
+        filters.types.some((type) => pokemon.types.includes(type))
+      );
+    }
   }
 
   if (filters.weakTo.length > 0) {
@@ -694,6 +777,15 @@ export function applyFilters(
       const matchups = getDefensiveMatchups(pokemon.types);
       return filters.weakTo.every((type) =>
         matchups.weaknesses.some((weakness) => weakness.type === type)
+      );
+    });
+  }
+
+  if (filters.immuneTo.length > 0) {
+    result = result.filter((pokemon) => {
+      const matchups = getDefensiveMatchups(pokemon.types);
+      return filters.immuneTo.every((type) =>
+        matchups.immunities?.some((immunity: any) => immunity.type === type)
       );
     });
   }
@@ -738,7 +830,6 @@ export function applyFilters(
         if (classification === 'regular') {
           return !ALL_SPECIAL_SETS.some((set) => set.has(baseId));
         }
-
         return CLASSIFICATION_SETS[classification].has(baseId);
       });
     });
