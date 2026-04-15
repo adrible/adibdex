@@ -3,6 +3,7 @@ import { GENERATIONS } from '@/lib/pokeapi';
 import { Header } from '@/components/Header';
 import { ChevronRight } from 'lucide-react';
 import { Home } from 'lucide-react';
+import { Footer } from '@/components/Footer';
 
 const REGION_STARTERS: Record<string, string[]> = {
   Kanto: [
@@ -223,6 +224,9 @@ export default function Index() {
           </Link>
         </div>
       </main>
+      
+      <Footer/ >
     </div>
   );
 }
+
