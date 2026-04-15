@@ -32,37 +32,44 @@ export default function NationalDexPage() {
   const [page, setPage] = useState(saved?.page ?? 0);
   const [search, setSearch] = useState('');
   const [isShiny, setIsShiny] = useState(false);
-const [filters, setFilters] = useState<FilterState>(DEFAULT_FILTERS);
+  const [filters, setFilters] = useState<FilterState>(saved?.filters ?? DEFAULT_FILTERS);
   const [pageInput, setPageInput] = useState('');
   const navigate = useNavigate();
   const location = useLocation();
 
   const filtersActive = hasActiveFilters(filters);
+  const shouldUseGlobalData = filtersActive || !!search.trim();
   const offset = page * PAGE_SIZE;
 
   useEffect(() => {
     saveFiltersToSession('national', filters, page);
   }, [filters, page]);
 
+  useEffect(() => {
+    if (!filtersActive && !search.trim()) {
+      setPage(0);
+    }
+  }, [filtersActive, search]);
+
   const { data: pageData, isLoading: pageLoading } = useQuery({
     queryKey: ['national-dex', page],
     queryFn: () => fetchPokemonPage(offset, Math.min(PAGE_SIZE, TOTAL_POKEMON - offset)),
     staleTime: 1000 * 60 * 30,
-    enabled: !filtersActive && !search.trim(),
+    enabled: !shouldUseGlobalData,
   });
 
   const { data: allPokemon, isLoading: allLoading } = useQuery({
     queryKey: ['all-pokemon-basic'],
     queryFn: fetchAllPokemonBasic,
     staleTime: 1000 * 60 * 60,
-    enabled: filtersActive || !!search.trim(),
+    enabled: true,
   });
 
   const { data: regionalForms, isLoading: regionalLoading } = useQuery({
     queryKey: ['all-regional-forms'],
     queryFn: fetchAllRegionalForms,
     staleTime: 1000 * 60 * 60,
-    enabled: filtersActive || !!search.trim(),
+    enabled: true,
   });
 
   const { data: allNames } = useQuery({
@@ -106,9 +113,7 @@ const [filters, setFilters] = useState<FilterState>(DEFAULT_FILTERS);
   }, [search, allNames, regionalForms]);
 
   const filtered = useMemo(() => {
-    const usingGlobalData = filtersActive || search.trim();
-
-    const source = usingGlobalData
+    const source = shouldUseGlobalData
       ? [
           ...(allPokemon ?? []),
           ...(regionalForms ?? []),
@@ -117,7 +122,7 @@ const [filters, setFilters] = useState<FilterState>(DEFAULT_FILTERS);
 
     if (!source.length) return [];
 
-    let result = source;
+    let result = [...source];
 
     if (search.trim()) {
       const q = search.toLowerCase();
@@ -132,24 +137,32 @@ const [filters, setFilters] = useState<FilterState>(DEFAULT_FILTERS);
 
     result = applyFilters(result, filters);
 
+    if (!shouldUseGlobalData) {
+      result.sort((a: any, b: any) => {
+        const aId = a.baseId ?? a.id;
+        const bId = b.baseId ?? b.id;
+        return aId - bId;
+      });
+    }
+
     return result;
-  }, [allPokemon, regionalForms, pageData, search, filters, filtersActive]);
+  }, [allPokemon, regionalForms, pageData, search, filters, shouldUseGlobalData]);
 
   const displayedPokemon = useMemo(() => {
-    if (filtersActive || search.trim()) {
+    if (shouldUseGlobalData) {
       const start = page * PAGE_SIZE;
       return filtered.slice(start, start + PAGE_SIZE);
     }
     return filtered;
-  }, [filtered, page, filtersActive, search]);
+  }, [filtered, page, shouldUseGlobalData]);
 
-  const filteredTotalPages =
-    filtersActive || search.trim()
-      ? Math.max(1, Math.ceil(filtered.length / PAGE_SIZE))
-      : totalPages;
+  const filteredTotalPages = shouldUseGlobalData
+    ? Math.max(1, Math.ceil(filtered.length / PAGE_SIZE))
+    : totalPages;
 
-  const globalLoading = allLoading || regionalLoading;
-  const isLoading = (filtersActive || search.trim()) ? globalLoading : pageLoading;
+  const isLoading = shouldUseGlobalData
+    ? allLoading || regionalLoading
+    : pageLoading;
 
   const handleNavigateToPokemon = useCallback((id: number) => {
     navigate(`/pokemon/${id}`, { state: { origin: location.pathname } });
