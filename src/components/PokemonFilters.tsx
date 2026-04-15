@@ -111,7 +111,6 @@ export interface FilterState {
   types: string[];
   typeMatchMode: TypeMatchMode;
   weakTo: string[];
-  immuneTo: string[];
   strongAgainst: string[];
   hasMega: boolean | null;
   hasGmax: boolean | null;
@@ -127,7 +126,6 @@ function createDefaultFilters(): FilterState {
     types: [],
     typeMatchMode: 'any',
     weakTo: [],
-    immuneTo: [],
     strongAgainst: [],
     hasMega: null,
     hasGmax: null,
@@ -155,7 +153,6 @@ function cloneFilters(filters?: Partial<FilterState>): FilterState {
     ...filters,
     types: [...(filters?.types ?? base.types)],
     weakTo: [...(filters?.weakTo ?? base.weakTo)],
-    immuneTo: [...(filters?.immuneTo ?? base.immuneTo)],
     strongAgainst: [...(filters?.strongAgainst ?? base.strongAgainst)],
     regions: [...(filters?.regions ?? base.regions)],
     classifications: [...(filters?.classifications ?? base.classifications)],
@@ -202,7 +199,6 @@ function countActiveFilters(filters: FilterState, showRegionFilter = true): numb
   return (
     filters.types.length +
     filters.weakTo.length +
-    filters.immuneTo.length +
     filters.strongAgainst.length +
     (filters.typeMatchMode !== 'any' ? 1 : 0) +
     (showRegionFilter ? filters.regions.length : 0) +
@@ -284,16 +280,6 @@ export function ActiveFilterChips({
       });
     });
 
-    filters.immuneTo.forEach((type) => {
-      items.push({
-        label: `Imune: ${TYPE_TRANSLATIONS[type]}`,
-        onRemove: () =>
-          onChange({
-            ...cloneFilters(filters),
-            immuneTo: filters.immuneTo.filter((x) => x !== type),
-          }),
-      });
-    });
 
     filters.strongAgainst.forEach((type) => {
       items.push({
@@ -500,30 +486,6 @@ function FilterContent({
               className={`transition-all ${
                 local.weakTo.includes(type)
                   ? 'ring-2 ring-destructive scale-110'
-                  : 'opacity-70 hover:opacity-100'
-              }`}
-            >
-              <TypeBadge type={type} size="sm" />
-            </button>
-          ))}
-        </div>
-      </div>
-
-      <div>
-        <h4 className="text-sm font-semibold text-foreground mb-2">Imune a</h4>
-        <div className="flex flex-wrap gap-1.5">
-          {ALL_TYPES.map((type) => (
-            <button
-              key={type}
-              onClick={() =>
-                setLocal((prev) => ({
-                  ...prev,
-                  immuneTo: toggleInArray(prev.immuneTo, type),
-                }))
-              }
-              className={`transition-all ${
-                local.immuneTo.includes(type)
-                  ? 'ring-2 ring-cyan-500 scale-110'
                   : 'opacity-70 hover:opacity-100'
               }`}
             >
@@ -781,14 +743,6 @@ export function applyFilters(
     });
   }
 
-  if (filters.immuneTo.length > 0) {
-    result = result.filter((pokemon) => {
-      const matchups = getDefensiveMatchups(pokemon.types);
-      return filters.immuneTo.every((type) =>
-        matchups.immunities?.some((immunity: any) => immunity.type === type)
-      );
-    });
-  }
 
   if (filters.strongAgainst.length > 0) {
     result = result.filter((pokemon) => {
