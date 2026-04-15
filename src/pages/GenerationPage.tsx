@@ -48,7 +48,9 @@ export default function GenerationPage() {
           </Button>
         </div>
       </main>
+
+      <Footer/ >
     </div>
   );
 }
-<Footer />
+
