@@ -32,7 +32,7 @@ export default function NationalDexPage() {
   const [page, setPage] = useState(saved?.page ?? 0);
   const [search, setSearch] = useState('');
   const [isShiny, setIsShiny] = useState(false);
-  const [filters, setFilters] = useState<FilterState>(saved?.filters ?? DEFAULT_FILTERS);
+const [filters, setFilters] = useState<FilterState>(DEFAULT_FILTERS);
   const [pageInput, setPageInput] = useState('');
   const navigate = useNavigate();
   const location = useLocation();
