@@ -38,6 +38,9 @@ export default function NationalDexPage() {
   useEffect(() => {
     saveFiltersToSession('national', filters, page);
   }, [filters, page]);
+  useEffect(() => {
+    setPage(0);
+  }, [filters, search]);
 
   const { data: allPokemon, isLoading: allLoading } = useQuery({
     queryKey: ['all-pokemon-basic'],
