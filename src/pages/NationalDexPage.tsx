@@ -6,6 +6,7 @@ import {
   fetchAllRegionalForms,
 } from '@/lib/pokeapi';
 import { Header } from '@/components/Header';
+import { Footer } from '@/components/Footer';
 import { PokemonCard } from '@/components/PokemonCard';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Input } from '@/components/ui/input';
@@ -21,10 +22,25 @@ import {
   loadFiltersFromSession,
   type FilterState,
 } from '@/components/PokemonFilters';
-import { Footer } from '@/components/Footer';
 
 const PAGE_SIZE = 48;
 const TOTAL_POKEMON = 1025;
+
+function sortNationalWithRegionalForms(a: any, b: any) {
+  const aBase = a.baseId ?? a.id;
+  const bBase = b.baseId ?? b.id;
+
+  if (aBase !== bBase) return aBase - bBase;
+
+  const aIsBaseForm = a.id === aBase;
+  const bIsBaseForm = b.id === bBase;
+
+  if (aIsBaseForm !== bIsBaseForm) {
+    return aIsBaseForm ? -1 : 1;
+  }
+
+  return a.name.localeCompare(b.name);
+}
 
 export default function NationalDexPage() {
   const saved = loadFiltersFromSession('national');
@@ -64,19 +80,24 @@ export default function NationalDexPage() {
     staleTime: Infinity,
   });
 
+  const nationalWithRegionalForms = useMemo(() => {
+    const base = allPokemon ?? [];
+    const regionals = regionalForms ?? [];
+
+    return [...base, ...regionals].sort(sortNationalWithRegionalForms);
+  }, [allPokemon, regionalForms]);
+
   const globalResults = useMemo(() => {
     if (!search.trim() || !allNames) return null;
 
     const q = search.toLowerCase();
 
-    const regionalNames = (regionalForms ?? [])
-      .filter((p: any) => p.id >= 10000 || p.name.includes('-'))
-      .map((p: any) => ({
-        id: p.id,
-        name: p.name,
-        baseId: p.baseId ?? p.id,
-        sprite: p.sprite,
-      }));
+    const regionalNames = (regionalForms ?? []).map((p: any) => ({
+      id: p.id,
+      name: p.name,
+      baseId: p.baseId ?? p.id,
+      sprite: p.sprite,
+    }));
 
     const baseNames = allNames.map((p) => ({
       id: p.id,
@@ -85,7 +106,7 @@ export default function NationalDexPage() {
       sprite: `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${p.id}.png`,
     }));
 
-    const combined = [...baseNames, ...regionalNames];
+    const combined = [...baseNames, ...regionalNames].sort(sortNationalWithRegionalForms);
 
     return combined
       .filter((p: any) => {
@@ -99,7 +120,7 @@ export default function NationalDexPage() {
   }, [search, allNames, regionalForms]);
 
   const filtered = useMemo(() => {
-    const source = [...(allPokemon ?? [])];
+    const source = nationalWithRegionalForms;
 
     if (!source.length) return [];
 
@@ -119,16 +140,11 @@ export default function NationalDexPage() {
     result = applyFilters(result, filters);
 
     if (filters.sortBy === 'id') {
-      result.sort((a: any, b: any) => {
-        const aId = a.baseId ?? a.id;
-        const bId = b.baseId ?? b.id;
-        if (aId !== bId) return aId - bId;
-        return a.id - b.id;
-      });
+      result.sort(sortNationalWithRegionalForms);
     }
 
     return result;
-  }, [allPokemon, search, filters]);
+  }, [nationalWithRegionalForms, search, filters]);
 
   const filteredTotalPages = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE));
 
@@ -162,16 +178,19 @@ export default function NationalDexPage() {
   };
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen flex flex-col bg-background">
       <Header />
-      <main className="container py-8">
+
+      <main className="flex-1 container py-8">
         <div className="flex items-center gap-4 mb-8">
           <Button variant="ghost" size="icon" asChild>
             <Link to="/"><ArrowLeft className="h-5 w-5" /></Link>
           </Button>
           <div>
             <h2 className="font-pixel text-sm sm:text-lg text-foreground">Pokédex Nacional</h2>
-            <p className="text-sm text-muted-foreground">Todos os {TOTAL_POKEMON} Pokémon</p>
+            <p className="text-sm text-muted-foreground">
+              Pokémon da National Dex + formas regionais
+            </p>
           </div>
         </div>
 
@@ -262,6 +281,7 @@ export default function NationalDexPage() {
                   originPath={location.pathname}
                 />
               ))}
+
               {displayedPokemon.length === 0 && !globalResults?.length && (
                 <p className="col-span-full text-center text-muted-foreground py-12">
                   Nenhum Pokémon encontrado.
@@ -291,7 +311,7 @@ export default function NationalDexPage() {
                     onKeyDown={handlePageInput}
                     onBlur={() => setPageInput('')}
                     placeholder={String(page + 1)}
-                    className="w-10 text-center rounded border border-input bg-background px-1 py-0.5 text-sm focus:outline-none focus:ring-1 focus:ring-ring"
+                    className="w-10 text-center rounded border border-input bg-card text-foreground px-1 py-0.5 text-sm focus:outline-none focus:ring-1 focus:ring-ring"
                   />
                   <span>/ {filteredTotalPages}</span>
                 </div>
@@ -312,8 +332,8 @@ export default function NationalDexPage() {
           </>
         )}
       </main>
-  
-      <Footer/ >
+
+      <Footer />
     </div>
   );
 }
