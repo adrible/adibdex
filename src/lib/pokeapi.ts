@@ -679,12 +679,9 @@ export async function fetchAllMegaForms(): Promise<PokemonBasic[]> {
     { slug: 'crabominable-mega', baseId: 740 },
     { slug: 'golisopod-mega', baseId: 768 },
     { slug: 'magearna-mega', baseId: 801 },
-    { slug: 'magearna-original-mega', baseId: 801 },
     { slug: 'zeraora-mega', baseId: 807 },
     { slug: 'scovillain-mega', baseId: 952 },
     { slug: 'glimmora-mega', baseId: 970 },
-    { slug: 'tatsugiri-curly-mega', baseId: 978 },
-    { slug: 'tatsugiri-droopy-mega', baseId: 978 },
     { slug: 'tatsugiri-stretchy-mega', baseId: 978 },
     { slug: 'baxcalibur-mega', baseId: 998 },
   ];
