@@ -5,6 +5,7 @@ import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from '@/co
 import {
   MEGA_POKEMON_IDS,
   GMAX_POKEMON_IDS,
+  GENERATIONS,
   TYPE_TRANSLATIONS,
   STARTER_IDS,
   LEGENDARY_IDS,
@@ -20,6 +21,7 @@ import { getDefensiveMatchups, getOffensiveMatchups } from '@/lib/type-effective
 import { Filter, X, ArrowUpDown } from 'lucide-react';
 
 const ALL_TYPES = Object.keys(TYPE_TRANSLATIONS);
+const ALL_REGIONS = GENERATIONS.map((g) => g.region);
 
 export type SortOption =
   | 'id'
@@ -45,6 +47,18 @@ export type ClassificationOption =
   | 'regular';
 
 export type EvolutionStageOption = 'basic' | 'stage1' | 'stage2';
+export type RegionOption =
+  | 'Kanto'
+  | 'Johto'
+  | 'Hoenn'
+  | 'Sinnoh'
+  | 'Unova'
+  | 'Kalos'
+  | 'Alola'
+  | 'Desconhecida'
+  | 'Galar'
+  | 'Hisui'
+  | 'Paldea';
 
 const CLASSIFICATION_LABELS: Record<ClassificationOption, string> = {
   starter: 'Starter',
@@ -81,6 +95,7 @@ export interface FilterState {
   strongAgainst: string[];
   hasMega: boolean | null;
   hasGmax: boolean | null;
+  regions: RegionOption[];
   classifications: ClassificationOption[];
   evolutionStages: EvolutionStageOption[];
   sortBy: SortOption;
@@ -93,6 +108,7 @@ export const DEFAULT_FILTERS: FilterState = {
   strongAgainst: [],
   hasMega: null,
   hasGmax: null,
+  regions: [],
   classifications: [],
   evolutionStages: [],
   sortBy: 'id',
@@ -117,6 +133,20 @@ interface Props {
   onChange: (f: FilterState) => void;
 }
 
+function getBaseId(pokemon: { id: number; baseId?: number }) {
+  return (pokemon as any).baseId ?? pokemon.id;
+}
+
+function getRegionForPokemon(pokemon: { id: number; baseId?: number }): RegionOption | null {
+  const baseId = getBaseId(pokemon);
+
+  const generation = GENERATIONS.find(
+    (g) => baseId >= g.pokemonRange[0] && baseId <= g.pokemonRange[1]
+  );
+
+  return (generation?.region as RegionOption) ?? null;
+}
+
 export function hasActiveFilters(f: FilterState): boolean {
   return (
     f.types.length > 0 ||
@@ -124,6 +154,7 @@ export function hasActiveFilters(f: FilterState): boolean {
     f.strongAgainst.length > 0 ||
     f.hasMega !== null ||
     f.hasGmax !== null ||
+    f.regions.length > 0 ||
     f.classifications.length > 0 ||
     f.evolutionStages.length > 0 ||
     f.sortBy !== 'id'
@@ -143,7 +174,10 @@ export function loadFiltersFromSession(key: string): { filters: FilterState; pag
     const raw = sessionStorage.getItem(`${FILTER_STORAGE_KEY}-${key}`);
     if (!raw) return null;
     const parsed = JSON.parse(raw);
-    return { filters: { ...DEFAULT_FILTERS, ...parsed.filters }, page: parsed.page || 0 };
+    return {
+      filters: { ...DEFAULT_FILTERS, ...parsed.filters },
+      page: parsed.page || 0,
+    };
   } catch {
     return null;
   }
@@ -169,7 +203,8 @@ export function ActiveFilterChips({ filters, onChange }: Props) {
   filters.strongAgainst.forEach((t) => {
     chips.push({
       label: `Forte: ${TYPE_TRANSLATIONS[t]}`,
-      onRemove: () => onChange({ ...filters, strongAgainst: filters.strongAgainst.filter((x) => x !== t) }),
+      onRemove: () =>
+        onChange({ ...filters, strongAgainst: filters.strongAgainst.filter((x) => x !== t) }),
     });
   });
 
@@ -187,7 +222,14 @@ export function ActiveFilterChips({ filters, onChange }: Props) {
     });
   }
 
-  filters.classifications?.forEach((c) => {
+  filters.regions.forEach((region) => {
+    chips.push({
+      label: `Região: ${region}`,
+      onRemove: () => onChange({ ...filters, regions: filters.regions.filter((r) => r !== region) }),
+    });
+  });
+
+  filters.classifications.forEach((c) => {
     chips.push({
       label: CLASSIFICATION_LABELS[c],
       onRemove: () =>
@@ -198,7 +240,7 @@ export function ActiveFilterChips({ filters, onChange }: Props) {
     });
   });
 
-  filters.evolutionStages?.forEach((s) => {
+  filters.evolutionStages.forEach((s) => {
     chips.push({
       label: `Estágio: ${EVOLUTION_STAGE_LABELS[s]}`,
       onRemove: () =>
@@ -231,6 +273,7 @@ export function ActiveFilterChips({ filters, onChange }: Props) {
           <X className="h-3 w-3" />
         </button>
       ))}
+
       <button
         onClick={() => onChange(DEFAULT_FILTERS)}
         className="inline-flex items-center gap-1 rounded-full bg-destructive/10 text-destructive border border-destructive/20 px-2.5 py-1 text-xs font-medium hover:bg-destructive/20 transition-colors"
@@ -265,6 +308,15 @@ function FilterContent({ filters, onChange, onClose }: Props & { onClose: () => 
       strongAgainst: prev.strongAgainst.includes(t)
         ? prev.strongAgainst.filter((x) => x !== t)
         : [...prev.strongAgainst, t],
+    }));
+  };
+
+  const toggleRegion = (region: RegionOption) => {
+    setLocal((prev) => ({
+      ...prev,
+      regions: prev.regions.includes(region)
+        ? prev.regions.filter((r) => r !== region)
+        : [...prev.regions, region],
     }));
   };
 
@@ -404,6 +456,25 @@ function FilterContent({ filters, onChange, onClose }: Props & { onClose: () => 
       </div>
 
       <div>
+        <h4 className="text-sm font-semibold text-foreground mb-2">Região</h4>
+        <div className="flex flex-wrap gap-2">
+          {ALL_REGIONS.map((region) => (
+            <button
+              key={region}
+              onClick={() => toggleRegion(region as RegionOption)}
+              className={`px-3 py-1.5 rounded-full text-xs font-medium border transition-colors ${
+                local.regions.includes(region as RegionOption)
+                  ? 'bg-primary text-primary-foreground border-primary'
+                  : 'bg-muted/40 text-muted-foreground border-border hover:bg-muted/70'
+              }`}
+            >
+              {region}
+            </button>
+          ))}
+        </div>
+      </div>
+
+      <div>
         <h4 className="text-sm font-semibold text-foreground mb-2">Classificação</h4>
         <div className="flex flex-wrap gap-2">
           {(Object.keys(CLASSIFICATION_LABELS) as ClassificationOption[]).map((c) => (
@@ -438,13 +509,13 @@ function FilterContent({ filters, onChange, onClose }: Props & { onClose: () => 
               onClick={() =>
                 setLocal((prev) => ({
                   ...prev,
-                  evolutionStages: (prev.evolutionStages || []).includes(s)
+                  evolutionStages: prev.evolutionStages.includes(s)
                     ? prev.evolutionStages.filter((x) => x !== s)
-                    : [...(prev.evolutionStages || []), s],
+                    : [...prev.evolutionStages, s],
                 }))
               }
               className={`px-3 py-1.5 rounded-full text-xs font-medium border transition-colors ${
-                (local.evolutionStages || []).includes(s)
+                local.evolutionStages.includes(s)
                   ? 'bg-primary text-primary-foreground border-primary'
                   : 'bg-muted/40 text-muted-foreground border-border hover:bg-muted/70'
               }`}
@@ -453,7 +524,9 @@ function FilterContent({ filters, onChange, onClose }: Props & { onClose: () => 
             </button>
           ))}
         </div>
+      </div>
 
+      <div>
         <h4 className="text-sm font-semibold text-foreground mb-2">Ordenar por</h4>
         <div className="flex flex-wrap gap-1.5">
           {SORT_OPTIONS.map((opt) => (
@@ -500,6 +573,17 @@ export function PokemonFilterButton({ filters, onChange }: Props) {
   const [open, setOpen] = useState(false);
   const active = hasActiveFilters(filters);
 
+  const activeCount =
+    filters.types.length +
+    filters.weakTo.length +
+    filters.strongAgainst.length +
+    filters.regions.length +
+    filters.classifications.length +
+    filters.evolutionStages.length +
+    (filters.hasMega !== null ? 1 : 0) +
+    (filters.hasGmax !== null ? 1 : 0) +
+    (filters.sortBy !== 'id' ? 1 : 0);
+
   return (
     <Sheet open={open} onOpenChange={setOpen}>
       <SheetTrigger asChild>
@@ -508,14 +592,7 @@ export function PokemonFilterButton({ filters, onChange }: Props) {
           Filtros
           {active && (
             <span className="h-4 w-4 rounded-full bg-primary text-primary-foreground text-[10px] flex items-center justify-center font-bold">
-              {filters.types.length +
-                filters.weakTo.length +
-                filters.strongAgainst.length +
-                filters.classifications.length +
-                (filters.evolutionStages?.length || 0) +
-                (filters.hasMega !== null ? 1 : 0) +
-                (filters.hasGmax !== null ? 1 : 0) +
-                (filters.sortBy !== 'id' ? 1 : 0)}
+              {activeCount}
             </span>
           )}
         </Button>
@@ -559,24 +636,32 @@ export function applyFilters(
   }
 
   if (filters.hasMega === true) {
-    result = result.filter((p: any) => MEGA_POKEMON_IDS.has(p.baseId ?? p.id));
+    result = result.filter((p: any) => MEGA_POKEMON_IDS.has(getBaseId(p)));
   }
 
   if (filters.hasMega === false) {
-    result = result.filter((p: any) => !MEGA_POKEMON_IDS.has(p.baseId ?? p.id));
+    result = result.filter((p: any) => !MEGA_POKEMON_IDS.has(getBaseId(p)));
   }
 
   if (filters.hasGmax === true) {
-    result = result.filter((p: any) => GMAX_POKEMON_IDS.has(p.baseId ?? p.id));
+    result = result.filter((p: any) => GMAX_POKEMON_IDS.has(getBaseId(p)));
   }
 
   if (filters.hasGmax === false) {
-    result = result.filter((p: any) => !GMAX_POKEMON_IDS.has(p.baseId ?? p.id));
+    result = result.filter((p: any) => !GMAX_POKEMON_IDS.has(getBaseId(p)));
   }
 
-  if (filters.classifications && filters.classifications.length > 0) {
+  if (filters.regions.length > 0) {
     result = result.filter((p: any) => {
-      const baseId = p.baseId ?? p.id;
+      const region = getRegionForPokemon(p);
+      return region ? filters.regions.includes(region) : false;
+    });
+  }
+
+  if (filters.classifications.length > 0) {
+    result = result.filter((p: any) => {
+      const baseId = getBaseId(p);
+
       return filters.classifications.some((c) => {
         if (c === 'regular') {
           return !ALL_SPECIAL_SETS.some((set) => set.has(baseId));
@@ -586,7 +671,7 @@ export function applyFilters(
     });
   }
 
-  if (filters.evolutionStages && filters.evolutionStages.length > 0) {
+  if (filters.evolutionStages.length > 0) {
     result = result.filter((p: any) => {
       const stage = p.evolutionStage as string | undefined;
       if (!stage) return filters.evolutionStages.includes('basic');
@@ -601,8 +686,8 @@ export function applyFilters(
     result.sort((a, b) => a.name.localeCompare(b.name) * dir);
   } else if (sortBy === 'id') {
     result.sort((a: any, b: any) => {
-      const aId = a.baseId ?? a.id;
-      const bId = b.baseId ?? b.id;
+      const aId = getBaseId(a);
+      const bId = getBaseId(b);
       return (aId - bId) * dir;
     });
   } else if (sortBy === 'height') {
