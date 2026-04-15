@@ -842,36 +842,37 @@ export async function fetchAllRegionalForms(): Promise<PokemonBasic[]> {
     results.push(...batchResults.flat());
   }
 
-  // PATCH: starters de Hisui não vêm como varieties normais
-  const HISUI_EXTRA = [
-    { id: 10077, baseId: 724 }, // decidueye-hisui
-    { id: 10078, baseId: 157 }, // typhlosion-hisui
-    { id: 10079, baseId: 503 }, // samurott-hisui
-  ];
+ results.push(...batchResults.flat());
 
-  for (const p of HISUI_EXTRA) {
-    const alreadyExists = results.some((r: any) => r.id === p.id);
-    if (alreadyExists) continue;
 
-    try {
-      const data = await fetchPokemonRaw(p.id);
+const HISUI_EXTRA = [
+  { slug: 'decidueye-hisui', baseId: 724 },
+  { slug: 'typhlosion-hisui', baseId: 157 },
+  { slug: 'samurott-hisui', baseId: 503 },
+];
 
-      results.push({
-        id: data.id,
-        name: data.name,
-        sprite:
-          data.sprites.other?.['official-artwork']?.front_default ||
-          data.sprites.front_default ||
-          `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${data.id}.png`,
-        spriteShiny:
-          data.sprites.other?.['official-artwork']?.front_shiny ||
-          data.sprites.front_shiny ||
-          `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/shiny/${data.id}.png`,
-        types: data.types.map((t: any) => t.type.name),
-        baseId: p.baseId,
-      } as PokemonBasic & { baseId: number });
-    } catch {}
-  }
+for (const p of HISUI_EXTRA) {
+  const alreadyExists = results.some((r: any) => r.name === p.slug);
+  if (alreadyExists) continue;
+
+  try {
+    const res = await fetch(`${BASE_URL}/pokemon/${p.slug}`);
+    const data = await res.json();
+
+    results.push({
+      id: data.id,
+      name: data.name,
+      sprite:
+        data.sprites.other?.['official-artwork']?.front_default ||
+        data.sprites.front_default,
+      spriteShiny:
+        data.sprites.other?.['official-artwork']?.front_shiny ||
+        data.sprites.front_shiny,
+      types: data.types.map((t: any) => t.type.name),
+      baseId: p.baseId,
+    } as any);
+  } catch {}
+}
 
   return results.sort((a: any, b: any) => {
     const aBase = a.baseId ?? a.id;
