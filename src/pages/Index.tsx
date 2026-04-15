@@ -2,6 +2,7 @@ import { Link } from 'react-router-dom';
 import { GENERATIONS } from '@/lib/pokeapi';
 import { Header } from '@/components/Header';
 import { ChevronRight } from 'lucide-react';
+import { Home } from 'lucide-react';
 
 const REGION_STARTERS: Record<string, string[]> = {
   Kanto: [
