@@ -1,4 +1,5 @@
 import { useParams, Link } from 'react-router-dom';
+import { useEffect, useState } from 'react';
 import { GENERATIONS } from '@/lib/pokeapi';
 import { Header } from '@/components/Header';
 import { PokemonGrid } from '@/components/PokemonGrid';
@@ -6,10 +7,32 @@ import { ArrowLeft, ArrowUp } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Footer } from '@/components/Footer';
 
+const REGION_BG: Record<string, string> = {
+  Kanto: '/backgrounds/kanto.png',
+  Johto: '/backgrounds/johto.png',
+  Hoenn: '/backgrounds/hoenn.png',
+  Sinnoh: '/backgrounds/sinnoh.png',
+  Unova: '/backgrounds/unova.png',
+  Kalos: '/backgrounds/kalos.png',
+  Alola: '/backgrounds/alola.png',
+  Galar: '/backgrounds/galar.png',
+  Hisui: '/backgrounds/hisui.png',
+  Paldea: '/backgrounds/paldea.png',
+  Desconhecida: '/backgrounds/national.png',
+};
+
 export default function GenerationPage() {
   const { id } = useParams();
   const gen = GENERATIONS.find((g) => g.id === Number(id));
+const [offset, setOffset] = useState(0);
 
+useEffect(() => {
+  const onScroll = () => setOffset(window.scrollY * 0.2);
+  window.addEventListener('scroll', onScroll, { passive: true });
+  return () => window.removeEventListener('scroll', onScroll);
+}, []);
+
+const bg = REGION_BG[gen?.region || 'Desconhecida'];
   if (!gen) {
     return (
       <div className="min-h-screen bg-background">
@@ -28,16 +51,10 @@ export default function GenerationPage() {
       <Header />
       <main className="container py-8">
         <div className="flex items-center gap-4 mb-8">
-          <Button variant="ghost" size="icon" asChild>
-            <Link to="/"><ArrowLeft className="h-5 w-5" /></Link>
-          </Button>
-          <div>
-            <h2 className="font-pixel text-sm sm:text-lg text-foreground">{gen.region}</h2>
-            <p className="text-sm text-muted-foreground">
-              {gen.region === 'Desconhecida' ? 'Pokémon sem região definida' : `Região de ${gen.region}`} · #{gen.pokemonRange[0]}–#{gen.pokemonRange[1]}
-            </p>
-          </div>
-        </div>
+  <Button variant="ghost" size="icon" asChild>
+    <Link to="/"><ArrowLeft className="h-5 w-5" /></Link>
+  </Button>
+</div>
 
         <PokemonGrid generation={gen} />
 
