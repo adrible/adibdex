@@ -558,15 +558,25 @@ export function applyFilters(
     });
   }
 
-  if (filters.hasMega === true) result = result.filter((p) => MEGA_POKEMON_IDS.has(p.id));
-  if (filters.hasMega === false) result = result.filter((p) => !MEGA_POKEMON_IDS.has(p.id));
+  if (filters.hasMega === true) {
+    result = result.filter((p: any) => MEGA_POKEMON_IDS.has(p.baseId ?? p.id));
+  }
 
-  if (filters.hasGmax === true) result = result.filter((p) => GMAX_POKEMON_IDS.has(p.id));
-  if (filters.hasGmax === false) result = result.filter((p) => !GMAX_POKEMON_IDS.has(p.id));
+  if (filters.hasMega === false) {
+    result = result.filter((p: any) => !MEGA_POKEMON_IDS.has(p.baseId ?? p.id));
+  }
+
+  if (filters.hasGmax === true) {
+    result = result.filter((p: any) => GMAX_POKEMON_IDS.has(p.baseId ?? p.id));
+  }
+
+  if (filters.hasGmax === false) {
+    result = result.filter((p: any) => !GMAX_POKEMON_IDS.has(p.baseId ?? p.id));
+  }
 
   if (filters.classifications && filters.classifications.length > 0) {
-    result = result.filter((p) => {
-      const baseId = (p as any).baseId || p.id;
+    result = result.filter((p: any) => {
+      const baseId = p.baseId ?? p.id;
       return filters.classifications.some((c) => {
         if (c === 'regular') {
           return !ALL_SPECIAL_SETS.some((set) => set.has(baseId));
@@ -577,8 +587,8 @@ export function applyFilters(
   }
 
   if (filters.evolutionStages && filters.evolutionStages.length > 0) {
-    result = result.filter((p) => {
-      const stage = (p as any).evolutionStage as string | undefined;
+    result = result.filter((p: any) => {
+      const stage = p.evolutionStage as string | undefined;
       if (!stage) return filters.evolutionStages.includes('basic');
       return filters.evolutionStages.includes(stage as EvolutionStageOption);
     });
@@ -590,7 +600,11 @@ export function applyFilters(
   if (sortBy === 'name') {
     result.sort((a, b) => a.name.localeCompare(b.name) * dir);
   } else if (sortBy === 'id') {
-    result.sort((a, b) => (a.id - b.id) * dir);
+    result.sort((a: any, b: any) => {
+      const aId = a.baseId ?? a.id;
+      const bId = b.baseId ?? b.id;
+      return (aId - bId) * dir;
+    });
   } else if (sortBy === 'height') {
     result.sort((a, b) => ((a.height || 0) - (b.height || 0)) * dir);
   } else if (sortBy === 'weight') {
