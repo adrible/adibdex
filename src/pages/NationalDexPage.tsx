@@ -58,7 +58,7 @@ export default function NationalDexPage() {
     enabled: filtersActive || !!search.trim(),
   });
 
-  const { data: regionalForms } = useQuery({
+  const { data: regionalForms, isLoading: regionalLoading } = useQuery({
     queryKey: ['all-regional-forms'],
     queryFn: fetchAllRegionalForms,
     staleTime: 1000 * 60 * 60,
@@ -132,13 +132,6 @@ export default function NationalDexPage() {
 
     result = applyFilters(result, filters);
 
-    result.sort((a: any, b: any) => {
-      const aBase = a.baseId ?? a.id;
-      const bBase = b.baseId ?? b.id;
-      if (aBase !== bBase) return aBase - bBase;
-      return a.name.localeCompare(b.name);
-    });
-
     return result;
   }, [allPokemon, regionalForms, pageData, search, filters, filtersActive]);
 
@@ -155,7 +148,8 @@ export default function NationalDexPage() {
       ? Math.max(1, Math.ceil(filtered.length / PAGE_SIZE))
       : totalPages;
 
-  const isLoading = (filtersActive || search.trim()) ? allLoading : pageLoading;
+  const globalLoading = allLoading || regionalLoading;
+  const isLoading = (filtersActive || search.trim()) ? globalLoading : pageLoading;
 
   const handleNavigateToPokemon = useCallback((id: number) => {
     navigate(`/pokemon/${id}`, { state: { origin: location.pathname } });
@@ -232,7 +226,7 @@ export default function NationalDexPage() {
               }}
             />
             <Button
-              variant={isShiny ? "default" : "outline"}
+              variant={isShiny ? 'default' : 'outline'}
               size="sm"
               onClick={() => setIsShiny(!isShiny)}
               className={`gap-1 ${isShiny ? 'bg-gradient-to-r from-yellow-500 to-amber-500 hover:from-yellow-600 hover:to-amber-600 text-white border-0' : ''}`}
