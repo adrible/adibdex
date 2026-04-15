@@ -775,108 +775,120 @@ export async function fetchPokemonForms(pokemonId: number): Promise<PokemonForm[
   } catch { return []; }
 }
 export async function fetchAllRegionalForms(): Promise<PokemonBasic[]> {
-  const ids = [...REGIONAL_FORM_POKEMON_IDS].sort((a, b) => a - b);
-  const results: PokemonBasic[] = [];
+  const REGIONAL_FORM_SLUGS: { slug: string; baseId: number }[] = [
+    // Alola
+    { slug: 'rattata-alola', baseId: 19 },
+    { slug: 'raticate-alola', baseId: 20 },
+    { slug: 'raichu-alola', baseId: 26 },
+    { slug: 'sandshrew-alola', baseId: 27 },
+    { slug: 'sandslash-alola', baseId: 28 },
+    { slug: 'vulpix-alola', baseId: 37 },
+    { slug: 'ninetales-alola', baseId: 38 },
+    { slug: 'diglett-alola', baseId: 50 },
+    { slug: 'dugtrio-alola', baseId: 51 },
+    { slug: 'meowth-alola', baseId: 52 },
+    { slug: 'persian-alola', baseId: 53 },
+    { slug: 'geodude-alola', baseId: 74 },
+    { slug: 'graveler-alola', baseId: 75 },
+    { slug: 'golem-alola', baseId: 76 },
+    { slug: 'grimer-alola', baseId: 88 },
+    { slug: 'muk-alola', baseId: 89 },
+    { slug: 'exeggutor-alola', baseId: 103 },
+    { slug: 'marowak-alola', baseId: 105 },
 
-  const allowedRegionalKeys = ['alola', 'galar', 'hisui', 'paldea'];
+    // Galar
+    { slug: 'meowth-galar', baseId: 52 },
+    { slug: 'ponyta-galar', baseId: 77 },
+    { slug: 'rapidash-galar', baseId: 78 },
+    { slug: 'slowpoke-galar', baseId: 79 },
+    { slug: 'slowbro-galar', baseId: 80 },
+    { slug: 'farfetchd-galar', baseId: 83 },
+    { slug: 'weezing-galar', baseId: 110 },
+    { slug: 'mr-mime-galar', baseId: 122 },
+    { slug: 'articuno-galar', baseId: 144 },
+    { slug: 'zapdos-galar', baseId: 145 },
+    { slug: 'moltres-galar', baseId: 146 },
+    { slug: 'corsola-galar', baseId: 222 },
+    { slug: 'zigzagoon-galar', baseId: 263 },
+    { slug: 'linoone-galar', baseId: 264 },
+    { slug: 'darumaka-galar', baseId: 554 },
+    { slug: 'darmanitan-galar-standard', baseId: 555 },
+    { slug: 'yamask-galar', baseId: 562 },
+    { slug: 'stunfisk-galar', baseId: 618 },
 
-  for (let i = 0; i < ids.length; i += 10) {
-    const batch = ids.slice(i, i + 10);
+    // Hisui
+    { slug: 'growlithe-hisui', baseId: 58 },
+    { slug: 'arcanine-hisui', baseId: 59 },
+    { slug: 'voltorb-hisui', baseId: 100 },
+    { slug: 'electrode-hisui', baseId: 101 },
+    { slug: 'typhlosion-hisui', baseId: 157 },
+    { slug: 'qwilfish-hisui', baseId: 211 },
+    { slug: 'sneasel-hisui', baseId: 215 },
+    { slug: 'samurott-hisui', baseId: 503 },
+    { slug: 'lilligant-hisui', baseId: 549 },
+    { slug: 'zorua-hisui', baseId: 570 },
+    { slug: 'zoroark-hisui', baseId: 571 },
+    { slug: 'braviary-hisui', baseId: 628 },
+    { slug: 'sliggoo-hisui', baseId: 705 },
+    { slug: 'goodra-hisui', baseId: 706 },
+    { slug: 'avalugg-hisui', baseId: 713 },
+    { slug: 'decidueye-hisui', baseId: 724 },
+    { slug: 'wyrdeer', baseId: 899 },
+    { slug: 'kleavor', baseId: 900 },
+    { slug: 'ursaluna', baseId: 901 },
+    { slug: 'basculegion-male', baseId: 902 },
+    { slug: 'sneasler', baseId: 903 },
+    { slug: 'overqwil', baseId: 904 },
+
+    // Paldea
+    { slug: 'wooper-paldea', baseId: 194 },
+    { slug: 'tauros-paldea-combat-breed', baseId: 128 },
+    { slug: 'tauros-paldea-blaze-breed', baseId: 128 },
+    { slug: 'tauros-paldea-aqua-breed', baseId: 128 },
+  ];
+
+  const results: (PokemonBasic & { baseId: number })[] = [];
+
+  for (let i = 0; i < REGIONAL_FORM_SLUGS.length; i += 12) {
+    const batch = REGIONAL_FORM_SLUGS.slice(i, i + 12);
 
     const batchResults = await Promise.all(
-      batch.map(async (baseId) => {
+      batch.map(async ({ slug, baseId }) => {
         try {
-          const speciesRes = await fetch(`${BASE_URL}/pokemon-species/${baseId}`);
-          const speciesData = await speciesRes.json();
-          const varieties = speciesData.varieties || [];
+          const res = await fetch(`${BASE_URL}/pokemon/${slug}`);
+          if (!res.ok) return null;
 
-          const regionalVarieties = varieties.filter((v: any) => {
-            const name = v.pokemon.name as string;
+          const data = await res.json();
 
-            if (v.is_default) return false;
-            if (
-              name.includes('-mega') ||
-              name.includes('-gmax') ||
-              name.includes('-totem') ||
-              name.includes('-primal')
-            ) {
-              return false;
-            }
-
-            return allowedRegionalKeys.some((key) => name.includes(`-${key}`));
-          });
-
-          const forms = await Promise.all(
-            regionalVarieties.map(async (v: any) => {
-              try {
-                const res = await fetch(v.pokemon.url);
-                const data = await res.json();
-
-                return {
-                  id: data.id,
-                  name: data.name,
-                  sprite:
-                    data.sprites.other?.['official-artwork']?.front_default ||
-                    data.sprites.front_default ||
-                    `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${data.id}.png`,
-                  spriteShiny:
-                    data.sprites.other?.['official-artwork']?.front_shiny ||
-                    data.sprites.front_shiny ||
-                    `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/shiny/${data.id}.png`,
-                  types: data.types.map((t: any) => t.type.name),
-                  baseId,
-                } as PokemonBasic & { baseId: number };
-              } catch {
-                return null;
-              }
-            })
-          );
-
-          return forms.filter(Boolean) as (PokemonBasic & { baseId: number })[];
+          return {
+            id: data.id,
+            name: data.name,
+            sprite:
+              data.sprites.other?.['official-artwork']?.front_default ||
+              data.sprites.front_default ||
+              `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${data.id}.png`,
+            spriteShiny:
+              data.sprites.other?.['official-artwork']?.front_shiny ||
+              data.sprites.front_shiny ||
+              `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/shiny/${data.id}.png`,
+            types: data.types.map((t: any) => t.type.name),
+            stats: extractStats(data),
+            height: data.height,
+            weight: data.weight,
+            baseId,
+          } as PokemonBasic & { baseId: number };
         } catch {
-          return [];
+          return null;
         }
       })
     );
 
-    results.push(...batchResults.flat());
+    results.push(...batchResults.filter(Boolean) as (PokemonBasic & { baseId: number })[]);
   }
 
- results.push(...batchResults.flat());
-
-
-const HISUI_EXTRA = [
-  { slug: 'decidueye-hisui', baseId: 724 },
-  { slug: 'typhlosion-hisui', baseId: 157 },
-  { slug: 'samurott-hisui', baseId: 503 },
-];
-
-for (const p of HISUI_EXTRA) {
-  const alreadyExists = results.some((r: any) => r.name === p.slug);
-  if (alreadyExists) continue;
-
-  try {
-    const res = await fetch(`${BASE_URL}/pokemon/${p.slug}`);
-    const data = await res.json();
-
-    results.push({
-      id: data.id,
-      name: data.name,
-      sprite:
-        data.sprites.other?.['official-artwork']?.front_default ||
-        data.sprites.front_default,
-      spriteShiny:
-        data.sprites.other?.['official-artwork']?.front_shiny ||
-        data.sprites.front_shiny,
-      types: data.types.map((t: any) => t.type.name),
-      baseId: p.baseId,
-    } as any);
-  } catch {}
-}
-
-  return results.sort((a: any, b: any) => {
-    const aBase = a.baseId ?? a.id;
-    const bBase = b.baseId ?? b.id;
+  return results.sort((a, b) => {
+    const aBase = (a as any).baseId ?? a.id;
+    const bBase = (b as any).baseId ?? b.id;
 
     if (aBase !== bBase) return aBase - bBase;
     return a.name.localeCompare(b.name);
