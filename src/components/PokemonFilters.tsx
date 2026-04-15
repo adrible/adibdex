@@ -434,18 +434,22 @@ function FilterContent({
               1+
             </button>
 
-            <button
-              onClick={() =>
-                setLocal((prev) => ({ ...prev, typeMatchMode: 'all' }))
-              }
-              className={`px-3 py-1.5 text-xs font-medium rounded-full transition-colors ${
-                local.typeMatchMode === 'all'
-                  ? 'bg-primary text-primary-foreground shadow-sm sm:border sm:border-primary'
-                  : 'text-muted-foreground hover:text-foreground'
-              }`}
-            >
-              Todos
-            </button>
+           <button
+  onClick={() =>
+    setLocal((prev) => ({
+      ...prev,
+      typeMatchMode: 'all',
+      types: prev.types.slice(-2),
+    }))
+  }
+  className={`px-3 py-1.5 text-xs font-medium rounded-full transition-colors ${
+    local.typeMatchMode === 'all'
+      ? 'bg-primary text-primary-foreground shadow-sm sm:border sm:border-primary'
+      : 'text-muted-foreground hover:text-foreground'
+  }`}
+>
+  Todos
+</button>
           </div>
         </div>
 
