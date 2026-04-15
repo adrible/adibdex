@@ -449,30 +449,47 @@ function FilterContent({
           </div>
         </div>
 
-        <p className="text-xs text-muted-foreground mb-2">
-          {local.typeMatchMode === 'any'
-            ? 'Inclui ao menos um dos tipos selecionados'
-            : 'Inclui todos os tipos selecionados'}
-        </p>
+      <p className="text-xs text-muted-foreground mb-2">
+  {local.typeMatchMode === 'any'
+    ? 'Possui ao menos um dos tipos selecionados'
+    : 'Possui todos os tipos selecionados'}
+</p>
 
         <div className="flex flex-wrap gap-1.5">
           {ALL_TYPES.map((type) => (
-            <button
-              key={type}
-              onClick={() =>
-                setLocal((prev) => ({
-                  ...prev,
-                  types: toggleInArray(prev.types, type),
-                }))
-              }
-              className={`transition-all ${
-                local.types.includes(type)
-                  ? 'ring-2 ring-primary scale-110'
-                  : 'opacity-70 hover:opacity-100'
-              }`}
-            >
-              <TypeBadge type={type} size="sm" />
-            </button>
+          <button
+  key={type}
+  onClick={() =>
+    setLocal((prev) => {
+      const alreadySelected = prev.types.includes(type);
+
+      if (alreadySelected) {
+        return {
+          ...prev,
+          types: prev.types.filter((t) => t !== type),
+        };
+      }
+
+      if (prev.typeMatchMode === 'all' && prev.types.length >= 2) {
+        return prev;
+      }
+
+      return {
+        ...prev,
+        types: [...prev.types, type],
+      };
+    })
+  }
+  className={`transition-all ${
+    local.types.includes(type)
+      ? 'ring-2 ring-primary scale-110'
+      : local.typeMatchMode === 'all' && local.types.length >= 2
+        ? 'opacity-30 cursor-not-allowed'
+        : 'opacity-70 hover:opacity-100'
+  }`}
+>
+  <TypeBadge type={type} size="sm" />
+</button>
           ))}
         </div>
       </div>
