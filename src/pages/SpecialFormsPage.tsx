@@ -12,6 +12,7 @@ import {
   type FilterState, DEFAULT_FILTERS,
   saveFiltersToSession, loadFiltersFromSession,
 } from '@/components/PokemonFilters';
+import { Footer } from '@/components/Footer';
 
 const PAGE_SIZE = 48;
 
@@ -160,6 +161,8 @@ export default function SpecialFormsPage({ type }: Props) {
           </>
         )}
       </main>
+
+      <Footer />
     </div>
   );
 }
