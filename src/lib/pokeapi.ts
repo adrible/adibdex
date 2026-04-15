@@ -991,22 +991,16 @@ export async function fetchAllRegionalForms(): Promise<PokemonBasic[]> {
           const data = await res.json();
 
           return {
-            id: data.id,
-            name: data.name,
-            sprite:
-              data.sprites.other?.['official-artwork']?.front_default ||
-              data.sprites.front_default ||
-              `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${data.id}.png`,
-            spriteShiny:
-              data.sprites.other?.['official-artwork']?.front_shiny ||
-              data.sprites.front_shiny ||
-              `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/shiny/${data.id}.png`,
-            types: data.types.map((t: any) => t.type.name),
-            stats: extractStats(data),
-            height: data.height,
-            weight: data.weight,
-            baseId,
-          } as PokemonBasic & { baseId: number };
+  id: data.id,
+  name: data.name,
+  sprite: `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${data.id}.png`,
+  spriteShiny: `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/shiny/${data.id}.png`,
+  types: data.types.map((t: any) => t.type.name),
+  stats: extractStats(data),
+  height: data.height,
+  weight: data.weight,
+  baseId,
+} as PokemonBasic & { baseId: number };
         } catch {
           return null;
         }
