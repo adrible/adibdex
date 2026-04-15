@@ -580,7 +580,7 @@ export interface GmaxForm {
   types: string[];
 }
 
-export async function fetchAllMegaForms(): Promise<PokemonBasic[]> {
+export async function fetchMegaEvolutions(): Promise<PokemonBasic[]> {
   const MEGA_FORM_SLUGS: { slug: string; baseId: number }[] = [
     // Megas antigas / clássicas
     { slug: 'venusaur-mega', baseId: 3 },
