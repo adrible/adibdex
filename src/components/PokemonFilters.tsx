@@ -431,7 +431,7 @@ function FilterContent({
                   : 'text-muted-foreground hover:text-foreground'
               }`}
             >
-              1+
+              Um
             </button>
 
            <button
