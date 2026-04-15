@@ -679,11 +679,15 @@ export function applyFilters(
     });
   }
 
-  const { sortBy, sortDir } = filters;
+    const { sortBy, sortDir } = filters;
   const dir = sortDir === 'asc' ? 1 : -1;
 
   if (sortBy === 'name') {
-    result.sort((a, b) => a.name.localeCompare(b.name) * dir);
+    result.sort((a: any, b: any) => {
+      const cmp = a.name.localeCompare(b.name) * dir;
+      if (cmp !== 0) return cmp;
+      return (getBaseId(a) - getBaseId(b)) * dir;
+    });
   } else if (sortBy === 'id') {
     result.sort((a: any, b: any) => {
       const aId = getBaseId(a);
@@ -691,14 +695,29 @@ export function applyFilters(
       return (aId - bId) * dir;
     });
   } else if (sortBy === 'height') {
-    result.sort((a, b) => ((a.height || 0) - (b.height || 0)) * dir);
+    result.sort((a: any, b: any) => {
+      const cmp = ((a.height || 0) - (b.height || 0)) * dir;
+      if (cmp !== 0) return cmp;
+      return (getBaseId(a) - getBaseId(b)) * dir;
+    });
   } else if (sortBy === 'weight') {
-    result.sort((a, b) => ((a.weight || 0) - (b.weight || 0)) * dir);
+    result.sort((a: any, b: any) => {
+      const cmp = ((a.weight || 0) - (b.weight || 0)) * dir;
+      if (cmp !== 0) return cmp;
+      return (getBaseId(a) - getBaseId(b)) * dir;
+    });
   } else {
-    result.sort((a, b) => {
-      const aVal = a.stats?.[sortBy as keyof NonNullable<typeof a.stats>] || 0;
-      const bVal = b.stats?.[sortBy as keyof NonNullable<typeof b.stats>] || 0;
-      return (aVal - bVal) * dir;
+    result.sort((a: any, b: any) => {
+      const aStats = a.stats ?? {};
+      const bStats = b.stats ?? {};
+
+      const aVal = Number(aStats[sortBy as keyof typeof aStats] ?? 0);
+      const bVal = Number(bStats[sortBy as keyof typeof bStats] ?? 0);
+
+      const cmp = (aVal - bVal) * dir;
+      if (cmp !== 0) return cmp;
+
+      return (getBaseId(a) - getBaseId(b)) * dir;
     });
   }
 
