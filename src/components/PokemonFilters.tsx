@@ -418,35 +418,35 @@ function FilterContent({
   return (
     <div className="space-y-6 py-2">
       <div>
-        <div className="flex items-center justify-between mb-2">
-          <h4 className="text-sm font-semibold text-foreground">Tipo</h4>
-          <div className="flex gap-1">
-            <button
-              onClick={() =>
-                setLocal((prev) => ({ ...prev, typeMatchMode: 'any' }))
-              }
-              className={`px-2 py-1 rounded-md text-[11px] font-medium border ${
-                local.typeMatchMode === 'any'
-                  ? 'bg-primary text-primary-foreground border-primary'
-                  : 'bg-muted/40 text-muted-foreground border-border hover:bg-muted/70'
-              }`}
-            >
-              OU
-            </button>
-            <button
-              onClick={() =>
-                setLocal((prev) => ({ ...prev, typeMatchMode: 'all' }))
-              }
-              className={`px-2 py-1 rounded-md text-[11px] font-medium border ${
-                local.typeMatchMode === 'all'
-                  ? 'bg-primary text-primary-foreground border-primary'
-                  : 'bg-muted/40 text-muted-foreground border-border hover:bg-muted/70'
-              }`}
-            >
-              E
-            </button>
-          </div>
-        </div>
+       <div className="flex items-center justify-between">
+  <h4 className="text-sm font-semibold text-foreground">Tipos</h4>
+
+  <div className="flex rounded-full bg-muted p-1 sm:bg-transparent sm:p-0 sm:gap-1.5">
+    <button
+      onClick={() => setLocal((prev) => ({ ...prev, typeMatchMode: 'any' }))}
+      className={`px-3 py-1.5 text-xs font-medium rounded-full transition-colors
+        ${
+          local.typeMatchMode === 'any'
+            ? 'bg-background text-foreground shadow-sm sm:bg-primary sm:text-primary-foreground sm:border sm:border-primary'
+            : 'text-muted-foreground'
+        }`}
+    >
+      1+
+    </button>
+
+    <button
+      onClick={() => setLocal((prev) => ({ ...prev, typeMatchMode: 'all' }))}
+      className={`px-3 py-1.5 text-xs font-medium rounded-full transition-colors
+        ${
+          local.typeMatchMode === 'all'
+            ? 'bg-background text-foreground shadow-sm sm:bg-primary sm:text-primary-foreground sm:border sm:border-primary'
+            : 'text-muted-foreground'
+        }`}
+    >
+      Todos
+    </button>
+  </div>
+</div>
 
         <div className="flex flex-wrap gap-1.5">
           {ALL_TYPES.map((type) => (
