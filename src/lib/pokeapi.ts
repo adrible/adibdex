@@ -701,16 +701,8 @@ export async function fetchAllMegaForms(): Promise<PokemonBasic[]> {
           return {
             id: data.id,
             name: data.name,
-           sprite:
-  data.sprites.other?.home?.front_default ||
-  data.sprites.other?.['official-artwork']?.front_default ||
-  data.sprites.front_default ||
-  `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${data.id}.png`,
-spriteShiny:
-  data.sprites.other?.home?.front_shiny ||
-  data.sprites.other?.['official-artwork']?.front_shiny ||
-  data.sprites.front_shiny ||
-  `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/shiny/${data.id}.png`,
+           sprite: `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${data.id}.png`,
+spriteShiny: `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/shiny/${data.id}.png`,
             types: data.types.map((t: any) => t.type.name),
             stats: extractStats(data),
             height: data.height,
