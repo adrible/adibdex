@@ -38,6 +38,7 @@ export default function NationalDexPage() {
   useEffect(() => {
     saveFiltersToSession('national', filters, page);
   }, [filters, page]);
+
   useEffect(() => {
     setPage(0);
   }, [filters, search]);
@@ -67,12 +68,14 @@ export default function NationalDexPage() {
 
     const q = search.toLowerCase();
 
-    const regionalNames = (regionalForms ?? []).map((p: any) => ({
-      id: p.id,
-      name: p.name,
-      baseId: p.baseId ?? p.id,
-      sprite: p.sprite,
-    }));
+    const regionalNames = (regionalForms ?? [])
+      .filter((p: any) => p.id >= 10000 || p.name.includes('-'))
+      .map((p: any) => ({
+        id: p.id,
+        name: p.name,
+        baseId: p.baseId ?? p.id,
+        sprite: p.sprite,
+      }));
 
     const baseNames = allNames.map((p) => ({
       id: p.id,
@@ -95,10 +98,7 @@ export default function NationalDexPage() {
   }, [search, allNames, regionalForms]);
 
   const filtered = useMemo(() => {
-    const source = [
-      ...(allPokemon ?? []),
-      ...(regionalForms ?? []),
-    ];
+    const source = [...(allPokemon ?? [])];
 
     if (!source.length) return [];
 
@@ -117,8 +117,6 @@ export default function NationalDexPage() {
 
     result = applyFilters(result, filters);
 
-    // Garantia extra: quando a ordem for Número Nacional,
-    // forçar ordem por baseId/id
     if (filters.sortBy === 'id') {
       result.sort((a: any, b: any) => {
         const aId = a.baseId ?? a.id;
@@ -129,7 +127,7 @@ export default function NationalDexPage() {
     }
 
     return result;
-  }, [allPokemon, regionalForms, search, filters]);
+  }, [allPokemon, search, filters]);
 
   const filteredTotalPages = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE));
 
