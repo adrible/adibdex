@@ -11,6 +11,7 @@ import { PokemonMoves } from '@/components/PokemonMoves';
 import { Button } from '@/components/ui/button';
 import { ArrowLeft, ChevronLeft, ChevronRight, MapPin, Sparkles, ChevronDown, ChevronUp } from 'lucide-react';
 import { Skeleton } from '@/components/ui/skeleton';
+import { Footer } from '@/components/Footer';
 
 function StatBar({ name, value }: { name: string; value: number }) {
   const percentage = Math.min((value / 255) * 100, 100);
@@ -248,6 +249,8 @@ export default function PokemonDetailPage() {
           <PokemonMoves pokemonId={pokemonId} />
         </div>
       </main>
+
+      <Footer/ >
     </div>
   );
 }
