@@ -1,5 +1,4 @@
 import { Link } from 'react-router-dom';
-import { Moon, Sun } from 'lucide-react';
 import { useTheme } from './ThemeProvider';
 import { Button } from './ui/button';
 import { Moon, Sun, Home } from 'lucide-react';
