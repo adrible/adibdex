@@ -124,8 +124,7 @@ export const REGIONAL_FORM_POKEMON_IDS = new Set([
 79, 80, 83, 88, 89, 100, 101, 102, 103, 105, 110, 122, 144, 145, 146,
 157, 211, 215, 222, 263, 264, 554, 555, 562, 563, 618,
 705, 706, 713,
-724,
-899, 901, 902, 903, 904
+724
 ]);
 
 // Evolution stage cache - populated lazily
@@ -970,12 +969,6 @@ export async function fetchAllRegionalForms(): Promise<PokemonBasic[]> {
     { slug: 'goodra-hisui', baseId: 706 },
     { slug: 'avalugg-hisui', baseId: 713 },
     { slug: 'decidueye-hisui', baseId: 724 },
-    { slug: 'wyrdeer', baseId: 899 },
-    { slug: 'kleavor', baseId: 900 },
-    { slug: 'ursaluna', baseId: 901 },
-    { slug: 'basculegion-male', baseId: 902 },
-    { slug: 'sneasler', baseId: 903 },
-    { slug: 'overqwil', baseId: 904 },
 
     // Paldea
     { slug: 'wooper-paldea', baseId: 194 },
