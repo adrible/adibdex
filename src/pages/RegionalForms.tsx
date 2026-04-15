@@ -12,6 +12,7 @@ import {
   type FilterState, DEFAULT_FILTERS,
   saveFiltersToSession, loadFiltersFromSession,
 } from '@/components/PokemonFilters';
+import { Footer } from '@/components/Footer';
 
 const PAGE_SIZE = 48;
 
@@ -191,6 +192,8 @@ export default function RegionalForms() {
           </>
         )}
       </main>
+
+      <Footer/ >
     </div>
   );
 }
