@@ -4,6 +4,7 @@ import { Header } from '@/components/Header';
 import { PokemonGrid } from '@/components/PokemonGrid';
 import { ArrowLeft, ArrowUp } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { Footer } from '@/components/Footer';
 
 export default function GenerationPage() {
   const { id } = useParams();
@@ -50,3 +51,4 @@ export default function GenerationPage() {
     </div>
   );
 }
+<Footer />
