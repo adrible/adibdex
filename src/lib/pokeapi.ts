@@ -810,26 +810,7 @@ export async function fetchAllPokemonBasic(): Promise<PokemonBasic[]> {
   return results;
 }
 
-// Fetch all mega forms for category display – includes baseId for display
-export async function fetchAllMegaForms(): Promise<PokemonBasic[]> {
-  const ids = [...MEGA_POKEMON_IDS].sort((a, b) => a - b);
-  const results: PokemonBasic[] = [];
-  for (let i = 0; i < ids.length; i += 10) {
-    const batch = ids.slice(i, i + 10);
-    const batchResults = await Promise.all(batch.map(async (baseId) => {
-      const megas = await fetchMegaEvolutions(baseId);
-      return megas.map(m => ({
-        id: m.id, name: m.name,
-        sprite: m.sprite || `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${m.id}.png`,
-        spriteShiny: m.spriteShiny || `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/shiny/${m.id}.png`,
-        types: m.types,
-        baseId,
-      } as PokemonBasic & { baseId: number }));
-    }));
-    results.push(...batchResults.flat());
-  }
-  return results;
-}
+
 
 // Fetch all gmax forms for category display – includes baseId for display
 export async function fetchAllGmaxForms(): Promise<PokemonBasic[]> {
