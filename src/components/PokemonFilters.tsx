@@ -20,6 +20,27 @@ import {
 import { getDefensiveMatchups, getOffensiveMatchups } from '@/lib/type-effectiveness';
 import { Filter, X, ArrowUpDown } from 'lucide-react';
 
+const FILTER_STORAGE_KEY = 'pokedex-filters';
+
+export function saveFiltersToSession(key: string, filters: any, page: number) {
+  try {
+    sessionStorage.setItem(
+      `${FILTER_STORAGE_KEY}-${key}`,
+      JSON.stringify({ filters, page })
+    );
+  } catch {}
+}
+
+export function loadFiltersFromSession(key: string) {
+  try {
+    const raw = sessionStorage.getItem(`${FILTER_STORAGE_KEY}-${key}`);
+    if (!raw) return null;
+    return JSON.parse(raw);
+  } catch {
+    return null;
+  }
+}
+
 const ALL_TYPES = Object.keys(TYPE_TRANSLATIONS);
 const ALL_REGIONS = GENERATIONS.map((g) => g.region);
 
