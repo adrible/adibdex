@@ -1,7 +1,6 @@
 import { useState, useMemo, useCallback, useEffect } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import {
-  fetchPokemonPage,
   fetchAllPokemonNames,
   fetchAllPokemonBasic,
   fetchAllRegionalForms,
@@ -17,7 +16,6 @@ import {
   PokemonFilterButton,
   ActiveFilterChips,
   applyFilters,
-  hasActiveFilters,
   DEFAULT_FILTERS,
   saveFiltersToSession,
   loadFiltersFromSession,
@@ -37,26 +35,9 @@ export default function NationalDexPage() {
   const navigate = useNavigate();
   const location = useLocation();
 
-  const filtersActive = hasActiveFilters(filters);
-  const shouldUseGlobalData = filtersActive || !!search.trim();
-  const offset = page * PAGE_SIZE;
-
   useEffect(() => {
     saveFiltersToSession('national', filters, page);
   }, [filters, page]);
-
-  useEffect(() => {
-    if (!filtersActive && !search.trim()) {
-      setPage(0);
-    }
-  }, [filtersActive, search]);
-
-  const { data: pageData, isLoading: pageLoading } = useQuery({
-    queryKey: ['national-dex', page],
-    queryFn: () => fetchPokemonPage(offset, Math.min(PAGE_SIZE, TOTAL_POKEMON - offset)),
-    staleTime: 1000 * 60 * 30,
-    enabled: !shouldUseGlobalData,
-  });
 
   const { data: allPokemon, isLoading: allLoading } = useQuery({
     queryKey: ['all-pokemon-basic'],
@@ -77,8 +58,6 @@ export default function NationalDexPage() {
     queryFn: fetchAllPokemonNames,
     staleTime: Infinity,
   });
-
-  const totalPages = Math.ceil(TOTAL_POKEMON / PAGE_SIZE);
 
   const globalResults = useMemo(() => {
     if (!search.trim() || !allNames) return null;
@@ -113,12 +92,10 @@ export default function NationalDexPage() {
   }, [search, allNames, regionalForms]);
 
   const filtered = useMemo(() => {
-    const source = shouldUseGlobalData
-      ? [
-          ...(allPokemon ?? []),
-          ...(regionalForms ?? []),
-        ]
-      : (pageData?.pokemons ?? []);
+    const source = [
+      ...(allPokemon ?? []),
+      ...(regionalForms ?? []),
+    ];
 
     if (!source.length) return [];
 
@@ -137,32 +114,35 @@ export default function NationalDexPage() {
 
     result = applyFilters(result, filters);
 
-    if (!shouldUseGlobalData) {
+    // Garantia extra: quando a ordem for Número Nacional,
+    // forçar ordem por baseId/id
+    if (filters.sortBy === 'id') {
       result.sort((a: any, b: any) => {
         const aId = a.baseId ?? a.id;
         const bId = b.baseId ?? b.id;
-        return aId - bId;
+        if (aId !== bId) return aId - bId;
+        return a.id - b.id;
       });
     }
 
     return result;
-  }, [allPokemon, regionalForms, pageData, search, filters, shouldUseGlobalData]);
+  }, [allPokemon, regionalForms, search, filters]);
+
+  const filteredTotalPages = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE));
 
   const displayedPokemon = useMemo(() => {
-    if (shouldUseGlobalData) {
-      const start = page * PAGE_SIZE;
-      return filtered.slice(start, start + PAGE_SIZE);
+    const safePage = Math.min(page, filteredTotalPages - 1);
+    const start = safePage * PAGE_SIZE;
+    return filtered.slice(start, start + PAGE_SIZE);
+  }, [filtered, page, filteredTotalPages]);
+
+  useEffect(() => {
+    if (page > filteredTotalPages - 1) {
+      setPage(0);
     }
-    return filtered;
-  }, [filtered, page, shouldUseGlobalData]);
+  }, [page, filteredTotalPages]);
 
-  const filteredTotalPages = shouldUseGlobalData
-    ? Math.max(1, Math.ceil(filtered.length / PAGE_SIZE))
-    : totalPages;
-
-  const isLoading = shouldUseGlobalData
-    ? allLoading || regionalLoading
-    : pageLoading;
+  const isLoading = allLoading || regionalLoading;
 
   const handleNavigateToPokemon = useCallback((id: number) => {
     navigate(`/pokemon/${id}`, { state: { origin: location.pathname } });
