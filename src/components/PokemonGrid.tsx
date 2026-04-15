@@ -232,7 +232,7 @@ export function PokemonGrid({ generation }: { generation: Generation }) {
                   onKeyDown={handlePageInput}
                   onBlur={() => setPageInput('')}
                   placeholder={String(page + 1)}
-                  className="w-10 text-center border rounded"
+                  className="w-10 text-center rounded border border-input bg-card text-foreground px-1 py-0.5 text-sm focus:outline-none focus:ring-1 focus:ring-ring"
                 />
                 <span>/ {totalFilteredPages}</span>
               </div>
