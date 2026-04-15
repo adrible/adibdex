@@ -140,29 +140,33 @@ export function PokemonGrid({ generation }: { generation: Generation }) {
           </Button>
 
           {totalPokemon > PAGE_SIZE && (
-            <>
-              <Button
-                variant={!showAll ? 'default' : 'outline'}
-                size="sm"
-                onClick={() => {
-                  setShowAll(false);
-                  setPage(0);
-                }}
-                className="text-xs"
-              >
-                Paginado
-              </Button>
+  <>
+    <Button
+      variant="outline"
+      size="sm"
+      onClick={() => {
+        setShowAll(false);
+        setPage(0);
+      }}
+      className={`text-xs transition-colors ${
+        !showAll ? 'bg-primary text-primary-foreground border-primary' : ''
+      }`}
+    >
+      Paginado
+    </Button>
 
-              <Button
-                variant={showAll ? 'default' : 'outline'}
-                size="sm"
-                onClick={() => setShowAll(true)}
-                className="text-xs"
-              >
-                Todos
-              </Button>
-            </>
-          )}
+    <Button
+      variant="outline"
+      size="sm"
+      onClick={() => setShowAll(true)}
+      className={`text-xs transition-colors ${
+        showAll ? 'bg-primary text-primary-foreground border-primary' : ''
+      }`}
+    >
+      Todos
+    </Button>
+  </>
+)}
         </div>
       </div>
 
