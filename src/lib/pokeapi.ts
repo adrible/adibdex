@@ -53,9 +53,26 @@ export const GENERATIONS: Generation[] = [
 
 // Complete official Mega Evolution Pokémon (base IDs) – 46 species + Primal forms
 export const MEGA_POKEMON_IDS = new Set([
-  3, 6, 9, 15, 18, 26, 65, 80, 94, 115, 127, 130, 142, 150, 181, 208, 212, 214, 229, 248,
-254, 257, 260, 282, 302, 303, 306, 308, 310, 354, 359, 362, 373, 376, 380, 381, 382, 383, 384,
-428, 445, 448, 460, 475, 531, 652, 655, 658, 719, 807, 998
+  // Kanto
+  3, 6, 9, 15, 18, 26, 36, 65, 71, 80, 94, 115, 121, 127, 130, 142, 149, 150,
+
+  // Johto
+  154, 160, 181, 208, 212, 214, 227, 229, 248,
+
+  // Hoenn
+  254, 257, 260, 282, 302, 303, 306, 308, 310, 319, 323, 334, 354, 358, 359, 362, 373, 376, 380, 381, 382, 383, 384,
+
+  // Sinnoh
+  398, 428, 445, 448, 460, 475, 478, 485, 491,
+
+  // Unova
+  500, 530, 531, 545, 560, 604, 609, 623,
+
+  // Kalos
+  652, 655, 658, 668, 670, 687, 689, 691, 701, 718, 719,
+
+  // Alola / Galar / Paldea / misc
+  740, 768, 780, 801, 807, 870, 952, 970, 978, 998
 ]);
 
 // Classification datasets
@@ -563,41 +580,161 @@ export interface GmaxForm {
   types: string[];
 }
 
-export async function fetchMegaEvolutions(pokemonId: number): Promise<MegaEvolution[]> {
-  try {
-    let speciesId = pokemonId;
-    if (pokemonId >= 10000) {
-      const pokData = await fetchPokemonRaw(pokemonId);
-      speciesId = extractIdFromUrl(pokData.species.url);
-    }
-    const speciesRes = await fetch(`${BASE_URL}/pokemon-species/${speciesId}`);
-    const speciesData = await speciesRes.json();
-    const varieties = speciesData.varieties || [];
-    const megaVarieties = varieties.filter((v: any) => {
-  const name = v.pokemon.name;
+export async function fetchAllMegaForms(): Promise<PokemonBasic[]> {
+  const MEGA_FORM_SLUGS: { slug: string; baseId: number }[] = [
+    // Megas antigas / clássicas
+    { slug: 'venusaur-mega', baseId: 3 },
+    { slug: 'charizard-mega-x', baseId: 6 },
+    { slug: 'charizard-mega-y', baseId: 6 },
+    { slug: 'blastoise-mega', baseId: 9 },
+    { slug: 'beedrill-mega', baseId: 15 },
+    { slug: 'pidgeot-mega', baseId: 18 },
+    { slug: 'alakazam-mega', baseId: 65 },
+    { slug: 'slowbro-mega', baseId: 80 },
+    { slug: 'gengar-mega', baseId: 94 },
+    { slug: 'kangaskhan-mega', baseId: 115 },
+    { slug: 'pinsir-mega', baseId: 127 },
+    { slug: 'gyarados-mega', baseId: 130 },
+    { slug: 'aerodactyl-mega', baseId: 142 },
+    { slug: 'mewtwo-mega-x', baseId: 150 },
+    { slug: 'mewtwo-mega-y', baseId: 150 },
 
-  if (v.is_default) return false;
+    { slug: 'ampharos-mega', baseId: 181 },
+    { slug: 'steelix-mega', baseId: 208 },
+    { slug: 'scizor-mega', baseId: 212 },
+    { slug: 'heracross-mega', baseId: 214 },
+    { slug: 'houndoom-mega', baseId: 229 },
+    { slug: 'tyranitar-mega', baseId: 248 },
 
-  return (
-    name.includes('-mega') ||
-    name.includes('-primal')
-  );
-});
-    if (megaVarieties.length === 0) return [];
-    const megas = await Promise.all(
-      megaVarieties.map(async (v: any) => {
-        const res = await fetch(v.pokemon.url);
-        const data = await res.json();
-        return {
-          id: data.id, name: data.name,
-          sprite: data.sprites.other?.['official-artwork']?.front_default || data.sprites.front_default,
-          spriteShiny: data.sprites.other?.['official-artwork']?.front_shiny || data.sprites.front_shiny,
-          types: data.types.map((t: any) => t.type.name),
-        };
+    { slug: 'sceptile-mega', baseId: 254 },
+    { slug: 'blaziken-mega', baseId: 257 },
+    { slug: 'swampert-mega', baseId: 260 },
+    { slug: 'gardevoir-mega', baseId: 282 },
+    { slug: 'sableye-mega', baseId: 302 },
+    { slug: 'mawile-mega', baseId: 303 },
+    { slug: 'aggron-mega', baseId: 306 },
+    { slug: 'medicham-mega', baseId: 308 },
+    { slug: 'manectric-mega', baseId: 310 },
+    { slug: 'sharpedo-mega', baseId: 319 },
+    { slug: 'camerupt-mega', baseId: 323 },
+    { slug: 'altaria-mega', baseId: 334 },
+    { slug: 'banette-mega', baseId: 354 },
+    { slug: 'absol-mega', baseId: 359 },
+    { slug: 'glalie-mega', baseId: 362 },
+    { slug: 'salamence-mega', baseId: 373 },
+    { slug: 'metagross-mega', baseId: 376 },
+    { slug: 'latias-mega', baseId: 380 },
+    { slug: 'latios-mega', baseId: 381 },
+    { slug: 'kyogre-primal', baseId: 382 },
+    { slug: 'groudon-primal', baseId: 383 },
+    { slug: 'rayquaza-mega', baseId: 384 },
+
+    { slug: 'lopunny-mega', baseId: 428 },
+    { slug: 'garchomp-mega', baseId: 445 },
+    { slug: 'lucario-mega', baseId: 448 },
+    { slug: 'abomasnow-mega', baseId: 460 },
+    { slug: 'gallade-mega', baseId: 475 },
+
+    { slug: 'audino-mega', baseId: 531 },
+    { slug: 'diancie-mega', baseId: 719 },
+
+    // Novas do trecho que você mandou
+    { slug: 'clefable-mega', baseId: 36 },
+    { slug: 'victreebel-mega', baseId: 71 },
+    { slug: 'starmie-mega', baseId: 121 },
+    { slug: 'dragonite-mega', baseId: 149 },
+    { slug: 'meganium-mega', baseId: 154 },
+    { slug: 'feraligatr-mega', baseId: 160 },
+    { slug: 'skarmory-mega', baseId: 227 },
+    { slug: 'froslass-mega', baseId: 478 },
+    { slug: 'emboar-mega', baseId: 500 },
+    { slug: 'excadrill-mega', baseId: 530 },
+    { slug: 'scolipede-mega', baseId: 545 },
+    { slug: 'scrafty-mega', baseId: 560 },
+    { slug: 'eelektross-mega', baseId: 604 },
+    { slug: 'chandelure-mega', baseId: 609 },
+    { slug: 'chesnaught-mega', baseId: 652 },
+    { slug: 'delphox-mega', baseId: 655 },
+    { slug: 'greninja-mega', baseId: 658 },
+    { slug: 'pyroar-mega', baseId: 668 },
+    { slug: 'floette-mega', baseId: 670 },
+    { slug: 'malamar-mega', baseId: 687 },
+    { slug: 'barbaracle-mega', baseId: 689 },
+    { slug: 'dragalge-mega', baseId: 691 },
+    { slug: 'hawlucha-mega', baseId: 701 },
+    { slug: 'zygarde-mega', baseId: 718 },
+    { slug: 'drampa-mega', baseId: 780 },
+    { slug: 'falinks-mega', baseId: 870 },
+    { slug: 'raichu-mega-x', baseId: 26 },
+    { slug: 'raichu-mega-y', baseId: 26 },
+    { slug: 'chimecho-mega', baseId: 358 },
+    { slug: 'absol-mega-z', baseId: 359 },
+    { slug: 'staraptor-mega', baseId: 398 },
+    { slug: 'garchomp-mega-z', baseId: 445 },
+    { slug: 'lucario-mega-z', baseId: 448 },
+    { slug: 'heatran-mega', baseId: 485 },
+    { slug: 'darkrai-mega', baseId: 491 },
+    { slug: 'golurk-mega', baseId: 623 },
+    { slug: 'meowstic-mega', baseId: 678 },
+    { slug: 'crabominable-mega', baseId: 740 },
+    { slug: 'golisopod-mega', baseId: 768 },
+    { slug: 'magearna-mega', baseId: 801 },
+    { slug: 'magearna-original-mega', baseId: 801 },
+    { slug: 'zeraora-mega', baseId: 807 },
+    { slug: 'scovillain-mega', baseId: 952 },
+    { slug: 'glimmora-mega', baseId: 970 },
+    { slug: 'tatsugiri-curly-mega', baseId: 978 },
+    { slug: 'tatsugiri-droopy-mega', baseId: 978 },
+    { slug: 'tatsugiri-stretchy-mega', baseId: 978 },
+    { slug: 'baxcalibur-mega', baseId: 998 },
+  ];
+
+  const results: (PokemonBasic & { baseId: number })[] = [];
+
+  for (let i = 0; i < MEGA_FORM_SLUGS.length; i += 12) {
+    const batch = MEGA_FORM_SLUGS.slice(i, i + 12);
+
+    const batchResults = await Promise.all(
+      batch.map(async ({ slug, baseId }) => {
+        try {
+          const res = await fetch(`${BASE_URL}/pokemon/${slug}`);
+          if (!res.ok) return null;
+
+          const data = await res.json();
+
+          return {
+            id: data.id,
+            name: data.name,
+            sprite:
+              data.sprites.other?.['official-artwork']?.front_default ||
+              data.sprites.front_default ||
+              `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${data.id}.png`,
+            spriteShiny:
+              data.sprites.other?.['official-artwork']?.front_shiny ||
+              data.sprites.front_shiny ||
+              `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/shiny/${data.id}.png`,
+            types: data.types.map((t: any) => t.type.name),
+            stats: extractStats(data),
+            height: data.height,
+            weight: data.weight,
+            baseId,
+          } as PokemonBasic & { baseId: number };
+        } catch {
+          return null;
+        }
       })
     );
-    return megas;
-  } catch { return []; }
+
+    results.push(...batchResults.filter(Boolean) as (PokemonBasic & { baseId: number })[]);
+  }
+
+  return results.sort((a, b) => {
+    const aBase = (a as any).baseId ?? a.id;
+    const bBase = (b as any).baseId ?? b.id;
+
+    if (aBase !== bBase) return aBase - bBase;
+    return a.name.localeCompare(b.name);
+  });
 }
 
 export async function fetchGmaxForms(pokemonId: number): Promise<GmaxForm[]> {
