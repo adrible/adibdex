@@ -21,6 +21,7 @@ import {
   loadFiltersFromSession,
   type FilterState,
 } from '@/components/PokemonFilters';
+import { Footer } from '@/components/Footer';
 
 const PAGE_SIZE = 48;
 const TOTAL_POKEMON = 1025;
@@ -311,6 +312,8 @@ export default function NationalDexPage() {
           </>
         )}
       </main>
+  
+      <Footer/ >
     </div>
   );
 }
