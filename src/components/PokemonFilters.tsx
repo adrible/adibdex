@@ -33,7 +33,8 @@ export type SortOption =
   | 'spDef'
   | 'speed'
   | 'height'
-  | 'weight';
+  | 'weight'
+  | 'total';
 
 export type ClassificationOption =
   | 'starter'
@@ -101,6 +102,7 @@ const SORT_OPTIONS: { value: SortOption; label: string }[] = [
   { value: 'speed', label: 'Velocidade' },
   { value: 'height', label: 'Altura' },
   { value: 'weight', label: 'Peso' },
+  { value: 'total', label: 'Total' },
 ];
 
 export interface FilterState {
@@ -179,6 +181,18 @@ function safeStat(pokemon: any, stat: string): number {
   return typeof value === 'number' ? value : Number(value) || 0;
 }
 
+function getTotalStat(pokemon: any): number {
+  if (!pokemon?.stats) return 0;
+  return (
+    safeStat(pokemon, 'hp') +
+    safeStat(pokemon, 'attack') +
+    safeStat(pokemon, 'defense') +
+    safeStat(pokemon, 'spAtk') +
+    safeStat(pokemon, 'spDef') +
+    safeStat(pokemon, 'speed')
+  );
+}
+
 function countActiveFilters(filters: FilterState, showRegionFilter = true): number {
   return (
     filters.types.length +
@@ -197,7 +211,7 @@ export function hasActiveFilters(filters: FilterState): boolean {
   return countActiveFilters(filters, true) > 0;
 }
 
-const FILTER_STORAGE_KEY = 'pokedex-filters';
+const FILTER_STORAGE_KEY = 'pokedex-filters-v2';
 
 export function saveFiltersToSession(key: string, filters: FilterState, page: number) {
   try {
@@ -760,6 +774,12 @@ export function applyFilters(
   } else if (sortBy === 'weight') {
     result.sort((a: any, b: any) => {
       const cmp = ((a.weight || 0) - (b.weight || 0)) * dir;
+      if (cmp !== 0) return cmp;
+      return (getBaseId(a) - getBaseId(b)) * dir;
+    });
+  } else if (sortBy === 'total') {
+    result.sort((a: any, b: any) => {
+      const cmp = (getTotalStat(a) - getTotalStat(b)) * dir;
       if (cmp !== 0) return cmp;
       return (getBaseId(a) - getBaseId(b)) * dir;
     });
