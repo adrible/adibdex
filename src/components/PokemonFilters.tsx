@@ -387,7 +387,6 @@ export function ActiveFilterChips({
         className="inline-flex items-center gap-1 rounded-full bg-destructive/10 text-destructive border border-destructive/20 px-2.5 py-1 text-xs font-medium hover:bg-destructive/20 transition-colors"
       >
         Limpar tudo
-        <X className="h-3 w-3" />
       </button>
     </div>
   );
