@@ -260,7 +260,7 @@ export function ActiveFilterChips({
 
     if (filters.types.length > 1 && filters.typeMatchMode !== 'any') {
       items.push({
-        label: 'Tipos: E',
+        label: 'Tipos: Todos',
         onRemove: () =>
           onChange({
             ...cloneFilters(filters),
@@ -279,7 +279,6 @@ export function ActiveFilterChips({
           }),
       });
     });
-
 
     filters.strongAgainst.forEach((type) => {
       items.push({
@@ -384,7 +383,7 @@ export function ActiveFilterChips({
 
       <button
         onClick={() => onChange(getFreshDefaults())}
-        className="inline-flex items-center gap-1 rounded-full bg-destructive/10 text-destructive border border-destructive/20 px-2.5 py-1 text-xs font-medium hover:bg-destructive/20 transition-colors"
+        className="inline-flex items-center rounded-full bg-destructive/10 text-destructive border border-destructive/20 px-2.5 py-1 text-xs font-medium hover:bg-destructive/20 transition-colors"
       >
         Limpar tudo
       </button>
@@ -418,65 +417,43 @@ function FilterContent({
   return (
     <div className="space-y-6 py-2">
       <div>
-  <div className="flex items-center justify-between mb-2">
-    <h4 className="text-sm font-semibold text-foreground">Tipos</h4>
+        <div className="flex items-center justify-between mb-2">
+          <h4 className="text-sm font-semibold text-foreground">Tipos</h4>
 
-    <div className="flex rounded-full bg-muted p-1 sm:bg-transparent sm:p-0 sm:gap-1.5">
-      <button
-        onClick={() =>
-          setLocal((prev) => ({ ...prev, typeMatchMode: 'any' }))
-        }
-        className={`px-3 py-1.5 text-xs font-medium rounded-full transition-colors ${
-          local.typeMatchMode === 'any'
-            ? 'bg-primary text-primary-foreground shadow-sm sm:border sm:border-primary'
-            : 'text-muted-foreground hover:text-foreground'
-        }`}
-      >
-        1+
-      </button>
+          <div className="flex rounded-full bg-muted p-1 sm:bg-transparent sm:p-0 sm:gap-1.5">
+            <button
+              onClick={() =>
+                setLocal((prev) => ({ ...prev, typeMatchMode: 'any' }))
+              }
+              className={`px-3 py-1.5 text-xs font-medium rounded-full transition-colors ${
+                local.typeMatchMode === 'any'
+                  ? 'bg-primary text-primary-foreground shadow-sm sm:border sm:border-primary'
+                  : 'text-muted-foreground hover:text-foreground'
+              }`}
+            >
+              1+
+            </button>
 
-      <button
-        onClick={() =>
-          setLocal((prev) => ({ ...prev, typeMatchMode: 'all' }))
-        }
-        className={`px-3 py-1.5 text-xs font-medium rounded-full transition-colors ${
-          local.typeMatchMode === 'all'
-            ? 'bg-primary text-primary-foreground shadow-sm sm:border sm:border-primary'
-            : 'text-muted-foreground hover:text-foreground'
-        }`}
-      >
-        Todos
-      </button>
-    </div>
-  </div>
+            <button
+              onClick={() =>
+                setLocal((prev) => ({ ...prev, typeMatchMode: 'all' }))
+              }
+              className={`px-3 py-1.5 text-xs font-medium rounded-full transition-colors ${
+                local.typeMatchMode === 'all'
+                  ? 'bg-primary text-primary-foreground shadow-sm sm:border sm:border-primary'
+                  : 'text-muted-foreground hover:text-foreground'
+              }`}
+            >
+              Todos
+            </button>
+          </div>
+        </div>
 
-  <p className="text-xs text-muted-foreground mb-2">
-    {local.typeMatchMode === 'any'
-      ? 'Inclui ao menos um dos tipos selecionados'
-      : 'Inclui todos os tipos selecionados'}
-  </p>
-
-  <div className="flex flex-wrap gap-1.5">
-    {ALL_TYPES.map((type) => (
-      <button
-        key={type}
-        onClick={() =>
-          setLocal((prev) => ({
-            ...prev,
-            types: toggleInArray(prev.types, type),
-          }))
-        }
-        className={`transition-all ${
-          local.types.includes(type)
-            ? 'ring-2 ring-primary scale-110'
-            : 'opacity-70 hover:opacity-100'
-        }`}
-      >
-        <TypeBadge type={type} size="sm" />
-      </button>
-    ))}
-  </div>
-</div>
+        <p className="text-xs text-muted-foreground mb-2">
+          {local.typeMatchMode === 'any'
+            ? 'Inclui ao menos um dos tipos selecionados'
+            : 'Inclui todos os tipos selecionados'}
+        </p>
 
         <div className="flex flex-wrap gap-1.5">
           {ALL_TYPES.map((type) => (
@@ -771,7 +748,6 @@ export function applyFilters(
       );
     });
   }
-
 
   if (filters.strongAgainst.length > 0) {
     result = result.filter((pokemon) => {
