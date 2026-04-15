@@ -100,9 +100,9 @@ const SORT_OPTIONS: { value: SortOption; label: string }[] = [
   { value: 'spAtk', label: 'Atq. Esp.' },
   { value: 'spDef', label: 'Def. Esp.' },
   { value: 'speed', label: 'Velocidade' },
+  { value: 'total', label: 'Total' },
   { value: 'height', label: 'Altura' },
   { value: 'weight', label: 'Peso' },
-  { value: 'total', label: 'Total' },
 ];
 
 export interface FilterState {
