@@ -580,7 +580,7 @@ export interface GmaxForm {
   types: string[];
 }
 
-export async function fetchMegaEvolutions(): Promise<PokemonBasic[]> {
+export async function fetchAllMegaForms(): Promise<PokemonBasic[]> {
   const MEGA_FORM_SLUGS: { slug: string; baseId: number }[] = [
     // Megas antigas / clássicas
     { slug: 'venusaur-mega', baseId: 3 },
@@ -638,7 +638,7 @@ export async function fetchMegaEvolutions(): Promise<PokemonBasic[]> {
     { slug: 'audino-mega', baseId: 531 },
     { slug: 'diancie-mega', baseId: 719 },
 
-    // Novas do trecho que você mandou
+    // Novas que você quer considerar
     { slug: 'clefable-mega', baseId: 36 },
     { slug: 'victreebel-mega', baseId: 71 },
     { slug: 'starmie-mega', baseId: 121 },
@@ -733,10 +733,23 @@ export async function fetchMegaEvolutions(): Promise<PokemonBasic[]> {
     const bBase = (b as any).baseId ?? b.id;
 
     if (aBase !== bBase) return aBase - bBase;
-    return a.name.localeCompare(b.name);
+    return a.id - b.id;
   });
 }
 
+export async function fetchMegaEvolutions(pokemonId: number): Promise<MegaEvolution[]> {
+  const allMegas = await fetchAllMegaForms();
+
+  return allMegas
+    .filter((m: any) => m.baseId === pokemonId)
+    .map((m) => ({
+      id: m.id,
+      name: m.name,
+      sprite: m.sprite,
+      spriteShiny: m.spriteShiny,
+      types: m.types,
+    }));
+}
 export async function fetchGmaxForms(pokemonId: number): Promise<GmaxForm[]> {
   try {
     let speciesId = pokemonId;
