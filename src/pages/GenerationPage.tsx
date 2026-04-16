@@ -45,7 +45,7 @@ export default function GenerationPage() {
       style={{
         backgroundImage: `url(${bg})`,
         backgroundSize: 'cover',
-        backgroundPosition: 'center',
+        backgroundPosition: window.innerWidth < 640 ? 'center top' : 'center',
       }}
     >
       {/* overlay */}
