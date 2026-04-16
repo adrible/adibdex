@@ -7,17 +7,17 @@ import { Button } from '@/components/ui/button';
 import { Footer } from '@/components/Footer';
 
 const REGION_BG: Record<string, string> = {
-  Kanto: '/backgrounds/kanto.png',
-  Johto: '/backgrounds/johto.png',
-  Hoenn: '/backgrounds/hoenn.png',
-  Sinnoh: '/backgrounds/sinnoh.png',
-  Unova: '/backgrounds/unova.png',
-  Kalos: '/backgrounds/kalos.png',
-  Alola: '/backgrounds/alola.png',
-  Galar: '/backgrounds/galar.png',
-  Hisui: '/backgrounds/hisui.png',
-  Paldea: '/backgrounds/paldea.png',
-  Desconhecida: '/backgrounds/national.png',
+  Kanto: '/backgrounds/kanto.PNG',
+  Johto: '/backgrounds/johto.PNG',
+  Hoenn: '/backgrounds/hoenn.PNG',
+  Sinnoh: '/backgrounds/sinnoh.PNG',
+  Unova: '/backgrounds/unova.PNG',
+  Kalos: '/backgrounds/kalos.PNG',
+  Alola: '/backgrounds/alola.PNG',
+  Galar: '/backgrounds/galar.PNG',
+  Hisui: '/backgrounds/hisui.PNG',
+  Paldea: '/backgrounds/paldea.PNG',
+  Desconhecida: '/backgrounds/national.PNG',
 };
 
 export default function GenerationPage() {
@@ -41,30 +41,33 @@ export default function GenerationPage() {
 
   return (
     <div
-      className="min-h-screen relative bg-background"
-      style={
-        bg
-          ? {
-              backgroundImage: `url(${bg})`,
-              backgroundSize: 'cover',
-              backgroundPosition: 'center',
-              backgroundAttachment: 'fixed',
-            }
-          : undefined
-      }
+      className="min-h-screen relative"
+      style={{
+        backgroundImage: `url(${bg})`,
+        backgroundSize: 'cover',
+        backgroundPosition: 'center',
+      }}
     >
-      <div className="absolute inset-0 bg-background/80 backdrop-blur-[0.5px] pointer-events-none" />
+      {/* overlay */}
+      <div className="absolute inset-0 bg-black/30 pointer-events-none" />
 
+      {/* conteúdo */}
       <div className="relative z-10">
         <Header />
 
         <main className="container py-8">
           <div className="flex items-center gap-4 mb-8">
             <Button variant="ghost" size="icon" asChild>
-              <Link to="/"><ArrowLeft className="h-5 w-5" /></Link>
+              <Link to="/">
+                <ArrowLeft className="h-5 w-5" />
+              </Link>
             </Button>
+
             <div>
-              <h2 className="font-pixel text-sm sm:text-lg text-foreground">{gen.region}</h2>
+              <h2 className="font-pixel text-sm sm:text-lg text-foreground">
+                {gen.region}
+              </h2>
+
               <p className="text-sm text-muted-foreground">
                 {gen.region === 'Desconhecida'
                   ? 'Pokémon sem região definida'
