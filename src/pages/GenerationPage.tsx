@@ -24,31 +24,13 @@ const REGION_BG: Record<string, string> = {
 export default function GenerationPage() {
   const { id } = useParams();
   const gen = GENERATIONS.find((g) => g.id === Number(id));
-
   const [isMobile, setIsMobile] = useState(false);
-  const [offset, setOffset] = useState(0);
 
   useEffect(() => {
-    const checkMobile = () => setIsMobile(window.innerWidth < 640);
-    checkMobile();
-
-    const onResize = () => checkMobile();
-
-    const onScroll = () => {
-      if (window.innerWidth < 640) {
-        setOffset(window.scrollY);
-      } else {
-        setOffset(0);
-      }
-    };
-
-    window.addEventListener('resize', onResize);
-    window.addEventListener('scroll', onScroll, { passive: true });
-
-    return () => {
-      window.removeEventListener('resize', onResize);
-      window.removeEventListener('scroll', onScroll);
-    };
+    const update = () => setIsMobile(window.innerWidth < 640);
+    update();
+    window.addEventListener('resize', update);
+    return () => window.removeEventListener('resize', update);
   }, []);
 
   if (!gen) {
@@ -63,28 +45,43 @@ export default function GenerationPage() {
   }
 
   const bg = REGION_BG[gen.region] || REGION_BG.Desconhecida;
-
   const scrollToTop = () => window.scrollTo({ top: 0, behavior: 'smooth' });
 
   return (
-    <div className="min-h-screen relative bg-[#0b0f14]">
-      
-      {/* BACKGROUND COM PARALLAX */}
-      <div
-        className="absolute top-0 left-0 w-full h-[140vh] will-change-transform pointer-events-none"
-        style={{
-          backgroundImage: `url(${bg})`,
-          backgroundSize: 'cover',
-          backgroundRepeat: 'no-repeat',
-          backgroundPosition: isMobile ? 'center top' : 'center',
-          transform: isMobile ? `translateY(${offset * 0.35}px)` : 'translateY(0px)',
-        }}
-      />
+    <div
+      className="min-h-screen relative"
+      style={
+        !isMobile
+          ? {
+              backgroundImage: `url(${bg})`,
+              backgroundSize: 'cover',
+              backgroundRepeat: 'no-repeat',
+              backgroundPosition: 'center',
+              backgroundColor: '#0b0f14',
+            }
+          : {
+              backgroundColor: '#0b0f14',
+            }
+      }
+    >
+      {/* MOBILE: fundo fixo acompanhando a tela */}
+      {isMobile && (
+        <div
+          className="fixed inset-0 pointer-events-none"
+          style={{
+            backgroundImage: `url(${bg})`,
+            backgroundSize: 'contain',
+            backgroundRepeat: 'no-repeat',
+            backgroundPosition: 'center top',
+            backgroundColor: '#0b0f14',
+          }}
+        />
+      )}
 
-      {/* OVERLAY */}
+      {/* overlay */}
       <div className="absolute inset-0 bg-black/30 pointer-events-none" />
 
-      {/* CONTEÚDO */}
+      {/* conteúdo */}
       <div className="relative z-10">
         <Header />
 
