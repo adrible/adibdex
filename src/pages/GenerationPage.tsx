@@ -1,4 +1,5 @@
 import { useParams, Link } from 'react-router-dom';
+import { useEffect, useState } from 'react';
 import { GENERATIONS } from '@/lib/pokeapi';
 import { Header } from '@/components/Header';
 import { PokemonGrid } from '@/components/PokemonGrid';
@@ -24,6 +25,31 @@ export default function GenerationPage() {
   const { id } = useParams();
   const gen = GENERATIONS.find((g) => g.id === Number(id));
 
+  const [isMobile, setIsMobile] = useState(false);
+  const [offset, setOffset] = useState(0);
+
+  useEffect(() => {
+    const checkMobile = () => setIsMobile(window.innerWidth < 640);
+    checkMobile();
+
+    const onResize = () => checkMobile();
+    const onScroll = () => {
+      if (window.innerWidth < 640) {
+        setOffset(window.scrollY * 0.2);
+      } else {
+        setOffset(0);
+      }
+    };
+
+    window.addEventListener('resize', onResize);
+    window.addEventListener('scroll', onScroll, { passive: true });
+
+    return () => {
+      window.removeEventListener('resize', onResize);
+      window.removeEventListener('scroll', onScroll);
+    };
+  }, []);
+
   if (!gen) {
     return (
       <div className="min-h-screen bg-background">
@@ -39,23 +65,21 @@ export default function GenerationPage() {
 
   const scrollToTop = () => window.scrollTo({ top: 0, behavior: 'smooth' });
 
-  const isMobile = window.innerWidth < 640;
-
   return (
-    <div
-      className="min-h-screen relative"
-      style={{
-        backgroundImage: `url(${bg})`,
-        backgroundSize: isMobile ? 'contain' : 'cover',
-        backgroundRepeat: 'no-repeat',
-        backgroundPosition: isMobile ? 'center top' : 'center',
-        backgroundColor: '#0b0f14',
-      }}
-    >
-      {/* overlay */}
+    <div className="min-h-screen relative overflow-hidden bg-[#0b0f14]">
+      <div
+        className="absolute inset-0 will-change-transform"
+        style={{
+          backgroundImage: `url(${bg})`,
+          backgroundSize: isMobile ? 'contain' : 'cover',
+          backgroundRepeat: 'no-repeat',
+          backgroundPosition: isMobile ? 'center top' : 'center',
+          transform: isMobile ? `translateY(${offset}px)` : 'translateY(0px)',
+        }}
+      />
+
       <div className="absolute inset-0 bg-black/30 pointer-events-none" />
 
-      {/* conteúdo */}
       <div className="relative z-10">
         <Header />
 
