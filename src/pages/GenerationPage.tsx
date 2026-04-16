@@ -39,13 +39,16 @@ export default function GenerationPage() {
 
   const scrollToTop = () => window.scrollTo({ top: 0, behavior: 'smooth' });
 
+  // 🔥 DETECÇÃO DE MOBILE
+  const isMobile = window.innerWidth < 640;
+
   return (
     <div
       className="min-h-screen relative"
       style={{
         backgroundImage: `url(${bg})`,
-        backgroundSize: 'cover',
-        backgroundPosition: window.innerWidth < 640 ? 'center top' : 'center',
+        backgroundSize: isMobile ? 'auto 100%' : 'cover',
+        backgroundPosition: isMobile ? 'center top' : 'center',
       }}
     >
       {/* overlay */}
