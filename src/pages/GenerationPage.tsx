@@ -33,9 +33,10 @@ export default function GenerationPage() {
     checkMobile();
 
     const onResize = () => checkMobile();
+
     const onScroll = () => {
       if (window.innerWidth < 640) {
-        setOffset(window.scrollY * 0.2);
+        setOffset(window.scrollY);
       } else {
         setOffset(0);
       }
@@ -66,20 +67,24 @@ export default function GenerationPage() {
   const scrollToTop = () => window.scrollTo({ top: 0, behavior: 'smooth' });
 
   return (
-    <div className="min-h-screen relative overflow-hidden bg-[#0b0f14]">
+    <div className="min-h-screen relative bg-[#0b0f14]">
+      
+      {/* BACKGROUND COM PARALLAX */}
       <div
-        className="absolute inset-0 will-change-transform"
+        className="absolute top-0 left-0 w-full h-[140vh] will-change-transform pointer-events-none"
         style={{
           backgroundImage: `url(${bg})`,
-          backgroundSize: isMobile ? 'contain' : 'cover',
+          backgroundSize: 'cover',
           backgroundRepeat: 'no-repeat',
           backgroundPosition: isMobile ? 'center top' : 'center',
-          transform: isMobile ? `translateY(${offset}px)` : 'translateY(0px)',
+          transform: isMobile ? `translateY(${offset * 0.35}px)` : 'translateY(0px)',
         }}
       />
 
+      {/* OVERLAY */}
       <div className="absolute inset-0 bg-black/30 pointer-events-none" />
 
+      {/* CONTEÚDO */}
       <div className="relative z-10">
         <Header />
 
