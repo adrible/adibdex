@@ -53,7 +53,7 @@ export default function GenerationPage() {
           : undefined
       }
     >
-      <div className="absolute inset-0 bg-background/72 backdrop-blur-[1px] pointer-events-none" />
+      <div className="absolute inset-0 bg-background/80 backdrop-blur-[0.5px] pointer-events-none" />
 
       <div className="relative z-10">
         <Header />
