@@ -8,13 +8,22 @@ import { Button } from '@/components/ui/button';
 import { ArrowLeft, ArrowUp, ChevronLeft, ChevronRight, Sparkles } from 'lucide-react';
 import { Link, useLocation } from 'react-router-dom';
 import {
-  PokemonFilterButton, ActiveFilterChips, applyFilters,
-  type FilterState, DEFAULT_FILTERS,
-  saveFiltersToSession, loadFiltersFromSession,
+  PokemonFilterButton,
+  ActiveFilterChips,
+  applyFilters,
+  type FilterState,
+  DEFAULT_FILTERS,
+  saveFiltersToSession,
+  loadFiltersFromSession,
 } from '@/components/PokemonFilters';
 import { Footer } from '@/components/Footer';
 
 const PAGE_SIZE = 48;
+
+const SPECIAL_BG: Record<string, string> = {
+  mega: '/backgrounds/mega.PNG',
+  gmax: '/backgrounds/gmax.PNG',
+};
 
 interface Props {
   type: 'mega' | 'gmax';
@@ -37,7 +46,6 @@ export default function SpecialFormsPage({ type }: Props) {
     staleTime: 1000 * 60 * 60,
   });
 
-  // Strip hasMega/hasGmax from filters since they don't apply here
   const applicableFilters: FilterState = {
     ...filters,
     hasMega: null,
@@ -75,94 +83,150 @@ export default function SpecialFormsPage({ type }: Props) {
     }
   };
 
+  const bg = SPECIAL_BG[type];
+
   return (
-    <div className="min-h-screen bg-background">
-      <Header />
-      <main className="container py-8">
-        <div className="flex items-center gap-4 mb-8">
-          <Button variant="ghost" size="icon" asChild>
-            <Link to="/"><ArrowLeft className="h-5 w-5" /></Link>
-          </Button>
-          <div>
-            <h2 className="font-pixel text-sm sm:text-lg text-foreground">
-              {isMega ? 'Mega Evoluções' : 'Gigantamax'}
-            </h2>
-            <p className="text-sm text-muted-foreground">
-              {isMega ? 'Todas as formas Mega' : 'Todas as formas Gigantamax'}
-              {filtered.length > 0 && ` (${filtered.length})`}
-            </p>
-          </div>
-          <div className="ml-auto flex items-center gap-2">
-            <PokemonFilterButton filters={filters} onChange={handleFiltersChange} />
-            <Button
-              variant={isShiny ? "default" : "outline"} size="sm"
-              onClick={() => setIsShiny(!isShiny)}
-              className={`gap-1 ${isShiny ? 'bg-gradient-to-r from-yellow-500 to-amber-500 hover:from-yellow-600 hover:to-amber-600 text-white border-0' : ''}`}
-            >
-              <Sparkles className="h-3.5 w-3.5" />
-              Shiny
+    <div
+      className="min-h-screen relative"
+      style={{
+        backgroundImage: `url(${bg})`,
+        backgroundSize: 'cover',
+        backgroundPosition: 'center',
+        backgroundRepeat: 'no-repeat',
+        backgroundColor: '#0b0f14',
+      }}
+    >
+      <div className="absolute inset-0 bg-black/30 pointer-events-none" />
+
+      <div className="relative z-10">
+        <Header />
+
+        <main className="container py-8">
+          <div className="flex items-center gap-4 mb-8">
+            <Button variant="ghost" size="icon" asChild>
+              <Link to="/"><ArrowLeft className="h-5 w-5" /></Link>
             </Button>
-          </div>
-        </div>
 
-        <ActiveFilterChips filters={filters} onChange={handleFiltersChange} />
-
-        {isLoading ? (
-          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4">
-            {Array.from({ length: 24 }).map((_, i) => (
-              <div key={i} className="rounded-xl bg-card border border-border p-4">
-                <Skeleton className="h-36 w-full rounded-lg mb-3" />
-                <Skeleton className="h-3 w-12 mb-2" />
-                <Skeleton className="h-5 w-24 mb-2" />
-                <Skeleton className="h-5 w-16" />
-              </div>
-            ))}
-          </div>
-        ) : (
-          <>
-            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4">
-              {displayed.map((p) => (
-                <PokemonCard key={p.id} pokemon={p} isShiny={isShiny} originPath={location.pathname} />
-              ))}
-              {displayed.length === 0 && (
-                <p className="col-span-full text-center text-muted-foreground py-12">Nenhum Pokémon encontrado.</p>
-              )}
+            <div>
+              <h2 className="font-pixel text-sm sm:text-lg text-foreground">
+                {isMega ? 'Mega Evoluções' : 'Gigantamax'}
+              </h2>
+              <p className="text-sm text-muted-foreground">
+                {isMega ? 'Todas as formas Mega' : 'Todas as formas Gigantamax'}
+                {filtered.length > 0 && ` (${filtered.length})`}
+              </p>
             </div>
 
-            {totalPages > 1 && (
-              <div className="flex items-center justify-center gap-3 mt-10">
-                <Button variant="outline" size="icon" disabled={safePage === 0} onClick={() => { const p = safePage - 1; setPage(p); saveFiltersToSession(storageKey, filters, p); window.scrollTo(0, 0); }}>
-                  <ChevronLeft className="h-4 w-4" />
-                </Button>
-                <div className="flex items-center gap-1.5 text-sm font-medium text-foreground">
-                  <input
-                    type="text"
-                    value={pageInput}
-                    onChange={(e) => setPageInput(e.target.value.replace(/\D/g, ''))}
-                    onKeyDown={handlePageInput}
-                    onBlur={() => setPageInput('')}
-                    placeholder={String(safePage + 1)}
-                    className="w-10 text-center rounded border border-input bg-background px-1 py-0.5 text-sm focus:outline-none focus:ring-1 focus:ring-ring"
-                  />
-                  <span>/ {totalPages}</span>
-                </div>
-                <Button variant="outline" size="icon" disabled={safePage >= totalPages - 1} onClick={() => { const p = safePage + 1; setPage(p); saveFiltersToSession(storageKey, filters, p); window.scrollTo(0, 0); }}>
-                  <ChevronRight className="h-4 w-4" />
-                </Button>
-              </div>
-            )}
-
-            <div className="flex justify-center mt-10">
-              <Button variant="outline" onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })} className="gap-2">
-                <ArrowUp className="h-4 w-4" />
-                Voltar ao topo
+            <div className="ml-auto flex items-center gap-2">
+              <PokemonFilterButton filters={filters} onChange={handleFiltersChange} />
+              <Button
+                variant={isShiny ? 'default' : 'outline'}
+                size="sm"
+                onClick={() => setIsShiny(!isShiny)}
+                className={`gap-1 ${
+                  isShiny
+                    ? 'bg-gradient-to-r from-yellow-500 to-amber-500 hover:from-yellow-600 hover:to-amber-600 text-white border-0'
+                    : ''
+                }`}
+              >
+                <Sparkles className="h-3.5 w-3.5" />
+                Shiny
               </Button>
             </div>
-          </>
-        )}
-      </main>
+          </div>
 
-      <Footer />
+          <ActiveFilterChips filters={filters} onChange={handleFiltersChange} />
+
+          {isLoading ? (
+            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4">
+              {Array.from({ length: 24 }).map((_, i) => (
+                <div key={i} className="rounded-xl bg-card border border-border p-4">
+                  <Skeleton className="h-36 w-full rounded-lg mb-3" />
+                  <Skeleton className="h-3 w-12 mb-2" />
+                  <Skeleton className="h-5 w-24 mb-2" />
+                  <Skeleton className="h-5 w-16" />
+                </div>
+              ))}
+            </div>
+          ) : (
+            <>
+              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4">
+                {displayed.map((p) => (
+                  <PokemonCard
+                    key={p.id}
+                    pokemon={p}
+                    isShiny={isShiny}
+                    originPath={location.pathname}
+                  />
+                ))}
+                {displayed.length === 0 && (
+                  <p className="col-span-full text-center text-muted-foreground py-12">
+                    Nenhum Pokémon encontrado.
+                  </p>
+                )}
+              </div>
+
+              {totalPages > 1 && (
+                <div className="flex items-center justify-center gap-3 mt-10">
+                  <Button
+                    variant="outline"
+                    size="icon"
+                    disabled={safePage === 0}
+                    onClick={() => {
+                      const p = safePage - 1;
+                      setPage(p);
+                      saveFiltersToSession(storageKey, filters, p);
+                      window.scrollTo(0, 0);
+                    }}
+                  >
+                    <ChevronLeft className="h-4 w-4" />
+                  </Button>
+
+                  <div className="flex items-center gap-1.5 text-sm font-medium text-foreground">
+                    <input
+                      type="text"
+                      value={pageInput}
+                      onChange={(e) => setPageInput(e.target.value.replace(/\D/g, ''))}
+                      onKeyDown={handlePageInput}
+                      onBlur={() => setPageInput('')}
+                      placeholder={String(safePage + 1)}
+                      className="w-10 text-center rounded border border-input bg-background px-1 py-0.5 text-sm focus:outline-none focus:ring-1 focus:ring-ring"
+                    />
+                    <span>/ {totalPages}</span>
+                  </div>
+
+                  <Button
+                    variant="outline"
+                    size="icon"
+                    disabled={safePage >= totalPages - 1}
+                    onClick={() => {
+                      const p = safePage + 1;
+                      setPage(p);
+                      saveFiltersToSession(storageKey, filters, p);
+                      window.scrollTo(0, 0);
+                    }}
+                  >
+                    <ChevronRight className="h-4 w-4" />
+                  </Button>
+                </div>
+              )}
+
+              <div className="flex justify-center mt-10">
+                <Button
+                  variant="outline"
+                  onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
+                  className="gap-2"
+                >
+                  <ArrowUp className="h-4 w-4" />
+                  Voltar ao topo
+                </Button>
+              </div>
+            </>
+          )}
+        </main>
+
+        <Footer />
+      </div>
     </div>
   );
 }
