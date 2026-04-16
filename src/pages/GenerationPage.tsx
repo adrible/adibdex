@@ -7,7 +7,7 @@ import { Button } from '@/components/ui/button';
 import { Footer } from '@/components/Footer';
 
 const REGION_BG: Record<string, string> = {
-  Kanto: '/backgrounds/kanto.png',
+  Kanto: '/backgrounds/kanto.png.PNG',
   Johto: '/backgrounds/johto.png',
   Hoenn: '/backgrounds/hoenn.png',
   Sinnoh: '/backgrounds/sinnoh.png',
