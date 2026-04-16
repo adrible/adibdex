@@ -96,7 +96,26 @@ export default function SpecialFormsPage({ type }: Props) {
         backgroundColor: '#0b0f14',
       }}
     >
-      <div className="absolute inset-0 bg-black/30 pointer-events-none" />
+      <div className="absolute inset-0 pointer-events-none">
+  {/* overlay escuro */}
+  <div className="absolute inset-0 bg-black/30" />
+
+  {/* linhas horizontais suaves */}
+  <div
+    className="absolute inset-0 opacity-20"
+    style={{
+      backgroundImage: `
+        linear-gradient(
+          to bottom,
+          transparent 0%,
+          rgba(255,255,255,0.08) 50%,
+          transparent 100%
+        )
+      `,
+      backgroundSize: '100% 80px',
+    }}
+  />
+</div>
 
       <div className="relative z-10">
         <Header />
