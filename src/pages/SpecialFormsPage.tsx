@@ -89,15 +89,17 @@ export default function SpecialFormsPage({ type }: Props) {
   return (
     <div className="min-h-screen relative">
       <div
-        className="fixed inset-0 -z-10"
-        style={{
-          backgroundImage: `url(${bg})`,
-          backgroundSize: isMobile ? 'contain' : 'cover',
-          backgroundPosition: isMobile ? 'center top' : 'center',
-          backgroundRepeat: 'no-repeat',
-          backgroundColor: '#0b0f14',
-        }}
-      />
+  className="fixed inset-0 -z-10"
+  style={{
+    backgroundImage: `url(${bg})`,
+    backgroundSize: isMobile ? 'contain' : 'cover',
+    backgroundPosition: isMega
+      ? (isMobile ? 'center 20%' : 'center 30%')
+      : (isMobile ? 'center top' : 'center'),
+    backgroundRepeat: 'no-repeat',
+    backgroundColor: '#0b0f14',
+  }}
+/>
 
       <div className="fixed inset-0 -z-10 pointer-events-none">
         <div className="absolute inset-0 bg-black/30" />
