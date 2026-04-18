@@ -117,24 +117,29 @@ export default function SpecialFormsPage({ type }: Props) {
   />
 </div>
 
-      <div className="relative z-10">
-        <Header />
+     <div className="relative z-10">
+  <Header />
 
-        <main className="container py-8">
-          <div className="flex items-center gap-4 mb-8">
-            <Button variant="ghost" size="icon" asChild>
-              <Link to="/"><ArrowLeft className="h-5 w-5" /></Link>
-            </Button>
+  <main className="container py-8">
+    <div className="flex items-center gap-4 mb-8">
+      <Button variant="ghost" size="icon" asChild>
+        <Link to="/">
+          <ArrowLeft className="h-5 w-5 text-ui-title" />
+        </Link>
+      </Button>
 
-            <div>
-              <h2 className="font-pixel text-sm sm:text-lg text-foreground">
-                {isMega ? 'Mega Evoluções' : 'Gigantamax'}
-              </h2>
-              <p className="text-sm text-muted-foreground">
-                {isMega ? 'Todas as formas Mega' : 'Todas as formas Gigantamax'}
-                {filtered.length > 0 && ` (${filtered.length})`}
-              </p>
-            </div>
+      <div>
+        {/* TÍTULO */}
+        <h2 className="font-pixel text-sm sm:text-lg text-ui-title">
+          {isMega ? 'Mega Evoluções' : 'Gigantamax'}
+        </h2>
+
+        {/* SUBTÍTULO */}
+        <p className="text-sm text-ui-subtitle">
+          {isMega ? 'Todas as formas Mega' : 'Todas as formas Gigantamax'}
+          {filtered.length > 0 && ` (${filtered.length})`}
+        </p>
+      </div>
 
             <div className="ml-auto flex items-center gap-2">
               <PokemonFilterButton filters={filters} onChange={handleFiltersChange} />
