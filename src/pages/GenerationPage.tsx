@@ -36,26 +36,23 @@ export default function GenerationPage() {
   }
 
   const bg = REGION_BG[gen.region] || REGION_BG.Desconhecida;
-
   const scrollToTop = () => window.scrollTo({ top: 0, behavior: 'smooth' });
 
   return (
     <div className="min-h-screen relative">
-
-      {/* 🔥 FUNDO REAL (fixo e funcionando em qualquer dispositivo) */}
       <div
-        className="fixed inset-0 -z-10"
+        className="fixed top-0 left-0 w-full h-[100svh] -z-10"
         style={{
           backgroundImage: `url(${bg})`,
           backgroundSize: 'cover',
           backgroundPosition: 'center',
+          backgroundRepeat: 'no-repeat',
+          backgroundColor: '#0b0f14',
         }}
       />
 
-      {/* overlay */}
-      <div className="fixed inset-0 -z-10 bg-black/30" />
+      <div className="fixed top-0 left-0 w-full h-[100svh] -z-10 bg-black/30" />
 
-      {/* conteúdo */}
       <div className="relative z-10">
         <Header />
 
