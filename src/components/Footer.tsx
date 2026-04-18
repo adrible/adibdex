@@ -1,14 +1,30 @@
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { APP_VERSION } from '@/lib/version';
 
 export function Footer() {
   const [showInfo, setShowInfo] = useState(false);
+  const popupRef = useRef<HTMLDivElement | null>(null);
+
+  useEffect(() => {
+    function handleClickOutside(event: MouseEvent) {
+      if (
+        showInfo &&
+        popupRef.current &&
+        !popupRef.current.contains(event.target as Node)
+      ) {
+        setShowInfo(false);
+      }
+    }
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [showInfo]);
 
   return (
     <footer className="relative mt-12 pb-6 text-center">
-      
       <div className="flex items-center justify-center gap-2 relative">
-
         {/* versão */}
         <span className="text-xs text-ui-subtitle">
           v{APP_VERSION}
@@ -32,6 +48,7 @@ export function Footer() {
         {/* popup */}
         {showInfo && (
           <div
+            ref={popupRef}
             className="
               absolute bottom-7 left-1/2 -translate-x-1/2
               w-64
@@ -59,7 +76,6 @@ export function Footer() {
           </div>
         )}
       </div>
-
     </footer>
   );
 }
