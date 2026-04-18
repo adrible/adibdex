@@ -178,21 +178,29 @@ export default function NationalDexPage() {
   };
 
   return (
-    <div className="min-h-screen flex flex-col bg-background">
-      <Header />
+  <div className="min-h-screen flex flex-col bg-background">
+  <Header />
 
-      <main className="flex-1 container py-8">
-        <div className="flex items-center gap-4 mb-8">
-          <Button variant="ghost" size="icon" asChild>
-            <Link to="/"><ArrowLeft className="h-5 w-5" /></Link>
-          </Button>
-          <div>
-            <h2 className="font-pixel text-sm sm:text-lg text-foreground">Pokédex Nacional</h2>
-            <p className="text-sm text-muted-foreground">
-              Pokémon da National Dex + formas regionais
-            </p>
-          </div>
-        </div>
+  <main className="flex-1 container py-8">
+    <div className="flex items-center gap-4 mb-8">
+      <Button variant="ghost" size="icon" asChild>
+        <Link to="/">
+          <ArrowLeft className="h-5 w-5 text-ui-title" />
+        </Link>
+      </Button>
+
+      <div>
+        {/* TÍTULO */}
+        <h2 className="font-pixel text-sm sm:text-lg text-ui-title">
+          Pokédex Nacional
+        </h2>
+
+        {/* SUBTÍTULO */}
+        <p className="text-sm text-ui-subtitle">
+          Pokémon da National Dex + formas regionais
+        </p>
+      </div>
+    </div>
 
         <div className="flex flex-col sm:flex-row items-center gap-3 max-w-2xl mx-auto mb-4">
           <div className="relative flex-1 w-full">
