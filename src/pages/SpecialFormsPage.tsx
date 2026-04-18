@@ -84,54 +84,24 @@ export default function SpecialFormsPage({ type }: Props) {
   };
 
   const bg = SPECIAL_BG[type];
-  const isMobile = typeof window !== 'undefined' && window.innerWidth < 640;
 
   return (
     <div className="min-h-screen relative">
+
+      {/* 🔥 FUNDO IGUAL AO GENERATION */}
       <div
-  className="fixed inset-0 -z-10"
-  style={{
-    backgroundImage: `url(${bg})`,
-    backgroundSize: isMobile ? 'contain' : 'cover',
-    backgroundPosition: isMega
-      ? (isMobile ? 'center 20%' : 'center 30%')
-      : (isMobile ? 'center top' : 'center'),
-    backgroundRepeat: 'no-repeat',
-    backgroundColor: '#0b0f14',
-  }}
-/>
+        className="fixed inset-0 -z-10"
+        style={{
+          backgroundImage: `url(${bg})`,
+          backgroundSize: 'cover',
+          backgroundPosition: 'center',
+        }}
+      />
 
-      <div className="fixed inset-0 -z-10 pointer-events-none">
-        <div className="absolute inset-0 bg-black/30" />
+      {/* overlay */}
+      <div className="fixed inset-0 -z-10 bg-black/30" />
 
-        {isMega && (
-          <>
-            <div
-              className="absolute inset-0 opacity-20"
-              style={{
-                backgroundImage: `
-                  repeating-linear-gradient(
-                    to bottom,
-                    rgba(255,255,255,0.05) 0px,
-                    rgba(255,255,255,0.05) 1px,
-                    transparent 1px,
-                    transparent 70px
-                  )
-                `,
-              }}
-            />
-
-            <div
-              className="absolute inset-0"
-              style={{
-                background:
-                  'radial-gradient(circle at center, rgba(255,255,255,0.06), transparent 60%)',
-              }}
-            />
-          </>
-        )}
-      </div>
-
+      {/* conteúdo */}
       <div className="relative z-10">
         <Header />
 
