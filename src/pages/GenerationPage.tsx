@@ -36,24 +36,26 @@ export default function GenerationPage() {
   }
 
   const bg = REGION_BG[gen.region] || REGION_BG.Desconhecida;
-  const isMobile = typeof window !== 'undefined' && window.innerWidth < 640;
 
   const scrollToTop = () => window.scrollTo({ top: 0, behavior: 'smooth' });
 
   return (
-    <div
-      className="min-h-screen relative"
-      style={{
-        backgroundImage: `url(${bg})`,
-        backgroundSize: isMobile ? 'contain' : 'cover',
-        backgroundPosition: isMobile ? 'center top' : 'center',
-        backgroundRepeat: 'no-repeat',
-        backgroundAttachment: isMobile ? 'scroll' : 'fixed',
-        backgroundColor: '#0b0f14',
-      }}
-    >
-      <div className="absolute inset-0 bg-black/30 pointer-events-none" />
+    <div className="min-h-screen relative">
 
+      {/* 🔥 FUNDO REAL (fixo e funcionando em qualquer dispositivo) */}
+      <div
+        className="fixed inset-0 -z-10"
+        style={{
+          backgroundImage: `url(${bg})`,
+          backgroundSize: 'cover',
+          backgroundPosition: 'center',
+        }}
+      />
+
+      {/* overlay */}
+      <div className="fixed inset-0 -z-10 bg-black/30" />
+
+      {/* conteúdo */}
       <div className="relative z-10">
         <Header />
 
