@@ -53,6 +53,8 @@ export function Footer() {
               <li>• Tema Mega / GMAX</li>
               <li>• Melhorias no mobile</li>
               <li>• UI padronizada</li>
+              <li>• Changelog adicionado</li>
+              <li>• Bug Fixes</li>
             </ul>
           </div>
         )}
