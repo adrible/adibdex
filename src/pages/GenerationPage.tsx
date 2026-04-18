@@ -36,6 +36,7 @@ export default function GenerationPage() {
   }
 
   const bg = REGION_BG[gen.region] || REGION_BG.Desconhecida;
+  const isMobile = typeof window !== 'undefined' && window.innerWidth < 640;
 
   const scrollToTop = () => window.scrollTo({ top: 0, behavior: 'smooth' });
 
@@ -44,12 +45,13 @@ export default function GenerationPage() {
       className="min-h-screen relative"
       style={{
         backgroundImage: `url(${bg})`,
-        backgroundSize: 'cover',
-        backgroundPosition: 'center',
-        backgroundAttachment: 'fixed',
+        backgroundSize: isMobile ? 'contain' : 'cover',
+        backgroundPosition: isMobile ? 'center top' : 'center',
+        backgroundRepeat: 'no-repeat',
+        backgroundAttachment: isMobile ? 'scroll' : 'fixed',
+        backgroundColor: '#0b0f14',
       }}
     >
-      {/* overlay */}
       <div className="absolute inset-0 bg-black/30 pointer-events-none" />
 
       <div className="relative z-10">
@@ -57,26 +59,24 @@ export default function GenerationPage() {
 
         <main className="container py-8">
           <div className="flex items-center gap-4 mb-8">
-  <Button variant="ghost" size="icon" asChild>
-    <Link to="/">
-      <ArrowLeft className="h-5 w-5 text-ui-title" />
-    </Link>
-  </Button>
+            <Button variant="ghost" size="icon" asChild>
+              <Link to="/">
+                <ArrowLeft className="h-5 w-5 text-ui-title" />
+              </Link>
+            </Button>
 
-  <div>
-    {/* TÍTULO */}
-    <h2 className="font-pixel text-sm sm:text-lg text-ui-title">
-      {gen.region}
-    </h2>
+            <div>
+              <h2 className="font-pixel text-sm sm:text-lg text-ui-title">
+                {gen.region}
+              </h2>
 
-    {/* SUBTÍTULO */}
-    <p className="text-sm text-ui-subtitle">
-      {gen.region === 'Desconhecida'
-        ? 'Pokémon sem região definida'
-        : `Região de ${gen.region}`} · #{gen.pokemonRange[0]}–#{gen.pokemonRange[1]}
-    </p>
-  </div>
-</div>
+              <p className="text-sm text-ui-subtitle">
+                {gen.region === 'Desconhecida'
+                  ? 'Pokémon sem região definida'
+                  : `Região de ${gen.region}`} · #{gen.pokemonRange[0]}–#{gen.pokemonRange[1]}
+              </p>
+            </div>
+          </div>
 
           <PokemonGrid generation={gen} />
 
