@@ -84,73 +84,73 @@ export default function SpecialFormsPage({ type }: Props) {
   };
 
   const bg = SPECIAL_BG[type];
+  const isMobile = typeof window !== 'undefined' && window.innerWidth < 640;
 
   return (
-    <div
-      className="min-h-screen relative"
-      style={{
-        backgroundImage: `url(${bg})`,
-        backgroundSize: 'cover',
-        backgroundPosition: 'center',
-        backgroundRepeat: 'no-repeat',
-        backgroundColor: '#0b0f14',
-      }}
-    >
-    <div className="absolute inset-0 pointer-events-none">
+    <div className="min-h-screen relative">
+      <div
+        className="fixed inset-0 -z-10"
+        style={{
+          backgroundImage: `url(${bg})`,
+          backgroundSize: isMobile ? 'contain' : 'cover',
+          backgroundPosition: isMobile ? 'center top' : 'center',
+          backgroundRepeat: 'no-repeat',
+          backgroundColor: '#0b0f14',
+        }}
+      />
 
-  {/* overlay escuro */}
-  <div className="absolute inset-0 bg-black/30" />
+      <div className="fixed inset-0 -z-10 pointer-events-none">
+        <div className="absolute inset-0 bg-black/30" />
 
-  {/* linhas horizontais (energia) */}
-  <div
-    className="absolute inset-0 opacity-20"
-    style={{
-      backgroundImage: `
-        repeating-linear-gradient(
-          to bottom,
-          rgba(255,255,255,0.05) 0px,
-          rgba(255,255,255,0.05) 1px,
-          transparent 1px,
-          transparent 70px
-        )
-      `
-    }}
-  />
+        {isMega && (
+          <>
+            <div
+              className="absolute inset-0 opacity-20"
+              style={{
+                backgroundImage: `
+                  repeating-linear-gradient(
+                    to bottom,
+                    rgba(255,255,255,0.05) 0px,
+                    rgba(255,255,255,0.05) 1px,
+                    transparent 1px,
+                    transparent 70px
+                  )
+                `,
+              }}
+            />
 
-  {/* glow central */}
-  <div
-    className="absolute inset-0"
-    style={{
-      background:
-        'radial-gradient(circle at center, rgba(255,255,255,0.06), transparent 60%)'
-    }}
-  />
-
-</div>
-
-     <div className="relative z-10">
-  <Header />
-
-  <main className="container py-8">
-    <div className="flex items-center gap-4 mb-8">
-      <Button variant="ghost" size="icon" asChild>
-        <Link to="/">
-          <ArrowLeft className="h-5 w-5 text-ui-title" />
-        </Link>
-      </Button>
-
-      <div>
-        {/* TÍTULO */}
-        <h2 className="font-pixel text-sm sm:text-lg text-ui-title">
-          {isMega ? 'Mega Evoluções' : 'Gigantamax'}
-        </h2>
-
-        {/* SUBTÍTULO */}
-        <p className="text-sm text-ui-subtitle">
-          {isMega ? 'Todas as formas Mega' : 'Todas as formas Gigantamax'}
-          {filtered.length > 0 && ` (${filtered.length})`}
-        </p>
+            <div
+              className="absolute inset-0"
+              style={{
+                background:
+                  'radial-gradient(circle at center, rgba(255,255,255,0.06), transparent 60%)',
+              }}
+            />
+          </>
+        )}
       </div>
+
+      <div className="relative z-10">
+        <Header />
+
+        <main className="container py-8">
+          <div className="flex items-center gap-4 mb-8">
+            <Button variant="ghost" size="icon" asChild>
+              <Link to="/">
+                <ArrowLeft className="h-5 w-5 text-ui-title" />
+              </Link>
+            </Button>
+
+            <div>
+              <h2 className="font-pixel text-sm sm:text-lg text-ui-title">
+                {isMega ? 'Mega Evoluções' : 'Gigantamax'}
+              </h2>
+
+              <p className="text-sm text-ui-subtitle">
+                {isMega ? 'Todas as formas Mega' : 'Todas as formas Gigantamax'}
+                {filtered.length > 0 && ` (${filtered.length})`}
+              </p>
+            </div>
 
             <div className="ml-auto flex items-center gap-2">
               <PokemonFilterButton filters={filters} onChange={handleFiltersChange} />
