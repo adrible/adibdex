@@ -96,25 +96,36 @@ export default function SpecialFormsPage({ type }: Props) {
         backgroundColor: '#0b0f14',
       }}
     >
-      <div className="absolute inset-0 pointer-events-none">
+    <div className="absolute inset-0 pointer-events-none">
+
   {/* overlay escuro */}
   <div className="absolute inset-0 bg-black/30" />
 
-  {/* linhas horizontais suaves */}
+  {/* linhas horizontais (energia) */}
   <div
     className="absolute inset-0 opacity-20"
     style={{
       backgroundImage: `
-        linear-gradient(
+        repeating-linear-gradient(
           to bottom,
-          transparent 0%,
-          rgba(255,255,255,0.08) 50%,
-          transparent 100%
+          rgba(255,255,255,0.05) 0px,
+          rgba(255,255,255,0.05) 1px,
+          transparent 1px,
+          transparent 70px
         )
-      `,
-      backgroundSize: '100% 80px',
+      `
     }}
   />
+
+  {/* glow central */}
+  <div
+    className="absolute inset-0"
+    style={{
+      background:
+        'radial-gradient(circle at center, rgba(255,255,255,0.06), transparent 60%)'
+    }}
+  />
+
 </div>
 
      <div className="relative z-10">
