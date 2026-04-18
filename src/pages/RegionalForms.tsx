@@ -77,33 +77,47 @@ export default function RegionalForms() {
 
   return (
     <div className="min-h-screen bg-background">
-      <Header />
-      <main className="container py-8">
-        <div className="flex items-center gap-4 mb-8">
-          <Button variant="ghost" size="icon" asChild>
-            <Link to="/"><ArrowLeft className="h-5 w-5" /></Link>
-          </Button>
-          <div>
-            <h2 className="font-pixel text-sm sm:text-lg text-foreground">
-              Formas Regionais
-            </h2>
-            <p className="text-sm text-muted-foreground">
-              Alolan, Galarian, Hisuian e Paldean
-              {filtered.length > 0 && ` (${filtered.length})`}
-            </p>
-          </div>
-          <div className="ml-auto flex items-center gap-2">
-            <PokemonFilterButton filters={filters} onChange={handleFiltersChange} />
-            <Button
-              variant={isShiny ? "default" : "outline"} size="sm"
-              onClick={() => setIsShiny(!isShiny)}
-              className={`gap-1 ${isShiny ? 'bg-gradient-to-r from-yellow-500 to-amber-500 hover:from-yellow-600 hover:to-amber-600 text-white border-0' : ''}`}
-            >
-              <Sparkles className="h-3.5 w-3.5" />
-              Shiny
-            </Button>
-          </div>
-        </div>
+  <Header />
+
+  <main className="container py-8">
+    <div className="flex items-center gap-4 mb-8">
+      <Button variant="ghost" size="icon" asChild>
+        <Link to="/">
+          <ArrowLeft className="h-5 w-5 text-ui-title" />
+        </Link>
+      </Button>
+
+      <div>
+        {/* TÍTULO */}
+        <h2 className="font-pixel text-sm sm:text-lg text-ui-title">
+          Formas Regionais
+        </h2>
+
+        {/* SUBTÍTULO */}
+        <p className="text-sm text-ui-subtitle">
+          Alolan, Galarian, Hisuian e Paldean
+          {filtered.length > 0 && ` (${filtered.length})`}
+        </p>
+      </div>
+
+      <div className="ml-auto flex items-center gap-2">
+        <PokemonFilterButton filters={filters} onChange={handleFiltersChange} />
+
+        <Button
+          variant={isShiny ? "default" : "outline"}
+          size="sm"
+          onClick={() => setIsShiny(!isShiny)}
+          className={`gap-1 ${
+            isShiny
+              ? 'bg-gradient-to-r from-yellow-500 to-amber-500 hover:from-yellow-600 hover:to-amber-600 text-white border-0'
+              : ''
+          }`}
+        >
+          <Sparkles className="h-3.5 w-3.5" />
+          Shiny
+        </Button>
+      </div>
+    </div>
 
         <ActiveFilterChips filters={filters} onChange={handleFiltersChange} />
 
