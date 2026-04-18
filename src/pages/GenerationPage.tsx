@@ -57,26 +57,26 @@ export default function GenerationPage() {
 
         <main className="container py-8">
           <div className="flex items-center gap-4 mb-8">
-            <Button variant="ghost" size="icon" asChild>
-              <Link to="/">
-                <ArrowLeft className="h-5 w-5" />
-              </Link>
-            </Button>
+  <Button variant="ghost" size="icon" asChild>
+    <Link to="/">
+      <ArrowLeft className="h-5 w-5 text-ui-title" />
+    </Link>
+  </Button>
 
-            <div>
-              {/* TÍTULO */}
-              <h2 className="font-pixel text-sm sm:text-lg text-white drop-shadow-[0_1px_0_rgba(0,0,0,1),0_0_2px_rgba(0,0,0,1),0_0_6px_rgba(0,0,0,0.7)]">
-                {gen.region}
-              </h2>
+  <div>
+    {/* TÍTULO */}
+    <h2 className="font-pixel text-sm sm:text-lg text-ui-title">
+      {gen.region}
+    </h2>
 
-              {/* SUBTÍTULO */}
-              <p className="text-sm text-white drop-shadow-[0_1px_0_rgba(0,0,0,1),0_0_2px_rgba(0,0,0,1),0_0_6px_rgba(0,0,0,0.7)]">
-                {gen.region === 'Desconhecida'
-                  ? 'Pokémon sem região definida'
-                  : `Região de ${gen.region}`} · #{gen.pokemonRange[0]}–#{gen.pokemonRange[1]}
-              </p>
-            </div>
-          </div>
+    {/* SUBTÍTULO */}
+    <p className="text-sm text-ui-subtitle">
+      {gen.region === 'Desconhecida'
+        ? 'Pokémon sem região definida'
+        : `Região de ${gen.region}`} · #{gen.pokemonRange[0]}–#{gen.pokemonRange[1]}
+    </p>
+  </div>
+</div>
 
           <PokemonGrid generation={gen} />
 
