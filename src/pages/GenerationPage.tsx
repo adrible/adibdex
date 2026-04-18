@@ -1,5 +1,4 @@
 import { useParams, Link } from 'react-router-dom';
-import { useEffect, useState } from 'react';
 import { GENERATIONS } from '@/lib/pokeapi';
 import { Header } from '@/components/Header';
 import { PokemonGrid } from '@/components/PokemonGrid';
@@ -24,14 +23,6 @@ const REGION_BG: Record<string, string> = {
 export default function GenerationPage() {
   const { id } = useParams();
   const gen = GENERATIONS.find((g) => g.id === Number(id));
-  const [isMobile, setIsMobile] = useState(false);
-
-  useEffect(() => {
-    const update = () => setIsMobile(window.innerWidth < 640);
-    update();
-    window.addEventListener('resize', update);
-    return () => window.removeEventListener('resize', update);
-  }, []);
 
   if (!gen) {
     return (
@@ -45,43 +36,22 @@ export default function GenerationPage() {
   }
 
   const bg = REGION_BG[gen.region] || REGION_BG.Desconhecida;
+
   const scrollToTop = () => window.scrollTo({ top: 0, behavior: 'smooth' });
 
   return (
     <div
       className="min-h-screen relative"
-      style={
-        !isMobile
-          ? {
-              backgroundImage: `url(${bg})`,
-              backgroundSize: 'cover',
-              backgroundRepeat: 'no-repeat',
-              backgroundPosition: 'center',
-              backgroundColor: '#0b0f14',
-            }
-          : {
-              backgroundColor: '#0b0f14',
-            }
-      }
+      style={{
+        backgroundImage: `url(${bg})`,
+        backgroundSize: 'cover',
+        backgroundPosition: 'center',
+        backgroundAttachment: 'fixed',
+      }}
     >
-      {/* MOBILE: fundo fixo acompanhando a tela */}
-      {isMobile && (
-        <div
-          className="fixed inset-0 pointer-events-none"
-          style={{
-            backgroundImage: `url(${bg})`,
-            backgroundSize: 'contain',
-            backgroundRepeat: 'no-repeat',
-            backgroundPosition: 'center top',
-            backgroundColor: '#0b0f14',
-          }}
-        />
-      )}
-
       {/* overlay */}
       <div className="absolute inset-0 bg-black/30 pointer-events-none" />
 
-      {/* conteúdo */}
       <div className="relative z-10">
         <Header />
 
@@ -94,11 +64,13 @@ export default function GenerationPage() {
             </Button>
 
             <div>
-              <h2 className="font-pixel text-sm sm:text-lg text-foreground">
+              {/* TÍTULO */}
+              <h2 className="font-pixel text-sm sm:text-lg text-white drop-shadow-[0_1px_0_rgba(0,0,0,1),0_0_2px_rgba(0,0,0,1),0_0_6px_rgba(0,0,0,0.7)]">
                 {gen.region}
               </h2>
 
-              <p className="text-sm text-muted-foreground">
+              {/* SUBTÍTULO */}
+              <p className="text-sm text-white drop-shadow-[0_1px_0_rgba(0,0,0,1),0_0_2px_rgba(0,0,0,1),0_0_6px_rgba(0,0,0,0.7)]">
                 {gen.region === 'Desconhecida'
                   ? 'Pokémon sem região definida'
                   : `Região de ${gen.region}`} · #{gen.pokemonRange[0]}–#{gen.pokemonRange[1]}
