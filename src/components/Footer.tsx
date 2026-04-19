@@ -66,11 +66,6 @@ export function Footer() {
             </p>
 
             <ul className="space-y-1 text-[11px]">
-              <li>• Backgrounds por região</li>
-              <li>• Tema Mega / GMAX</li>
-              <li>• Melhorias no mobile</li>
-              <li>• UI padronizada</li>
-              <li>• Changelog adicionado</li>
               <li>• Bug Fixes</li>
             </ul>
           </div>
