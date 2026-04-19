@@ -88,7 +88,7 @@ export default function SpecialFormsPage({ type }: Props) {
   return (
     <div className="min-h-screen relative">
       <div
-        className="fixed top-0 left-0 w-full h-[100svh] -z-10"
+        className="fixed top-0 left-0 w-full h-[100dvh] -z-10"
         style={{
           backgroundImage: `url(${bg})`,
           backgroundSize: 'cover',
@@ -98,7 +98,7 @@ export default function SpecialFormsPage({ type }: Props) {
         }}
       />
 
-      <div className="fixed top-0 left-0 w-full h-[100svh] -z-10 bg-black/30" />
+      <div className="fixed top-0 left-0 w-full h-[100dvh] -z-10 bg-black/30" />
 
       <div className="relative z-10">
         <Header />
