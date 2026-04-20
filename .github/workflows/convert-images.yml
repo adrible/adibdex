@@ -1,0 +1,42 @@
+name: Convert PNG to WebP
+
+on:
+  push:
+    paths:
+      - 'public/backgrounds/*.png'
+
+jobs:
+  convert:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - run: npm install sharp
+
+      - run: |
+          node -e "
+          const sharp = require('sharp');
+          const fs = require('fs');
+          const path = './public/backgrounds';
+
+          fs.readdirSync(path).forEach(file => {
+            if (file.endsWith('.png')) {
+              const input = path + '/' + file;
+              const output = path + '/' + file.replace('.png', '.webp');
+
+              sharp(input)
+                .resize({ height: 1400 })
+                .webp({ quality: 65 })
+                .toFile(output)
+                .then(() => console.log('Converted:', file));
+            }
+          });
+          "
+
+      - run: |
+          git config user.name "github-actions"
+          git config user.email "actions@github.com"
+          git add .
+          git commit -m "Auto convert images to webp" || echo "No changes"
+          git push
