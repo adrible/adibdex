@@ -1,4 +1,4 @@
-import { useState, useMemo, useEffect } from 'react';
+import { useState, useMemo } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { fetchAllMegaForms, fetchAllGmaxForms } from '@/lib/pokeapi';
 import { Header } from '@/components/Header';
@@ -38,19 +38,8 @@ export default function SpecialFormsPage({ type }: Props) {
   const [page, setPage] = useState(saved?.page ?? 0);
   const [pageInput, setPageInput] = useState('');
   const [filters, setFilters] = useState<FilterState>(saved?.filters ?? DEFAULT_FILTERS);
-  const [offsetY, setOffsetY] = useState(0);
 
   const location = useLocation();
-
-  useEffect(() => {
-    const handleScroll = () => {
-      setOffsetY(window.scrollY * 0.18);
-    };
-
-    handleScroll();
-    window.addEventListener('scroll', handleScroll, { passive: true });
-    return () => window.removeEventListener('scroll', handleScroll);
-  }, []);
 
   const { data: forms, isLoading } = useQuery({
     queryKey: [isMega ? 'all-mega-forms' : 'all-gmax-forms'],
@@ -98,10 +87,10 @@ export default function SpecialFormsPage({ type }: Props) {
   const bg = SPECIAL_BG[type];
 
   return (
-    <div className="min-h-screen relative">
+    <div className="relative">
 
-      {/* 🔥 FAKE PARALLAX */}
-      <div className="absolute inset-0 -z-10 overflow-hidden pointer-events-none">
+      {/* 🔥 FUNDO PARADO (STICKY) */}
+      <div className="sticky top-0 h-[100dvh] -z-10">
         <div
           className="absolute inset-0"
           style={{
@@ -110,17 +99,14 @@ export default function SpecialFormsPage({ type }: Props) {
             backgroundPosition: 'center',
             backgroundRepeat: 'no-repeat',
             backgroundColor: '#0b0f14',
-            transform: `translateY(${offsetY}px) scale(1.08)`,
-            transformOrigin: 'center top',
-            willChange: 'transform',
           }}
         />
-
-        {/* overlay */}
         <div className="absolute inset-0 bg-black/30" />
       </div>
 
-      <div className="relative z-10">
+      {/* CONTEÚDO SOBRE O FUNDO */}
+      <div className="relative z-10 -mt-[100dvh] min-h-[100dvh]">
+
         <Header />
 
         <main className="container py-8">
@@ -150,7 +136,7 @@ export default function SpecialFormsPage({ type }: Props) {
                 onClick={() => setIsShiny(!isShiny)}
                 className={`gap-1 ${
                   isShiny
-                    ? 'bg-gradient-to-r from-yellow-500 to-amber-500 hover:from-yellow-600 hover:to-amber-600 text-white border-0'
+                    ? 'bg-gradient-to-r from-yellow-500 to-amber-500 text-white border-0'
                     : ''
                 }`}
               >
@@ -185,43 +171,19 @@ export default function SpecialFormsPage({ type }: Props) {
                   />
                 ))}
               </div>
-
-              {totalPages > 1 && (
-                <div className="flex items-center justify-center gap-3 mt-10">
-                  <Button
-                    variant="outline"
-                    size="icon"
-                    disabled={safePage === 0}
-                    onClick={() => setPage(safePage - 1)}
-                  >
-                    <ChevronLeft className="h-4 w-4" />
-                  </Button>
-
-                  <span className="text-sm">{safePage + 1} / {totalPages}</span>
-
-                  <Button
-                    variant="outline"
-                    size="icon"
-                    disabled={safePage >= totalPages - 1}
-                    onClick={() => setPage(safePage + 1)}
-                  >
-                    <ChevronRight className="h-4 w-4" />
-                  </Button>
-                </div>
-              )}
-
-              <div className="flex justify-center mt-10">
-                <Button
-                  variant="outline"
-                  onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
-                  className="gap-2"
-                >
-                  <ArrowUp className="h-4 w-4" />
-                  Voltar ao topo
-                </Button>
-              </div>
             </>
           )}
+
+          <div className="flex justify-center mt-10">
+            <Button
+              variant="outline"
+              onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
+              className="gap-2"
+            >
+              <ArrowUp className="h-4 w-4" />
+              Voltar ao topo
+            </Button>
+          </div>
         </main>
 
         <Footer />
