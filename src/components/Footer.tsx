@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
-import { APP_VERSION } from '@/lib/version';
+import { VERSION_INFO } from '@/lib/version';
 
 export function Footer() {
   const [showInfo, setShowInfo] = useState(false);
@@ -25,12 +25,10 @@ export function Footer() {
   return (
     <footer className="relative mt-12 pb-6 text-center">
       <div className="flex items-center justify-center gap-2 relative">
-        {/* versão */}
         <span className="text-xs text-ui-subtitle">
-          v{APP_VERSION}
+          v{VERSION_INFO.version}
         </span>
 
-        {/* botão */}
         <button
           onClick={() => setShowInfo((v) => !v)}
           className="
@@ -45,7 +43,6 @@ export function Footer() {
           ?
         </button>
 
-        {/* popup */}
         {showInfo && (
           <div
             ref={popupRef}
@@ -62,11 +59,13 @@ export function Footer() {
             "
           >
             <p className="text-xs font-bold mb-2 text-ui-title tracking-wide">
-              v{APP_VERSION}
+              v{VERSION_INFO.version}
             </p>
 
             <ul className="space-y-1 text-[11px]">
-              <li>• Bug Fixes</li>
+              {VERSION_INFO.changes.map((change) => (
+                <li key={change}>• {change}</li>
+              ))}
             </ul>
           </div>
         )}
