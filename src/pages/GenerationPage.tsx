@@ -36,12 +36,14 @@ export default function GenerationPage() {
   }
 
   const bg = REGION_BG[gen.region] || REGION_BG.Desconhecida;
+
   const scrollToTop = () => window.scrollTo({ top: 0, behavior: 'smooth' });
 
   return (
-    <div className="relative">
-      {/* FUNDO PARADO (STICKY) */}
-      <div className="sticky top-0 h-[100dvh] -z-10">
+    <div className="min-h-screen relative">
+      
+      {/* FUNDO FIXO (IGUAL AO SPECIAL FORMS) */}
+      <div className="fixed top-0 left-0 w-full h-[100lvh] -z-10 overflow-hidden pointer-events-none">
         <div
           className="absolute inset-0"
           style={{
@@ -50,13 +52,19 @@ export default function GenerationPage() {
             backgroundPosition: 'center',
             backgroundRepeat: 'no-repeat',
             backgroundColor: '#0b0f14',
+            transform: 'scale(1.04)',
+            WebkitTransform: 'scale(1.04)',
+            transformOrigin: 'center center',
+            willChange: 'transform',
           }}
         />
-        <div className="absolute inset-0 bg-black/30" />
       </div>
 
-      {/* CONTEÚDO SOBRE O FUNDO */}
-      <div className="relative z-10 -mt-[100dvh] min-h-[100dvh]">
+      {/* OVERLAY */}
+      <div className="fixed top-0 left-0 w-full h-[100lvh] -z-10 bg-black/30 pointer-events-none" />
+
+      {/* CONTEÚDO */}
+      <div className="relative z-10">
         <Header />
 
         <main className="container py-8">
