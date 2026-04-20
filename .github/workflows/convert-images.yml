@@ -24,7 +24,7 @@ jobs:
           const path = './public/backgrounds';
 
           fs.readdirSync(path).forEach(file => {
-            if (file.endsWith('.png')) {
+            if (file.endsWith('.png')) || file.endsWith('.PNG')) {
               const input = path + '/' + file;
               const output = path + '/' + file.replace('.png', '.webp');
 
