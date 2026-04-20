@@ -1,9 +1,9 @@
+import React, { useState, useMemo, useEffect, useCallback } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { fetchPokemonListByRange, type Generation } from '@/lib/pokeapi';
 import { PokemonCard } from './PokemonCard';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Search, ChevronLeft, ChevronRight, Sparkles } from 'lucide-react';
-import { useState, useMemo, useEffect } from 'react';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { useLocation } from 'react-router-dom';
@@ -20,7 +20,11 @@ import {
 
 const PAGE_SIZE = 48;
 
-export function PokemonGrid({ generation }: { generation: Generation }) {
+export const PokemonGrid = React.memo(function PokemonGrid({
+  generation,
+}: {
+  generation: Generation;
+}) {
   const storageKey = `gen-${generation.id}`;
   const saved = loadFiltersFromSession(storageKey);
 
@@ -28,31 +32,42 @@ export function PokemonGrid({ generation }: { generation: Generation }) {
   const [showAll, setShowAll] = useState(false);
   const [page, setPage] = useState(saved?.page ?? 0);
   const [isShiny, setIsShiny] = useState(false);
-  const [filters, setFilters] = useState<FilterState>(saved?.filters ?? DEFAULT_FILTERS);
+  const [filters, setFilters] = useState<FilterState>(
+    saved?.filters ?? DEFAULT_FILTERS
+  );
   const [pageInput, setPageInput] = useState('');
   const location = useLocation();
 
-  const totalPokemon =
-    generation.pokemonRange[1] - generation.pokemonRange[0] + 1;
+  const totalPokemon = useMemo(
+    () => generation.pokemonRange[1] - generation.pokemonRange[0] + 1,
+    [generation.pokemonRange]
+  );
 
   useEffect(() => {
     saveFiltersToSession(storageKey, filters, page);
   }, [filters, page, storageKey]);
 
-  const needsAll = showAll || hasActiveFilters(filters) || search.trim();
+  const hasSearch = search.trim().length > 0;
+  const needsAll = showAll || hasActiveFilters(filters) || hasSearch;
 
-  const fetchStart = needsAll
-    ? generation.pokemonRange[0]
-    : generation.pokemonRange[0] + page * PAGE_SIZE;
+  const fetchStart = useMemo(() => {
+    return needsAll
+      ? generation.pokemonRange[0]
+      : generation.pokemonRange[0] + page * PAGE_SIZE;
+  }, [needsAll, generation.pokemonRange, page]);
 
-  const fetchEnd = needsAll
-    ? generation.pokemonRange[1]
-    : Math.min(fetchStart + PAGE_SIZE - 1, generation.pokemonRange[1]);
+  const fetchEnd = useMemo(() => {
+    return needsAll
+      ? generation.pokemonRange[1]
+      : Math.min(fetchStart + PAGE_SIZE - 1, generation.pokemonRange[1]);
+  }, [needsAll, generation.pokemonRange, fetchStart]);
 
   const { data: pokemons, isLoading } = useQuery({
     queryKey: ['pokemon-gen', generation.id, needsAll ? 'all' : page],
     queryFn: () => fetchPokemonListByRange(fetchStart, fetchEnd),
     staleTime: 1000 * 60 * 30,
+    gcTime: 1000 * 60 * 60 * 24,
+    refetchOnWindowFocus: false,
   });
 
   const processed = useMemo(() => {
@@ -60,17 +75,15 @@ export function PokemonGrid({ generation }: { generation: Generation }) {
 
     let result = pokemons;
 
-    if (search.trim()) {
-      const q = search.toLowerCase();
+    if (hasSearch) {
+      const q = search.trim().toLowerCase();
       result = result.filter(
         (p) => p.name.includes(q) || String(p.id).includes(q)
       );
     }
 
-    result = applyFilters(result, filters);
-
-    return result;
-  }, [pokemons, search, filters]);
+    return applyFilters(result, filters);
+  }, [pokemons, hasSearch, search, filters]);
 
   const paginatedResults = useMemo(() => {
     if (!needsAll) return processed;
@@ -80,37 +93,69 @@ export function PokemonGrid({ generation }: { generation: Generation }) {
     return processed.slice(start, start + PAGE_SIZE);
   }, [processed, needsAll, showAll, page]);
 
-  const totalFilteredPages = needsAll
-    ? Math.ceil(processed.length / PAGE_SIZE)
-    : Math.ceil(totalPokemon / PAGE_SIZE);
+  const totalFilteredPages = useMemo(() => {
+    return needsAll
+      ? Math.max(1, Math.ceil(processed.length / PAGE_SIZE))
+      : Math.max(1, Math.ceil(totalPokemon / PAGE_SIZE));
+  }, [needsAll, processed.length, totalPokemon]);
 
-  const showPagination =
-    !showAll && totalFilteredPages > 1 && !search.trim();
+  const showPagination = !showAll && totalFilteredPages > 1 && !hasSearch;
 
-  const handlePageInput = (e: React.KeyboardEvent<HTMLInputElement>) => {
-    if (e.key === 'Enter') {
-      const val = parseInt(pageInput);
-      if (!isNaN(val) && val >= 1 && val <= totalFilteredPages) {
-        setPage(val - 1);
-        window.scrollTo(0, 0);
+  const handleSearchChange = useCallback(
+    (e: React.ChangeEvent<HTMLInputElement>) => {
+      setSearch(e.target.value);
+      setPage(0);
+    },
+    []
+  );
+
+  const handleFiltersChange = useCallback((f: FilterState) => {
+    setFilters(f);
+    setPage(0);
+  }, []);
+
+  const handleShowPaginated = useCallback(() => {
+    setShowAll(false);
+    setPage(0);
+  }, []);
+
+  const handleShowAll = useCallback(() => {
+    setShowAll(true);
+  }, []);
+
+  const handlePrevPage = useCallback(() => {
+    setPage((p) => p - 1);
+    window.scrollTo(0, 0);
+  }, []);
+
+  const handleNextPage = useCallback(() => {
+    setPage((p) => p + 1);
+    window.scrollTo(0, 0);
+  }, []);
+
+  const handlePageInput = useCallback(
+    (e: React.KeyboardEvent<HTMLInputElement>) => {
+      if (e.key === 'Enter') {
+        const val = parseInt(pageInput);
+        if (!isNaN(val) && val >= 1 && val <= totalFilteredPages) {
+          setPage(val - 1);
+          window.scrollTo(0, 0);
+        }
+        setPageInput('');
       }
-      setPageInput('');
-    }
-  };
+    },
+    [pageInput, totalFilteredPages]
+  );
 
   return (
     <div>
-      {/* SEARCH + FILTER */}
       <div className="flex flex-col sm:flex-row items-center gap-3 max-w-2xl mx-auto mb-4">
         <div className="relative flex-1 w-full">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
           <Input
             placeholder="Buscar por nome ou número..."
             value={search}
-            onChange={(e) => {
-              setSearch(e.target.value);
-              setPage(0);
-            }}
+            onChange={handleSearchChange}
             className="pl-10"
           />
         </div>
@@ -118,11 +163,8 @@ export function PokemonGrid({ generation }: { generation: Generation }) {
         <div className="flex gap-1.5 items-center">
           <PokemonFilterButton
             filters={filters}
-            onChange={(f) => {
-              setFilters(f);
-              setPage(0);
-            }}
-            showRegionFilter={false} // 🔥 AQUI
+            onChange={handleFiltersChange}
+            showRegionFilter={false}
           />
 
           <Button
@@ -140,47 +182,39 @@ export function PokemonGrid({ generation }: { generation: Generation }) {
           </Button>
 
           {totalPokemon > PAGE_SIZE && (
-  <>
-    <Button
-      variant="outline"
-      size="sm"
-      onClick={() => {
-        setShowAll(false);
-        setPage(0);
-      }}
-      className={`text-xs transition-colors ${
-        !showAll ? 'bg-primary text-primary-foreground border-primary' : ''
-      }`}
-    >
-      Paginado
-    </Button>
+            <>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={handleShowPaginated}
+                className={`text-xs transition-colors ${
+                  !showAll ? 'bg-primary text-primary-foreground border-primary' : ''
+                }`}
+              >
+                Paginado
+              </Button>
 
-    <Button
-      variant="outline"
-      size="sm"
-      onClick={() => setShowAll(true)}
-      className={`text-xs transition-colors ${
-        showAll ? 'bg-primary text-primary-foreground border-primary' : ''
-      }`}
-    >
-      Todos
-    </Button>
-  </>
-)}
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={handleShowAll}
+                className={`text-xs transition-colors ${
+                  showAll ? 'bg-primary text-primary-foreground border-primary' : ''
+                }`}
+              >
+                Todos
+              </Button>
+            </>
+          )}
         </div>
       </div>
 
-      {/* FILTER CHIPS */}
       <ActiveFilterChips
         filters={filters}
-        onChange={(f) => {
-          setFilters(f);
-          setPage(0);
-        }}
-        showRegionFilter={false} // 🔥 AQUI
+        onChange={handleFiltersChange}
+        showRegionFilter={false}
       />
 
-      {/* GRID */}
       {isLoading ? (
         <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4">
           {Array.from({ length: 24 }).map((_, i) => (
@@ -199,12 +233,16 @@ export function PokemonGrid({ generation }: { generation: Generation }) {
         <>
           <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4">
             {paginatedResults.map((p) => (
-              <PokemonCard
+              <div
                 key={p.id}
-                pokemon={p}
-                isShiny={isShiny}
-                originPath={location.pathname}
-              />
+                style={{ contentVisibility: 'auto', containIntrinsicSize: '220px' }}
+              >
+                <PokemonCard
+                  pokemon={p}
+                  isShiny={isShiny}
+                  originPath={location.pathname}
+                />
+              </div>
             ))}
           </div>
 
@@ -214,10 +252,7 @@ export function PokemonGrid({ generation }: { generation: Generation }) {
                 variant="outline"
                 size="icon"
                 disabled={page === 0}
-                onClick={() => {
-                  setPage((p) => p - 1);
-                  window.scrollTo(0, 0);
-                }}
+                onClick={handlePrevPage}
               >
                 <ChevronLeft className="h-4 w-4" />
               </Button>
@@ -241,10 +276,7 @@ export function PokemonGrid({ generation }: { generation: Generation }) {
                 variant="outline"
                 size="icon"
                 disabled={page >= totalFilteredPages - 1}
-                onClick={() => {
-                  setPage((p) => p + 1);
-                  window.scrollTo(0, 0);
-                }}
+                onClick={handleNextPage}
               >
                 <ChevronRight className="h-4 w-4" />
               </Button>
@@ -254,4 +286,4 @@ export function PokemonGrid({ generation }: { generation: Generation }) {
       )}
     </div>
   );
-}
+});
