@@ -40,10 +40,23 @@ export default function GenerationPage() {
   const scrollToTop = () => window.scrollTo({ top: 0, behavior: 'smooth' });
 
   return (
-    <div className="min-h-screen relative">
-      
-      {/* FUNDO FIXO (IGUAL AO SPECIAL FORMS) */}
-      <div className="fixed top-0 left-0 w-full h-[100lvh] -z-10 overflow-hidden pointer-events-none">
+    <div className="relative">
+      {/* DESKTOP: fundo fixo como era antes */}
+      <div
+        className="hidden md:block fixed top-0 left-0 w-full h-screen -z-10"
+        style={{
+          backgroundImage: `url(${bg})`,
+          backgroundSize: 'cover',
+          backgroundPosition: 'center',
+          backgroundRepeat: 'no-repeat',
+          backgroundColor: '#0b0f14',
+        }}
+      />
+
+      <div className="hidden md:block fixed top-0 left-0 w-full h-screen -z-10 bg-black/30 pointer-events-none" />
+
+      {/* MOBILE: solução estável pro iPhone */}
+      <div className="md:hidden sticky top-0 h-[100dvh] -z-10">
         <div
           className="absolute inset-0"
           style={{
@@ -52,19 +65,13 @@ export default function GenerationPage() {
             backgroundPosition: 'center',
             backgroundRepeat: 'no-repeat',
             backgroundColor: '#0b0f14',
-            transform: 'scale(1.04)',
-            WebkitTransform: 'scale(1.04)',
-            transformOrigin: 'center center',
-            willChange: 'transform',
           }}
         />
+        <div className="absolute inset-0 bg-black/30 pointer-events-none" />
       </div>
 
-      {/* OVERLAY */}
-      <div className="fixed top-0 left-0 w-full h-[100lvh] -z-10 bg-black/30 pointer-events-none" />
-
-      {/* CONTEÚDO */}
-      <div className="relative z-10">
+      {/* Conteúdo */}
+      <div className="relative z-10 md:mt-0 -mt-[100dvh] min-h-screen">
         <Header />
 
         <main className="container py-8">
