@@ -1,47 +1,29 @@
-name: Convert PNG to WebP
+const fs = require('fs');
+const path = require('path');
+const sharp = require('sharp');
 
-on:
-  workflow_dispatch:
-  push:
-    paths:
-      - 'public/backgrounds/*.png'
+const dir = 'public/backgrounds';
 
-jobs:
-  convert:
-    runs-on: ubuntu-latest
+if (!fs.existsSync(dir)) {
+  console.log('Folder not found:', dir);
+  process.exit(1);
+}
 
-    steps:
-      - uses: actions/checkout@v3
+const files = fs.readdirSync(dir).filter(f =>
+  f.toLowerCase().endsWith('.png')
+);
 
-      - name: Install sharp
-        run: npm install sharp
+if (files.length === 0) {
+  console.log('No PNG files found');
+}
 
-      - name: Convert images
-        run: |
-          node -e "
-          const sharp = require('sharp');
-          const fs = require('fs');
-          const path = './public/backgrounds';
+(async () => {
+  for (const file of files) {
+    const input = path.join(dir, file);
+    const output = path.join(dir, file.replace(/\.(png)$/i, '.webp'));
 
-          fs.readdirSync(path).forEach(file => {
-            if (file.endsWith('.png')) || file.endsWith('.PNG')) {
-              const input = path + '/' + file;
-              const output = path + '/' + file.replace('.png', '.webp');
+    await sharp(input).webp({ quality: 80 }).toFile(output);
 
-              sharp(input)
-                .resize({ height: 1400 })
-                .webp({ quality: 65 })
-                .toFile(output)
-                .then(() => console.log('Converted:', file))
-                .catch(err => console.error(err));
-            }
-          });
-          "
-
-      - name: Commit changes
-        run: |
-          git config user.name "github-actions"
-          git config user.email "actions@github.com"
-          git add .
-          git commit -m "Auto convert images to webp" || echo "No changes"
-          git push
+    console.log(`Converted: ${file}`);
+  }
+})();
