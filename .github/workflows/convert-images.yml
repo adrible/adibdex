@@ -1,29 +1,62 @@
-const fs = require('fs');
-const path = require('path');
-const sharp = require('sharp');
+name: Convert PNG to WebP
 
-const dir = 'public/backgrounds';
+on:
+  workflow_dispatch
 
-if (!fs.existsSync(dir)) {
-  console.log('Folder not found:', dir);
-  process.exit(1);
-}
+jobs:
+  convert:
+    runs-on: ubuntu-latest
 
-const files = fs.readdirSync(dir).filter(f =>
-  f.toLowerCase().endsWith('.png')
-);
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v3
 
-if (files.length === 0) {
-  console.log('No PNG files found');
-}
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
 
-(async () => {
-  for (const file of files) {
-    const input = path.join(dir, file);
-    const output = path.join(dir, file.replace(/\.(png)$/i, '.webp'));
+      - name: Install sharp
+        run: npm install sharp
 
-    await sharp(input).webp({ quality: 80 }).toFile(output);
+      - name: Convert images
+        run: |
+          node -e "
+          const fs = require('fs');
+          const path = require('path');
+          const sharp = require('sharp');
 
-    console.log(`Converted: ${file}`);
-  }
-})();
+          const dir = 'public/backgrounds';
+
+          if (!fs.existsSync(dir)) {
+            console.log('Folder not found:', dir);
+            process.exit(1);
+          }
+
+          const files = fs.readdirSync(dir).filter(f =>
+            f.toLowerCase().endsWith('.png')
+          );
+
+          if (files.length === 0) {
+            console.log('No PNG files found');
+          }
+
+          (async () => {
+            for (const file of files) {
+              const input = path.join(dir, file);
+              const output = path.join(dir, file.replace(/\\.(png)$/i, '.webp'));
+
+              await sharp(input).webp({ quality: 80 }).toFile(output);
+
+              console.log('Converted:', file);
+            }
+          })();
+          "
+
+      - name: Commit changes
+        run: |
+          git config --global user.name "github-actions"
+          git config --global user.email "actions@github.com"
+          git add .
+          git commit -m "convert images to webp" || echo "No changes"
+          git push
