@@ -21,8 +21,8 @@ import { Footer } from '@/components/Footer';
 const PAGE_SIZE = 48;
 
 const SPECIAL_BG: Record<string, string> = {
-  mega: '/backgrounds/mega.PNG',
-  gmax: '/backgrounds/gmax.PNG',
+  mega: '/backgrounds/mega.webp',
+  gmax: '/backgrounds/gmax.webp',
 };
 
 interface Props {
