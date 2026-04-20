@@ -1,3 +1,4 @@
+import React, { useMemo } from 'react';
 import { Link } from 'react-router-dom';
 import type { PokemonBasic } from '@/lib/pokeapi';
 import { TypeBadge } from './TypeBadge';
@@ -8,19 +9,36 @@ interface Props {
   originPath?: string;
 }
 
-export function PokemonCard({ pokemon, isShiny = false, originPath }: Props) {
-  const displayId = (pokemon as any).baseId ?? (pokemon.id <= 1025 ? pokemon.id : null);
+export const PokemonCard = React.memo(function PokemonCard({
+  pokemon,
+  isShiny = false,
+  originPath,
+}: Props) {
+  const displayId =
+    (pokemon as any).baseId ?? (pokemon.id <= 1025 ? pokemon.id : null);
 
   const isSpecialFormsPage =
     originPath?.includes('/mega') || originPath?.includes('/gmax');
 
-  const imageSrc = isSpecialFormsPage
-    ? isShiny
-      ? `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/shiny/${pokemon.id}.png`
-      : `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/${pokemon.id}.png`
-    : isShiny
-      ? pokemon.spriteShiny
-      : pokemon.sprite;
+  const imageSrc = useMemo(() => {
+    if (isSpecialFormsPage) {
+      return isShiny
+        ? `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/shiny/${pokemon.id}.png`
+        : `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/${pokemon.id}.png`;
+    }
+
+    return isShiny ? pokemon.spriteShiny : pokemon.sprite;
+  }, [
+    isSpecialFormsPage,
+    isShiny,
+    pokemon.id,
+    pokemon.sprite,
+    pokemon.spriteShiny,
+  ]);
+
+  const pokemonName = useMemo(() => {
+    return pokemon.name.replace(/-/g, ' ');
+  }, [pokemon.name]);
 
   return (
     <Link
@@ -35,6 +53,7 @@ export function PokemonCard({ pokemon, isShiny = false, originPath }: Props) {
           alt={pokemon.name}
           className="h-32 w-32 object-contain relative z-10 transition-all duration-300 group-hover:scale-110"
           loading="lazy"
+          decoding="async"
         />
       </div>
 
@@ -45,7 +64,7 @@ export function PokemonCard({ pokemon, isShiny = false, originPath }: Props) {
       )}
 
       <h3 className="font-pixel text-[10px] capitalize text-card-foreground mb-2 truncate">
-        {pokemon.name.replace(/-/g, ' ')}
+        {pokemonName}
       </h3>
 
       <div className="flex gap-1.5 flex-wrap">
@@ -55,4 +74,4 @@ export function PokemonCard({ pokemon, isShiny = false, originPath }: Props) {
       </div>
     </Link>
   );
-}
+});
