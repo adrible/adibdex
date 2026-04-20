@@ -1,4 +1,4 @@
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { fetchAllMegaForms, fetchAllGmaxForms } from '@/lib/pokeapi';
 import { Header } from '@/components/Header';
@@ -38,7 +38,19 @@ export default function SpecialFormsPage({ type }: Props) {
   const [page, setPage] = useState(saved?.page ?? 0);
   const [pageInput, setPageInput] = useState('');
   const [filters, setFilters] = useState<FilterState>(saved?.filters ?? DEFAULT_FILTERS);
+  const [offsetY, setOffsetY] = useState(0);
+
   const location = useLocation();
+
+  useEffect(() => {
+    const handleScroll = () => {
+      setOffsetY(window.scrollY * 0.18);
+    };
+
+    handleScroll();
+    window.addEventListener('scroll', handleScroll, { passive: true });
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
 
   const { data: forms, isLoading } = useQuery({
     queryKey: [isMega ? 'all-mega-forms' : 'all-gmax-forms'],
@@ -87,18 +99,26 @@ export default function SpecialFormsPage({ type }: Props) {
 
   return (
     <div className="min-h-screen relative">
-      <div
-        className="fixed top-0 left-0 w-full h-[100dvh] -z-10"
-        style={{
-          backgroundImage: `url(${bg})`,
-          backgroundSize: 'cover',
-          backgroundPosition: 'center',
-          backgroundRepeat: 'no-repeat',
-          backgroundColor: '#0b0f14',
-        }}
-      />
 
-      <div className="fixed top-0 left-0 w-full h-[100dvh] -z-10 bg-black/30" />
+      {/* 🔥 FAKE PARALLAX */}
+      <div className="absolute inset-0 -z-10 overflow-hidden pointer-events-none">
+        <div
+          className="absolute inset-0"
+          style={{
+            backgroundImage: `url(${bg})`,
+            backgroundSize: 'cover',
+            backgroundPosition: 'center',
+            backgroundRepeat: 'no-repeat',
+            backgroundColor: '#0b0f14',
+            transform: `translateY(${offsetY}px) scale(1.08)`,
+            transformOrigin: 'center top',
+            willChange: 'transform',
+          }}
+        />
+
+        {/* overlay */}
+        <div className="absolute inset-0 bg-black/30" />
+      </div>
 
       <div className="relative z-10">
         <Header />
@@ -164,11 +184,6 @@ export default function SpecialFormsPage({ type }: Props) {
                     originPath={location.pathname}
                   />
                 ))}
-                {displayed.length === 0 && (
-                  <p className="col-span-full text-center text-muted-foreground py-12">
-                    Nenhum Pokémon encontrado.
-                  </p>
-                )}
               </div>
 
               {totalPages > 1 && (
@@ -177,39 +192,18 @@ export default function SpecialFormsPage({ type }: Props) {
                     variant="outline"
                     size="icon"
                     disabled={safePage === 0}
-                    onClick={() => {
-                      const p = safePage - 1;
-                      setPage(p);
-                      saveFiltersToSession(storageKey, filters, p);
-                      window.scrollTo(0, 0);
-                    }}
+                    onClick={() => setPage(safePage - 1)}
                   >
                     <ChevronLeft className="h-4 w-4" />
                   </Button>
 
-                  <div className="flex items-center gap-1.5 text-sm font-medium text-foreground">
-                    <input
-                      type="text"
-                      value={pageInput}
-                      onChange={(e) => setPageInput(e.target.value.replace(/\D/g, ''))}
-                      onKeyDown={handlePageInput}
-                      onBlur={() => setPageInput('')}
-                      placeholder={String(safePage + 1)}
-                      className="w-10 text-center rounded border border-input bg-background px-1 py-0.5 text-sm focus:outline-none focus:ring-1 focus:ring-ring"
-                    />
-                    <span>/ {totalPages}</span>
-                  </div>
+                  <span className="text-sm">{safePage + 1} / {totalPages}</span>
 
                   <Button
                     variant="outline"
                     size="icon"
                     disabled={safePage >= totalPages - 1}
-                    onClick={() => {
-                      const p = safePage + 1;
-                      setPage(p);
-                      saveFiltersToSession(storageKey, filters, p);
-                      window.scrollTo(0, 0);
-                    }}
+                    onClick={() => setPage(safePage + 1)}
                   >
                     <ChevronRight className="h-4 w-4" />
                   </Button>
