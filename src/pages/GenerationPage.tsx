@@ -1,3 +1,4 @@
+import { useEffect, useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { GENERATIONS } from '@/lib/pokeapi';
 import { Header } from '@/components/Header';
@@ -23,6 +24,17 @@ const REGION_BG: Record<string, string> = {
 export default function GenerationPage() {
   const { id } = useParams();
   const gen = GENERATIONS.find((g) => g.id === Number(id));
+  const [offsetY, setOffsetY] = useState(0);
+
+  useEffect(() => {
+    const handleScroll = () => {
+      setOffsetY(window.scrollY * 0.18);
+    };
+
+    handleScroll();
+    window.addEventListener('scroll', handleScroll, { passive: true });
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
 
   if (!gen) {
     return (
@@ -36,28 +48,27 @@ export default function GenerationPage() {
   }
 
   const bg = REGION_BG[gen.region] || REGION_BG.Desconhecida;
-
   const scrollToTop = () => window.scrollTo({ top: 0, behavior: 'smooth' });
 
   return (
     <div className="min-h-screen relative">
-      
-      {/* 🔥 FUNDO FIXO (corrigido mobile) */}
-      <div
-        className="fixed top-0 left-0 w-full h-[100dvh] -z-10"
-        style={{
-          backgroundImage: `url(${bg})`,
-          backgroundSize: 'cover',
-          backgroundPosition: 'center',
-          backgroundRepeat: 'no-repeat',
-          backgroundColor: '#0b0f14',
-        }}
-      />
+      <div className="absolute inset-0 -z-10 overflow-hidden pointer-events-none">
+        <div
+          className="absolute inset-0"
+          style={{
+            backgroundImage: `url(${bg})`,
+            backgroundSize: 'cover',
+            backgroundPosition: 'center',
+            backgroundRepeat: 'no-repeat',
+            backgroundColor: '#0b0f14',
+            transform: `translateY(${offsetY}px) scale(1.08)`,
+            transformOrigin: 'center top',
+            willChange: 'transform',
+          }}
+        />
+        <div className="absolute inset-0 bg-black/30" />
+      </div>
 
-      {/* overlay */}
-      <div className="fixed top-0 left-0 w-full h-[100dvh] -z-10 bg-black/30" />
-
-      {/* conteúdo */}
       <div className="relative z-10">
         <Header />
 
@@ -85,11 +96,7 @@ export default function GenerationPage() {
           <PokemonGrid generation={gen} />
 
           <div className="flex justify-center mt-10">
-            <Button
-              variant="outline"
-              onClick={scrollToTop}
-              className="gap-2"
-            >
+            <Button variant="outline" onClick={scrollToTop} className="gap-2">
               <ArrowUp className="h-4 w-4" />
               Voltar ao topo
             </Button>
