@@ -1,2 +1,7 @@
-export const APP_VERSION = '0.7.1';
-
+export const VERSION_INFO = {
+  version: '0.7.3',
+  changes: [
+    'Performance optimization',
+    'Bug fixes',
+  ],
+};
