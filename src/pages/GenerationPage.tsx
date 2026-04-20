@@ -7,16 +7,16 @@ import { Button } from '@/components/ui/button';
 import { Footer } from '@/components/Footer';
 
 const REGION_BG: Record<string, string> = {
-  Kanto: '/backgrounds/kanto.PNG',
-  Johto: '/backgrounds/johto.PNG',
-  Hoenn: '/backgrounds/hoenn.PNG',
-  Sinnoh: '/backgrounds/sinnoh.PNG',
-  Unova: '/backgrounds/unova.PNG',
-  Kalos: '/backgrounds/kalos.PNG',
-  Alola: '/backgrounds/alola.PNG',
-  Galar: '/backgrounds/galar.PNG',
-  Hisui: '/backgrounds/hisui.PNG',
-  Paldea: '/backgrounds/paldea.PNG',
+  Kanto: '/backgrounds/kanto.webp',
+  Johto: '/backgrounds/johto.webp',
+  Hoenn: '/backgrounds/hoenn.webp',
+  Sinnoh: '/backgrounds/sinnoh.webp',
+  Unova: '/backgrounds/unova.webp',
+  Kalos: '/backgrounds/kalos.webp',
+  Alola: '/backgrounds/alola.webp',
+  Galar: '/backgrounds/galar.webp',
+  Hisui: '/backgrounds/hisui.webp',
+  Paldea: '/backgrounds/paldea.webp',
   Desconhecida: '/backgrounds/national.PNG',
 };
 
