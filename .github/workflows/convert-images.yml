@@ -1,6 +1,7 @@
 name: Convert PNG to WebP
 
 on:
+  workflow_dispatch:
   push:
     paths:
       - 'public/backgrounds/*.png'
@@ -12,9 +13,11 @@ jobs:
     steps:
       - uses: actions/checkout@v3
 
-      - run: npm install sharp
+      - name: Install sharp
+        run: npm install sharp
 
-      - run: |
+      - name: Convert images
+        run: |
           node -e "
           const sharp = require('sharp');
           const fs = require('fs');
@@ -29,12 +32,14 @@ jobs:
                 .resize({ height: 1400 })
                 .webp({ quality: 65 })
                 .toFile(output)
-                .then(() => console.log('Converted:', file));
+                .then(() => console.log('Converted:', file))
+                .catch(err => console.error(err));
             }
           });
           "
 
-      - run: |
+      - name: Commit changes
+        run: |
           git config user.name "github-actions"
           git config user.email "actions@github.com"
           git add .
