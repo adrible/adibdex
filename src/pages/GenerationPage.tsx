@@ -1,4 +1,3 @@
-import { useEffect, useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { GENERATIONS } from '@/lib/pokeapi';
 import { Header } from '@/components/Header';
@@ -24,17 +23,6 @@ const REGION_BG: Record<string, string> = {
 export default function GenerationPage() {
   const { id } = useParams();
   const gen = GENERATIONS.find((g) => g.id === Number(id));
-  const [offsetY, setOffsetY] = useState(0);
-
-  useEffect(() => {
-    const handleScroll = () => {
-      setOffsetY(window.scrollY * 0.18);
-    };
-
-    handleScroll();
-    window.addEventListener('scroll', handleScroll, { passive: true });
-    return () => window.removeEventListener('scroll', handleScroll);
-  }, []);
 
   if (!gen) {
     return (
@@ -51,8 +39,9 @@ export default function GenerationPage() {
   const scrollToTop = () => window.scrollTo({ top: 0, behavior: 'smooth' });
 
   return (
-    <div className="min-h-screen relative">
-      <div className="absolute inset-0 -z-10 overflow-hidden pointer-events-none">
+    <div className="relative">
+      {/* FUNDO PARADO (STICKY) */}
+      <div className="sticky top-0 h-[100dvh] -z-10">
         <div
           className="absolute inset-0"
           style={{
@@ -61,15 +50,13 @@ export default function GenerationPage() {
             backgroundPosition: 'center',
             backgroundRepeat: 'no-repeat',
             backgroundColor: '#0b0f14',
-            transform: `translateY(${offsetY}px) scale(1.08)`,
-            transformOrigin: 'center top',
-            willChange: 'transform',
           }}
         />
         <div className="absolute inset-0 bg-black/30" />
       </div>
 
-      <div className="relative z-10">
+      {/* CONTEÚDO SOBRE O FUNDO */}
+      <div className="relative z-10 -mt-[100dvh] min-h-[100dvh]">
         <Header />
 
         <main className="container py-8">
