@@ -87,10 +87,9 @@ export default function SpecialFormsPage({ type }: Props) {
   const bg = SPECIAL_BG[type];
 
   return (
-    <div className="relative">
-
-      {/* 🔥 FUNDO PARADO (STICKY) */}
-      <div className="sticky top-0 h-[100dvh] -z-10">
+    <div className="min-h-screen relative">
+      {/* fundo */}
+      <div className="fixed top-0 left-0 w-full h-[100lvh] -z-10 overflow-hidden pointer-events-none">
         <div
           className="absolute inset-0"
           style={{
@@ -99,14 +98,18 @@ export default function SpecialFormsPage({ type }: Props) {
             backgroundPosition: 'center',
             backgroundRepeat: 'no-repeat',
             backgroundColor: '#0b0f14',
+            transform: 'scale(1.04)',
+            WebkitTransform: 'scale(1.04)',
+            transformOrigin: 'center center',
+            willChange: 'transform',
           }}
         />
-        <div className="absolute inset-0 bg-black/30" />
       </div>
 
-      {/* CONTEÚDO SOBRE O FUNDO */}
-      <div className="relative z-10 -mt-[100dvh] min-h-[100dvh]">
+      {/* overlay */}
+      <div className="fixed top-0 left-0 w-full h-[100lvh] -z-10 bg-black/30 pointer-events-none" />
 
+      <div className="relative z-10">
         <Header />
 
         <main className="container py-8">
@@ -136,7 +139,7 @@ export default function SpecialFormsPage({ type }: Props) {
                 onClick={() => setIsShiny(!isShiny)}
                 className={`gap-1 ${
                   isShiny
-                    ? 'bg-gradient-to-r from-yellow-500 to-amber-500 text-white border-0'
+                    ? 'bg-gradient-to-r from-yellow-500 to-amber-500 hover:from-yellow-600 hover:to-amber-600 text-white border-0'
                     : ''
                 }`}
               >
@@ -170,7 +173,57 @@ export default function SpecialFormsPage({ type }: Props) {
                     originPath={location.pathname}
                   />
                 ))}
+                {displayed.length === 0 && (
+                  <p className="col-span-full text-center text-muted-foreground py-12">
+                    Nenhum Pokémon encontrado.
+                  </p>
+                )}
               </div>
+
+              {totalPages > 1 && (
+                <div className="flex items-center justify-center gap-3 mt-10">
+                  <Button
+                    variant="outline"
+                    size="icon"
+                    disabled={safePage === 0}
+                    onClick={() => {
+                      const p = safePage - 1;
+                      setPage(p);
+                      saveFiltersToSession(storageKey, filters, p);
+                      window.scrollTo(0, 0);
+                    }}
+                  >
+                    <ChevronLeft className="h-4 w-4" />
+                  </Button>
+
+                  <div className="flex items-center gap-1.5 text-sm font-medium text-foreground">
+                    <input
+                      type="text"
+                      value={pageInput}
+                      onChange={(e) => setPageInput(e.target.value.replace(/\D/g, ''))}
+                      onKeyDown={handlePageInput}
+                      onBlur={() => setPageInput('')}
+                      placeholder={String(safePage + 1)}
+                      className="w-10 text-center rounded border border-input bg-background px-1 py-0.5 text-sm focus:outline-none focus:ring-1 focus:ring-ring"
+                    />
+                    <span>/ {totalPages}</span>
+                  </div>
+
+                  <Button
+                    variant="outline"
+                    size="icon"
+                    disabled={safePage >= totalPages - 1}
+                    onClick={() => {
+                      const p = safePage + 1;
+                      setPage(p);
+                      saveFiltersToSession(storageKey, filters, p);
+                      window.scrollTo(0, 0);
+                    }}
+                  >
+                    <ChevronRight className="h-4 w-4" />
+                  </Button>
+                </div>
+              )}
             </>
           )}
 
