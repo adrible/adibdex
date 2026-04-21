@@ -1,4 +1,4 @@
-import { useState, useMemo, useCallback, useEffect } from 'react';
+import { useState, useMemo, useCallback, useEffect, useRef } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import {
   fetchAllPokemonNames,
@@ -24,7 +24,7 @@ import {
 } from '@/components/PokemonFilters';
 
 const PAGE_SIZE = 48;
-const TOTAL_POKEMON = 1025;
+const VIEW_STATE_KEY = 'national-view-state';
 
 function sortNationalWithRegionalForms(a: any, b: any) {
   const aBase = a.baseId ?? a.id;
@@ -44,21 +44,64 @@ function sortNationalWithRegionalForms(a: any, b: any) {
 
 export default function NationalDexPage() {
   const saved = loadFiltersFromSession('national');
+
   const [page, setPage] = useState(saved?.page ?? 0);
   const [search, setSearch] = useState('');
   const [isShiny, setIsShiny] = useState(false);
   const [filters, setFilters] = useState<FilterState>(saved?.filters ?? DEFAULT_FILTERS);
   const [pageInput, setPageInput] = useState('');
+
   const navigate = useNavigate();
   const location = useLocation();
+
+  const isFirstRenderRef = useRef(true);
+  const restoredScrollRef = useRef(false);
+
+  const saveViewState = useCallback(
+    (nextPage?: number) => {
+      sessionStorage.setItem(
+        VIEW_STATE_KEY,
+        JSON.stringify({
+          page: nextPage ?? page,
+          scrollY: window.scrollY,
+        })
+      );
+    },
+    [page]
+  );
 
   useEffect(() => {
     saveFiltersToSession('national', filters, page);
   }, [filters, page]);
 
   useEffect(() => {
+    const raw = sessionStorage.getItem(VIEW_STATE_KEY);
+    if (!raw) return;
+
+    try {
+      const parsed = JSON.parse(raw);
+      if (typeof parsed.page === 'number') {
+        setPage(parsed.page);
+      }
+    } catch {}
+  }, []);
+
+  useEffect(() => {
+    if (isFirstRenderRef.current) {
+      isFirstRenderRef.current = false;
+      return;
+    }
     setPage(0);
   }, [filters, search]);
+
+  useEffect(() => {
+    const handleScroll = () => {
+      saveViewState();
+    };
+
+    window.addEventListener('scroll', handleScroll, { passive: true });
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, [saveViewState]);
 
   const { data: allPokemon, isLoading: allLoading } = useQuery({
     queryKey: ['all-pokemon-basic'],
@@ -83,7 +126,6 @@ export default function NationalDexPage() {
   const nationalWithRegionalForms = useMemo(() => {
     const base = allPokemon ?? [];
     const regionals = regionalForms ?? [];
-
     return [...base, ...regionals].sort(sortNationalWithRegionalForms);
   }, [allPokemon, regionalForms]);
 
@@ -121,7 +163,6 @@ export default function NationalDexPage() {
 
   const filtered = useMemo(() => {
     const source = nationalWithRegionalForms;
-
     if (!source.length) return [];
 
     let result = [...source];
@@ -162,15 +203,40 @@ export default function NationalDexPage() {
 
   const isLoading = allLoading || regionalLoading;
 
-  const handleNavigateToPokemon = useCallback((id: number) => {
-    navigate(`/pokemon/${id}`, { state: { origin: location.pathname } });
-  }, [navigate, location.pathname]);
+  useEffect(() => {
+    if (isLoading || restoredScrollRef.current) return;
+
+    const raw = sessionStorage.getItem(VIEW_STATE_KEY);
+    if (!raw) return;
+
+    try {
+      const parsed = JSON.parse(raw);
+      const y = typeof parsed.scrollY === 'number' ? parsed.scrollY : 0;
+
+      requestAnimationFrame(() => {
+        requestAnimationFrame(() => {
+          window.scrollTo(0, y);
+          restoredScrollRef.current = true;
+        });
+      });
+    } catch {}
+  }, [isLoading, displayedPokemon.length]);
+
+  const handleNavigateToPokemon = useCallback(
+    (id: number) => {
+      saveViewState();
+      navigate(`/pokemon/${id}`, { state: { origin: location.pathname } });
+    },
+    [navigate, location.pathname, saveViewState]
+  );
 
   const handlePageInput = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === 'Enter') {
       const val = parseInt(pageInput);
       if (!isNaN(val) && val >= 1 && val <= filteredTotalPages) {
-        setPage(val - 1);
+        const nextPage = val - 1;
+        setPage(nextPage);
+        saveViewState(nextPage);
         window.scrollTo(0, 0);
       }
       setPageInput('');
@@ -178,29 +244,27 @@ export default function NationalDexPage() {
   };
 
   return (
-  <div className="min-h-screen flex flex-col bg-background">
-  <Header />
+    <div className="min-h-screen flex flex-col bg-background">
+      <Header />
 
-  <main className="flex-1 container py-8">
-    <div className="flex items-center gap-4 mb-8">
-      <Button variant="ghost" size="icon" asChild>
-        <Link to="/">
-          <ArrowLeft className="h-5 w-5 text-ui-title" />
-        </Link>
-      </Button>
+      <main className="flex-1 container py-8">
+        <div className="flex items-center gap-4 mb-8">
+          <Button variant="ghost" size="icon" asChild>
+            <Link to="/">
+              <ArrowLeft className="h-5 w-5 text-ui-title" />
+            </Link>
+          </Button>
 
-      <div>
-        {/* TÍTULO */}
-        <h2 className="font-pixel text-sm sm:text-lg text-ui-title">
-          Pokédex Nacional
-        </h2>
+          <div>
+            <h2 className="font-pixel text-sm sm:text-lg text-ui-title">
+              Pokédex Nacional
+            </h2>
 
-        {/* SUBTÍTULO */}
-        <p className="text-sm text-ui-subtitle">
-          Pokémon da National Dex + formas regionais
-        </p>
-      </div>
-    </div>
+            <p className="text-sm text-ui-subtitle">
+              Pokémon da National Dex + formas regionais
+            </p>
+          </div>
+        </div>
 
         <div className="flex flex-col sm:flex-row items-center gap-3 max-w-2xl mx-auto mb-4">
           <div className="relative flex-1 w-full">
@@ -229,7 +293,9 @@ export default function NationalDexPage() {
                       className="h-8 w-8 object-contain"
                       loading="lazy"
                     />
-                    <span className="text-sm font-medium text-foreground capitalize">{p.name}</span>
+                    <span className="text-sm font-medium text-foreground capitalize">
+                      {p.name}
+                    </span>
                     <span className="text-xs text-muted-foreground ml-auto">
                       #{String(p.baseId ?? p.id).padStart(4, '0')}
                     </span>
@@ -251,7 +317,11 @@ export default function NationalDexPage() {
               variant={isShiny ? 'default' : 'outline'}
               size="sm"
               onClick={() => setIsShiny(!isShiny)}
-              className={`gap-1 ${isShiny ? 'bg-gradient-to-r from-yellow-500 to-amber-500 hover:from-yellow-600 hover:to-amber-600 text-white border-0' : ''}`}
+              className={`gap-1 ${
+                isShiny
+                  ? 'bg-gradient-to-r from-yellow-500 to-amber-500 hover:from-yellow-600 hover:to-amber-600 text-white border-0'
+                  : ''
+              }`}
             >
               <Sparkles className="h-3.5 w-3.5" />
               Shiny
@@ -282,12 +352,16 @@ export default function NationalDexPage() {
           <>
             <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4">
               {displayedPokemon.map((p: any) => (
-                <PokemonCard
+                <div
                   key={`${p.id}-${p.name}`}
-                  pokemon={p}
-                  isShiny={isShiny}
-                  originPath={location.pathname}
-                />
+                  onClick={() => saveViewState()}
+                >
+                  <PokemonCard
+                    pokemon={p}
+                    isShiny={isShiny}
+                    originPath={location.pathname}
+                  />
+                </div>
               ))}
 
               {displayedPokemon.length === 0 && !globalResults?.length && (
@@ -304,7 +378,9 @@ export default function NationalDexPage() {
                   size="icon"
                   disabled={page === 0}
                   onClick={() => {
-                    setPage((p) => p - 1);
+                    const nextPage = page - 1;
+                    setPage(nextPage);
+                    saveViewState(nextPage);
                     window.scrollTo(0, 0);
                   }}
                 >
@@ -329,7 +405,9 @@ export default function NationalDexPage() {
                   size="icon"
                   disabled={page >= filteredTotalPages - 1}
                   onClick={() => {
-                    setPage((p) => p + 1);
+                    const nextPage = page + 1;
+                    setPage(nextPage);
+                    saveViewState(nextPage);
                     window.scrollTo(0, 0);
                   }}
                 >
