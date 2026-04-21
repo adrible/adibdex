@@ -23,7 +23,7 @@ import {
   type FilterState,
 } from '@/components/PokemonFilters';
 
-const PAGE_SIZE = 48;
+const PAGE_SIZE = 50;
 const VIEW_STATE_KEY = 'national-view-state';
 const SHINY_STATE_KEY = 'national-shiny-state';
 
