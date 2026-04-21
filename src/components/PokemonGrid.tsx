@@ -196,7 +196,7 @@ export const PokemonGrid = React.memo(function PokemonGrid({
     </div>
   ) : null;
 
-  const visibleIds = paginatedResults.map((p) => p.id);
+const visibleIds = processed.map((p) => p.id);
 
   return (
     <div>
@@ -289,22 +289,22 @@ export const PokemonGrid = React.memo(function PokemonGrid({
       ) : (
         <>
           <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
-            {paginatedResults.map((p, index) => (
-              <div
-                key={p.id}
-                style={{ contentVisibility: 'auto', containIntrinsicSize: '220px' }}
-              >
-                <PokemonCard
-                  pokemon={p}
-                  isShiny={isShiny}
-                  originPath={location.pathname}
-                  listContext={{
-                    ids: visibleIds,
-                    currentIndex: index,
-                  }}
-                />
-              </div>
-            ))}
+          {paginatedResults.map((p) => (
+  <div
+    key={p.id}
+    style={{ contentVisibility: 'auto', containIntrinsicSize: '220px' }}
+  >
+    <PokemonCard
+      pokemon={p}
+      isShiny={isShiny}
+      originPath={location.pathname}
+      listContext={{
+        ids: visibleIds,
+        currentIndex: visibleIds.indexOf(p.id),
+      }}
+    />
+  </div>
+))}
           </div>
 
           {!isLoading && paginationControls && (
