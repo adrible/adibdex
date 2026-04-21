@@ -219,57 +219,39 @@ export default function PokemonDetailPage() {
               Shiny
             </Button>
 
-            {prevId ? (
-              <Button variant="outline" size="icon" asChild>
-                <Link
-                  to={`/pokemon/${prevId}`}
-                  state={{
-                    origin: stableOrigin,
-                    listContext: {
-                      ids: idsSafe,
-                      currentIndex: safeIndex - 1,
-                    },
-                  }}
-                >
-                  <ChevronLeft className="h-4 w-4" />
-                </Link>
-              </Button>
-            ) : isBaseForm && displayId > 1 ? (
-              <Button variant="outline" size="icon" asChild>
-                <Link
-                  to={`/pokemon/${displayId - 1}`}
-                  state={{ origin: stableOrigin }}
-                >
-                  <ChevronLeft className="h-4 w-4" />
-                </Link>
-              </Button>
-            ) : null}
+            {prevId && (
+  <Button variant="outline" size="icon" asChild>
+    <Link
+      to={`/pokemon/${prevId}`}
+      state={{
+        origin: stableOrigin,
+        listContext: {
+          ids: idsSafe,
+          currentIndex: safeIndex - 1,
+        },
+      }}
+    >
+      <ChevronLeft className="h-4 w-4" />
+    </Link>
+  </Button>
+)}
 
-            {nextId ? (
-              <Button variant="outline" size="icon" asChild>
-                <Link
-                  to={`/pokemon/${nextId}`}
-                  state={{
-                    origin: stableOrigin,
-                    listContext: {
-                      ids: idsSafe,
-                      currentIndex: safeIndex + 1,
-                    },
-                  }}
-                >
-                  <ChevronRight className="h-4 w-4" />
-                </Link>
-              </Button>
-            ) : isBaseForm && displayId < 1025 ? (
-              <Button variant="outline" size="icon" asChild>
-                <Link
-                  to={`/pokemon/${displayId + 1}`}
-                  state={{ origin: stableOrigin }}
-                >
-                  <ChevronRight className="h-4 w-4" />
-                </Link>
-              </Button>
-            ) : null}
+{nextId && (
+  <Button variant="outline" size="icon" asChild>
+    <Link
+      to={`/pokemon/${nextId}`}
+      state={{
+        origin: stableOrigin,
+        listContext: {
+          ids: idsSafe,
+          currentIndex: safeIndex + 1,
+        },
+      }}
+    >
+      <ChevronRight className="h-4 w-4" />
+    </Link>
+  </Button>
+)}
           </div>
         </div>
 
