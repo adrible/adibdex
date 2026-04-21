@@ -1,7 +1,13 @@
 import { useState } from 'react';
 import { useParams, Link, useNavigate, useLocation } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
-import { fetchPokemonDetail, fetchPokemonEncounters, fetchAbilityDescription, STAT_TRANSLATIONS, GENERATIONS } from '@/lib/pokeapi';
+import {
+  fetchPokemonDetail,
+  fetchPokemonEncounters,
+  fetchAbilityDescription,
+  STAT_TRANSLATIONS,
+  GENERATIONS,
+} from '@/lib/pokeapi';
 import { Header } from '@/components/Header';
 import { TypeBadge } from '@/components/TypeBadge';
 import { TypeEffectiveness } from '@/components/TypeEffectiveness';
@@ -9,19 +15,33 @@ import { PokemonForms } from '@/components/PokemonForms';
 import { EvolutionChainDisplay } from '@/components/EvolutionChain';
 import { PokemonMoves } from '@/components/PokemonMoves';
 import { Button } from '@/components/ui/button';
-import { ArrowLeft, ChevronLeft, ChevronRight, MapPin, Sparkles, ChevronDown, ChevronUp } from 'lucide-react';
+import {
+  ArrowLeft,
+  ChevronLeft,
+  ChevronRight,
+  MapPin,
+  Sparkles,
+  ChevronDown,
+  ChevronUp,
+} from 'lucide-react';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Footer } from '@/components/Footer';
 
 function StatBar({ name, value }: { name: string; value: number }) {
   const percentage = Math.min((value / 255) * 100, 100);
   const label = STAT_TRANSLATIONS[name] || name;
+
   return (
     <div className="flex items-center gap-3">
-      <span className="text-xs font-semibold text-muted-foreground w-24 text-right">{label}</span>
+      <span className="text-xs font-semibold text-muted-foreground w-24 text-right">
+        {label}
+      </span>
       <span className="text-sm font-bold w-8 text-foreground">{value}</span>
       <div className="flex-1 h-2.5 rounded-full bg-muted overflow-hidden">
-        <div className="h-full rounded-full bg-primary transition-all duration-500" style={{ width: `${percentage}%` }} />
+        <div
+          className="h-full rounded-full bg-primary transition-all duration-500"
+          style={{ width: `${percentage}%` }}
+        />
       </div>
     </div>
   );
@@ -62,14 +82,22 @@ export default function PokemonDetailPage() {
   const pokemonId = Number(id);
   const [isShiny, setIsShiny] = useState(false);
 
-  // Preserve the ORIGINAL origin through all internal navigation
   const origin = (location.state as any)?.origin as string | undefined;
   const stableOrigin = origin || sessionStorage.getItem('pokemon-nav-origin') || undefined;
 
-  // Store origin in sessionStorage when first entering from a list page
   if (origin) {
     sessionStorage.setItem('pokemon-nav-origin', origin);
   }
+
+  const listContext = (location.state as any)?.listContext as
+    | { ids: number[]; currentIndex: number }
+    | undefined;
+
+  const ids = listContext?.ids ?? [];
+  const currentIndex = listContext?.currentIndex ?? -1;
+  const prevIdFromContext = currentIndex > 0 ? ids[currentIndex - 1] : null;
+  const nextIdFromContext =
+    currentIndex >= 0 && currentIndex < ids.length - 1 ? ids[currentIndex + 1] : null;
 
   const { data: pokemon, isLoading } = useQuery({
     queryKey: ['pokemon-detail', pokemonId],
@@ -93,7 +121,9 @@ export default function PokemonDetailPage() {
       sessionStorage.removeItem('pokemon-nav-origin');
       navigate(stableOrigin);
     } else {
-      const gen = GENERATIONS.find(g => displayId >= g.pokemonRange[0] && displayId <= g.pokemonRange[1]);
+      const gen = GENERATIONS.find(
+        (g) => displayId >= g.pokemonRange[0] && displayId <= g.pokemonRange[1]
+      );
       navigate(gen ? `/generation/${gen.id}` : '/');
     }
   };
@@ -135,37 +165,81 @@ export default function PokemonDetailPage() {
           <Button variant="ghost" size="icon" onClick={handleBack}>
             <ArrowLeft className="h-5 w-5" />
           </Button>
+
           <div className="flex gap-2 items-center">
             <Button
-              variant={isShiny ? "default" : "outline"} size="sm"
+              variant={isShiny ? 'default' : 'outline'}
+              size="sm"
               onClick={() => setIsShiny(!isShiny)}
-              className={`gap-1.5 ${isShiny ? 'bg-gradient-to-r from-yellow-500 to-amber-500 hover:from-yellow-600 hover:to-amber-600 text-white border-0' : ''}`}
+              className={`gap-1.5 ${
+                isShiny
+                  ? 'bg-gradient-to-r from-yellow-500 to-amber-500 hover:from-yellow-600 hover:to-amber-600 text-white border-0'
+                  : ''
+              }`}
             >
               <Sparkles className="h-4 w-4" />
               Shiny
             </Button>
-            {isBaseForm && (
-              <>
-                {displayId > 1 && (
-                  <Button variant="outline" size="icon" asChild>
-                    <Link to={`/pokemon/${displayId - 1}`} state={{ origin: stableOrigin }}><ChevronLeft className="h-4 w-4" /></Link>
-                  </Button>
-                )}
-                {displayId < 1025 && (
-                  <Button variant="outline" size="icon" asChild>
-                    <Link to={`/pokemon/${displayId + 1}`} state={{ origin: stableOrigin }}><ChevronRight className="h-4 w-4" /></Link>
-                  </Button>
-                )}
-              </>
-            )}
+
+            {prevIdFromContext ? (
+              <Button variant="outline" size="icon" asChild>
+                <Link
+                  to={`/pokemon/${prevIdFromContext}`}
+                  state={{
+                    origin: stableOrigin,
+                    listContext: {
+                      ids,
+                      currentIndex: currentIndex - 1,
+                    },
+                  }}
+                >
+                  <ChevronLeft className="h-4 w-4" />
+                </Link>
+              </Button>
+            ) : isBaseForm && displayId > 1 ? (
+              <Button variant="outline" size="icon" asChild>
+                <Link to={`/pokemon/${displayId - 1}`} state={{ origin: stableOrigin }}>
+                  <ChevronLeft className="h-4 w-4" />
+                </Link>
+              </Button>
+            ) : null}
+
+            {nextIdFromContext ? (
+              <Button variant="outline" size="icon" asChild>
+                <Link
+                  to={`/pokemon/${nextIdFromContext}`}
+                  state={{
+                    origin: stableOrigin,
+                    listContext: {
+                      ids,
+                      currentIndex: currentIndex + 1,
+                    },
+                  }}
+                >
+                  <ChevronRight className="h-4 w-4" />
+                </Link>
+              </Button>
+            ) : isBaseForm && displayId < 1025 ? (
+              <Button variant="outline" size="icon" asChild>
+                <Link to={`/pokemon/${displayId + 1}`} state={{ origin: stableOrigin }}>
+                  <ChevronRight className="h-4 w-4" />
+                </Link>
+              </Button>
+            ) : null}
           </div>
         </div>
 
         <div className="text-center mb-8">
-          <p className="text-sm font-bold text-muted-foreground mb-1">#{String(displayId).padStart(4, '0')}</p>
-          <h2 className="font-pixel text-lg sm:text-xl text-foreground capitalize mb-4">{pokemon.name.replace(/-/g, ' ')}</h2>
+          <p className="text-sm font-bold text-muted-foreground mb-1">
+            #{String(displayId).padStart(4, '0')}
+          </p>
+          <h2 className="font-pixel text-lg sm:text-xl text-foreground capitalize mb-4">
+            {pokemon.name.replace(/-/g, ' ')}
+          </h2>
           <div className="flex justify-center gap-2 mb-6">
-            {pokemon.types.map(t => <TypeBadge key={t} type={t} size="md" />)}
+            {pokemon.types.map((t) => (
+              <TypeBadge key={t} type={t} size="md" />
+            ))}
           </div>
         </div>
 
@@ -183,18 +257,22 @@ export default function PokemonDetailPage() {
         <div className="grid grid-cols-2 gap-4 mb-10">
           <div className="rounded-xl bg-card border border-border p-5 text-center">
             <p className="text-xs text-muted-foreground mb-1">Altura</p>
-            <p className="text-lg font-bold text-card-foreground">{(pokemon.height / 10).toFixed(1)} m</p>
+            <p className="text-lg font-bold text-card-foreground">
+              {(pokemon.height / 10).toFixed(1)} m
+            </p>
           </div>
           <div className="rounded-xl bg-card border border-border p-5 text-center">
             <p className="text-xs text-muted-foreground mb-1">Peso</p>
-            <p className="text-lg font-bold text-card-foreground">{(pokemon.weight / 10).toFixed(1)} kg</p>
+            <p className="text-lg font-bold text-card-foreground">
+              {(pokemon.weight / 10).toFixed(1)} kg
+            </p>
           </div>
         </div>
 
         <div className="rounded-xl bg-card border border-border p-6 mb-10">
           <h3 className="font-bold text-card-foreground mb-3">Habilidades</h3>
           <div className="flex flex-wrap gap-2">
-            {pokemon.abilities.map(a => (
+            {pokemon.abilities.map((a) => (
               <AbilityChip key={a} ability={a} />
             ))}
           </div>
@@ -206,11 +284,15 @@ export default function PokemonDetailPage() {
             <span className="text-sm font-semibold text-primary">Total: {totalStats}</span>
           </div>
           <div className="space-y-3">
-            {pokemon.stats.map(s => <StatBar key={s.name} name={s.name} value={s.value} />)}
+            {pokemon.stats.map((s) => (
+              <StatBar key={s.name} name={s.name} value={s.value} />
+            ))}
           </div>
         </div>
 
-        <div className="mb-10"><TypeEffectiveness types={pokemon.types} /></div>
+        <div className="mb-10">
+          <TypeEffectiveness types={pokemon.types} />
+        </div>
 
         <div className="rounded-xl bg-card border border-border p-6 mb-10">
           <div className="flex items-center gap-2 mb-4">
@@ -218,22 +300,34 @@ export default function PokemonDetailPage() {
             <h3 className="font-bold text-card-foreground">Localizações</h3>
           </div>
           {encountersLoading ? (
-            <div className="space-y-2"><Skeleton className="h-4 w-full" /><Skeleton className="h-4 w-3/4" /></div>
+            <div className="space-y-2">
+              <Skeleton className="h-4 w-full" />
+              <Skeleton className="h-4 w-3/4" />
+            </div>
           ) : encounters && encounters.length > 0 ? (
             <div className="space-y-3 max-h-64 overflow-y-auto pr-2">
               {encounters.map((enc, i) => (
                 <div key={i} className="rounded-lg bg-muted/50 p-3">
-                  <p className="text-sm font-semibold text-foreground capitalize">{enc.location}</p>
+                  <p className="text-sm font-semibold text-foreground capitalize">
+                    {enc.location}
+                  </p>
                   <div className="flex flex-wrap gap-1 mt-1">
-                    {[...new Set(enc.versions.map(v => v.version))].map(v => (
-                      <span key={v} className="text-xs rounded-full bg-secondary px-2 py-0.5 capitalize text-secondary-foreground">{v}</span>
+                    {[...new Set(enc.versions.map((v) => v.version))].map((v) => (
+                      <span
+                        key={v}
+                        className="text-xs rounded-full bg-secondary px-2 py-0.5 capitalize text-secondary-foreground"
+                      >
+                        {v}
+                      </span>
                     ))}
                   </div>
                 </div>
               ))}
             </div>
           ) : (
-            <p className="text-sm text-muted-foreground">Não encontrado em nenhuma rota — pode ser obtido por evento, troca ou evolução.</p>
+            <p className="text-sm text-muted-foreground">
+              Não encontrado em nenhuma rota — pode ser obtido por evento, troca ou evolução.
+            </p>
           )}
         </div>
 
@@ -250,7 +344,7 @@ export default function PokemonDetailPage() {
         </div>
       </main>
 
-      <Footer/ >
+      <Footer />
     </div>
   );
 }
