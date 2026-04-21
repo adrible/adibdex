@@ -8,12 +8,14 @@ import {
   STAT_TRANSLATIONS,
   GENERATIONS,
 } from '@/lib/pokeapi';
+
 import { Header } from '@/components/Header';
 import { TypeBadge } from '@/components/TypeBadge';
 import { TypeEffectiveness } from '@/components/TypeEffectiveness';
 import { PokemonForms } from '@/components/PokemonForms';
 import { EvolutionChainDisplay } from '@/components/EvolutionChain';
 import { PokemonMoves } from '@/components/PokemonMoves';
+
 import { Button } from '@/components/ui/button';
 import {
   ArrowLeft,
@@ -24,6 +26,7 @@ import {
   ChevronDown,
   ChevronUp,
 } from 'lucide-react';
+
 import { Skeleton } from '@/components/ui/skeleton';
 import { Footer } from '@/components/Footer';
 
@@ -66,6 +69,7 @@ function AbilityChip({ ability }: { ability: string }) {
         {ability.replace(/-/g, ' ')}
         {expanded ? <ChevronUp className="h-3 w-3" /> : <ChevronDown className="h-3 w-3" />}
       </button>
+
       {expanded && (
         <p className="text-xs text-muted-foreground mt-1.5 ml-1 max-w-md">
           {description || 'Carregando...'}
@@ -84,7 +88,7 @@ export default function PokemonDetailPage() {
   const pokemonId = Number(id);
   const [isShiny, setIsShiny] = useState(false);
 
-  const origin = (location.state as any)?.origin as string | undefined;
+  const origin = (location.state as any)?.origin;
   const stableOrigin =
     origin || sessionStorage.getItem('pokemon-nav-origin') || undefined;
 
@@ -92,19 +96,15 @@ export default function PokemonDetailPage() {
     sessionStorage.setItem('pokemon-nav-origin', origin);
   }
 
-  const listContext = (location.state as any)?.listContext as
-    | { ids: number[]; currentIndex: number }
-    | undefined;
+  const listContext = (location.state as any)?.listContext;
 
   const ids = listContext?.ids ?? [];
   const currentIndex = listContext?.currentIndex ?? -1;
 
-  // fallback global
   const idsSafe = ids.length
     ? ids
     : Array.from({ length: 1025 }, (_, i) => i + 1);
 
-  // garante consistência
   const safeIndex =
     currentIndex >= 0 && idsSafe[currentIndex] === pokemonId
       ? currentIndex
@@ -130,7 +130,6 @@ export default function PokemonDetailPage() {
     staleTime: 1000 * 60 * 30,
   });
 
-  // 🔥 PRELOAD CORRETO
   useEffect(() => {
     const preload = (id: number | null) => {
       if (!id) return;
@@ -138,13 +137,11 @@ export default function PokemonDetailPage() {
       queryClient.prefetchQuery({
         queryKey: ['pokemon-detail', id],
         queryFn: () => fetchPokemonDetail(id),
-        staleTime: 1000 * 60 * 30,
       });
 
       queryClient.prefetchQuery({
         queryKey: ['pokemon-encounters', id],
         queryFn: () => fetchPokemonEncounters(id),
-        staleTime: 1000 * 60 * 30,
       });
     };
 
@@ -153,7 +150,6 @@ export default function PokemonDetailPage() {
   }, [prevId, nextId, queryClient]);
 
   const displayId = pokemon?.speciesId ?? pokemonId;
-  const isBaseForm = pokemonId <= 1025;
 
   const handleBack = () => {
     if (stableOrigin) {
@@ -172,8 +168,7 @@ export default function PokemonDetailPage() {
       <div className="min-h-screen bg-background">
         <Header />
         <div className="container py-12 max-w-3xl">
-          <Skeleton className="h-8 w-48 mb-8" />
-          <Skeleton className="h-64 w-64 mx-auto rounded-2xl mb-8" />
+          <Skeleton className="h-64 w-64 mx-auto rounded-2xl" />
         </div>
       </div>
     );
@@ -182,6 +177,7 @@ export default function PokemonDetailPage() {
   if (!pokemon) return null;
 
   const totalStats = pokemon.stats.reduce((sum, s) => sum + s.value, 0);
+
   const artworkSrc = isShiny
     ? pokemon.sprites.artwork_shiny
     : pokemon.sprites.artwork;
@@ -191,67 +187,74 @@ export default function PokemonDetailPage() {
       <Header />
 
       <main className="container py-8 max-w-3xl">
-        <div className="flex items-center justify-between mb-8">
+        {/* HEADER */}
+        <div className="flex justify-between mb-8">
           <Button variant="ghost" size="icon" onClick={handleBack}>
-            <ArrowLeft className="h-5 w-5" />
+            <ArrowLeft />
           </Button>
 
-          <div className="flex gap-2 items-center">
-            <Button
-              variant={isShiny ? 'default' : 'outline'}
-              size="sm"
-              onClick={() => setIsShiny(!isShiny)}
-            >
-              <Sparkles className="h-4 w-4" />
-              Shiny
+          <div className="flex gap-2">
+            <Button onClick={() => setIsShiny(!isShiny)}>
+              <Sparkles /> Shiny
             </Button>
 
-            {/* ESQUERDA */}
             {prevId && (
-              <Button variant="outline" size="icon" asChild>
-                <Link
-                  to={`/pokemon/${prevId}`}
-                  state={{
-                    origin: stableOrigin,
-                    listContext: {
-                      ids: idsSafe,
-                      currentIndex: safeIndex - 1,
-                    },
-                  }}
-                >
-                  <ChevronLeft className="h-4 w-4" />
-                </Link>
-              </Button>
+              <Link to={`/pokemon/${prevId}`}>
+                <ChevronLeft />
+              </Link>
             )}
 
-            {/* DIREITA */}
             {nextId && (
-              <Button variant="outline" size="icon" asChild>
-                <Link
-                  to={`/pokemon/${nextId}`}
-                  state={{
-                    origin: stableOrigin,
-                    listContext: {
-                      ids: idsSafe,
-                      currentIndex: safeIndex + 1,
-                    },
-                  }}
-                >
-                  <ChevronRight className="h-4 w-4" />
-                </Link>
-              </Button>
+              <Link to={`/pokemon/${nextId}`}>
+                <ChevronRight />
+              </Link>
             )}
           </div>
         </div>
 
-        <div className="text-center mb-8">
+        {/* INFO */}
+        <div className="text-center mb-6">
           <p>#{String(displayId).padStart(4, '0')}</p>
           <h2>{pokemon.name}</h2>
+
+          <div className="flex justify-center gap-2 mt-2">
+            {pokemon.types.map((t) => (
+              <TypeBadge key={t} type={t} />
+            ))}
+          </div>
         </div>
 
-        <img src={artworkSrc} className="mx-auto w-64" />
+        {/* IMAGE */}
+        <img src={artworkSrc} className="mx-auto w-64 mb-8" />
 
-        <div>Total: {totalStats}</div>
+        {/* STATS */}
+        <div className="space-y-3 mb-10">
+          {pokemon.stats.map((s) => (
+            <StatBar key={s.name} name={s.name} value={s.value} />
+          ))}
+          <p className="text-center mt-2">Total: {totalStats}</p>
+        </div>
+
+        {/* ABILITIES */}
+        <div className="mb-10">
+          {pokemon.abilities.map((a) => (
+            <AbilityChip key={a} ability={a} />
+          ))}
+        </div>
+
+        {/* TYPE EFFECT */}
+        <TypeEffectiveness types={pokemon.types} />
+
+        {/* LOCATIONS */}
+        <div className="mb-10">
+          {encounters?.map((e, i) => (
+            <div key={i}>{e.location}</div>
+          ))}
+        </div>
+
+        <EvolutionChainDisplay pokemonId={pokemonId} isShiny={isShiny} />
+        <PokemonForms pokemonId={pokemonId} isShiny={isShiny} />
+        <PokemonMoves pokemonId={pokemonId} />
       </main>
 
       <Footer />
