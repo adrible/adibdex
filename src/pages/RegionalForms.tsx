@@ -79,7 +79,7 @@ export default function RegionalForms() {
     return filtered.slice(start, start + PAGE_SIZE);
   }, [filtered, safePage]);
 
-  const visibleIds = useMemo(() => displayed.map((p: any) => p.id), [displayed]);
+  const visibleIds = useMemo(() => filtered.map((p: any) => p.id), [filtered]);
 
   const handleFiltersChange = (f: FilterState) => {
     setFilters(f);
@@ -157,7 +157,7 @@ export default function RegionalForms() {
         />
 
         {isLoading ? (
-          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4">
+          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
             {Array.from({ length: 24 }).map((_, i) => (
               <div
                 key={i}
@@ -172,8 +172,8 @@ export default function RegionalForms() {
           </div>
         ) : (
           <>
-            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4">
-              {displayed.map((p: any, index: number) => (
+            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
+              {displayed.map((p: any) => (
                 <PokemonCard
                   key={p.id}
                   pokemon={p}
@@ -181,7 +181,7 @@ export default function RegionalForms() {
                   originPath={location.pathname}
                   listContext={{
                     ids: visibleIds,
-                    currentIndex: index,
+                    currentIndex: visibleIds.indexOf(p.id),
                   }}
                 />
               ))}
