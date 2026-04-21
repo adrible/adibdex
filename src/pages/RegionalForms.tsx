@@ -18,7 +18,7 @@ import {
 } from '@/components/PokemonFilters';
 import { Footer } from '@/components/Footer';
 
-const PAGE_SIZE = 48;
+const PAGE_SIZE = 50;
 
 export default function RegionalForms() {
   const storageKey = 'regional-forms';
