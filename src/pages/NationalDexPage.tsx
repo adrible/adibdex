@@ -360,18 +360,24 @@ export default function NationalDexPage() {
         ) : (
           <>
             <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4">
-              {displayedPokemon.map((p: any) => (
-                <div
-                  key={`${p.id}-${p.name}`}
-                  onClick={() => saveViewState()}
-                >
-                  <PokemonCard
-                    pokemon={p}
-                    isShiny={isShiny}
-                    originPath={location.pathname}
-                  />
-                </div>
-              ))}
+             const visibleIds = displayedPokemon.map((x: any) => x.id);
+
+{displayedPokemon.map((p: any, index: number) => (
+  <div
+    key={`${p.id}-${p.name}`}
+    onClick={() => saveViewState()}
+  >
+    <PokemonCard
+      pokemon={p}
+      isShiny={isShiny}
+      originPath={location.pathname}
+      listContext={{
+        ids: visibleIds,
+        currentIndex: index,
+      }}
+    />
+  </div>
+))}
 
               {displayedPokemon.length === 0 && !globalResults?.length && (
                 <p className="col-span-full text-center text-muted-foreground py-12">
