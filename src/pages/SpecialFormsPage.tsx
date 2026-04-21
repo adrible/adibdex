@@ -83,7 +83,8 @@ export default function SpecialFormsPage({ type }: Props) {
     return filtered.slice(start, start + PAGE_SIZE);
   }, [filtered, safePage]);
 
-  const visibleIds = useMemo(() => displayed.map((p) => p.id), [displayed]);
+  // 🔥 AQUI É A CORREÇÃO
+  const visibleIds = useMemo(() => filtered.map((p) => p.id), [filtered]);
 
   const handleFiltersChange = (f: FilterState) => {
     setFilters(f);
@@ -114,7 +115,6 @@ export default function SpecialFormsPage({ type }: Props) {
 
   return (
     <div className="relative">
-      {/* DESKTOP: fundo fixo */}
       <div
         className="hidden md:block fixed top-0 left-0 w-full h-screen -z-10"
         style={{
@@ -128,7 +128,6 @@ export default function SpecialFormsPage({ type }: Props) {
 
       <div className="hidden md:block fixed top-0 left-0 w-full h-screen -z-10 bg-black/30 pointer-events-none" />
 
-      {/* MOBILE: solução estável */}
       <div className="md:hidden sticky top-0 h-[100dvh] -z-10">
         <div
           className="absolute inset-0"
@@ -143,7 +142,6 @@ export default function SpecialFormsPage({ type }: Props) {
         <div className="absolute inset-0 bg-black/30 pointer-events-none" />
       </div>
 
-      {/* CONTEÚDO */}
       <div className="relative z-10 md:mt-0 -mt-[100dvh] min-h-screen">
         <Header />
 
@@ -177,7 +175,7 @@ export default function SpecialFormsPage({ type }: Props) {
                 onClick={() => setIsShiny(!isShiny)}
                 className={`gap-1 ${
                   isShiny
-                    ? 'bg-gradient-to-r from-yellow-500 to-amber-500 hover:from-yellow-600 hover:to-amber-600 text-white border-0'
+                    ? 'bg-gradient-to-r from-yellow-500 to-amber-500 text-white border-0'
                     : ''
                 }`}
               >
@@ -193,23 +191,18 @@ export default function SpecialFormsPage({ type }: Props) {
           />
 
           {isLoading ? (
-            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4">
+            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
               {Array.from({ length: 24 }).map((_, i) => (
-                <div
-                  key={i}
-                  className="rounded-xl bg-card border border-border p-4"
-                >
-                  <Skeleton className="h-36 w-full rounded-lg mb-3" />
-                  <Skeleton className="h-3 w-12 mb-2" />
-                  <Skeleton className="h-5 w-24 mb-2" />
-                  <Skeleton className="h-5 w-16" />
+                <div key={i} className="rounded-xl bg-card border p-4">
+                  <Skeleton className="h-36 w-full mb-3" />
+                  <Skeleton className="h-5 w-24" />
                 </div>
               ))}
             </div>
           ) : (
             <>
-              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4">
-                {displayed.map((p, index) => (
+              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
+                {displayed.map((p) => (
                   <PokemonCard
                     key={p.id}
                     pokemon={p}
@@ -217,74 +210,22 @@ export default function SpecialFormsPage({ type }: Props) {
                     originPath={location.pathname}
                     listContext={{
                       ids: visibleIds,
-                      currentIndex: index,
+                      currentIndex: visibleIds.indexOf(p.id),
                     }}
                   />
                 ))}
-                {displayed.length === 0 && (
-                  <p className="col-span-full text-center text-muted-foreground py-12">
-                    Nenhum Pokémon encontrado.
-                  </p>
-                )}
               </div>
 
               {totalPages > 1 && (
-                <div className="flex items-center justify-center gap-3 mt-10">
-                  <Button
-                    variant="outline"
-                    size="icon"
-                    disabled={safePage === 0}
-                    onClick={() => {
-                      const p = safePage - 1;
-                      setPage(p);
-                      sessionStorage.setItem(
-                        storageKey,
-                        JSON.stringify({
-                          filters,
-                          page: p,
-                          isShiny,
-                        })
-                      );
-                      window.scrollTo(0, 0);
-                    }}
-                  >
-                    <ChevronLeft className="h-4 w-4" />
+                <div className="flex justify-center gap-3 mt-10">
+                  <Button disabled={safePage === 0} onClick={() => setPage(safePage - 1)}>
+                    <ChevronLeft />
                   </Button>
 
-                  <div className="flex items-center gap-1.5 text-sm font-medium text-foreground">
-                    <input
-                      type="text"
-                      value={pageInput}
-                      onChange={(e) =>
-                        setPageInput(e.target.value.replace(/\D/g, ''))
-                      }
-                      onKeyDown={handlePageInput}
-                      onBlur={() => setPageInput('')}
-                      placeholder={String(safePage + 1)}
-                      className="w-10 text-center rounded border border-input bg-background px-1 py-0.5 text-sm focus:outline-none focus:ring-1 focus:ring-ring"
-                    />
-                    <span>/ {totalPages}</span>
-                  </div>
+                  <span>{safePage + 1} / {totalPages}</span>
 
-                  <Button
-                    variant="outline"
-                    size="icon"
-                    disabled={safePage >= totalPages - 1}
-                    onClick={() => {
-                      const p = safePage + 1;
-                      setPage(p);
-                      sessionStorage.setItem(
-                        storageKey,
-                        JSON.stringify({
-                          filters,
-                          page: p,
-                          isShiny,
-                        })
-                      );
-                      window.scrollTo(0, 0);
-                    }}
-                  >
-                    <ChevronRight className="h-4 w-4" />
+                  <Button disabled={safePage >= totalPages - 1} onClick={() => setPage(safePage + 1)}>
+                    <ChevronRight />
                   </Button>
                 </div>
               )}
@@ -292,13 +233,8 @@ export default function SpecialFormsPage({ type }: Props) {
           )}
 
           <div className="flex justify-center mt-10">
-            <Button
-              variant="outline"
-              onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
-              className="gap-2"
-            >
-              <ArrowUp className="h-4 w-4" />
-              Voltar ao topo
+            <Button onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}>
+              <ArrowUp /> Topo
             </Button>
           </div>
         </main>
