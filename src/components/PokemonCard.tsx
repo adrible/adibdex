@@ -7,12 +7,17 @@ interface Props {
   pokemon: PokemonBasic & { baseId?: number };
   isShiny?: boolean;
   originPath?: string;
+  listContext?: {
+    ids: number[];
+    currentIndex: number;
+  };
 }
 
 export const PokemonCard = React.memo(function PokemonCard({
   pokemon,
   isShiny = false,
   originPath,
+  listContext,
 }: Props) {
   const displayId =
     (pokemon as any).baseId ?? (pokemon.id <= 1025 ? pokemon.id : null);
@@ -43,7 +48,14 @@ export const PokemonCard = React.memo(function PokemonCard({
   return (
     <Link
       to={`/pokemon/${pokemon.id}`}
-      state={originPath ? { origin: originPath } : undefined}
+      state={
+        originPath
+          ? {
+              origin: originPath,
+              listContext,
+            }
+          : undefined
+      }
       className="group block rounded-xl bg-card border border-border p-4 transition-all hover:shadow-lg hover:-translate-y-1 hover:border-primary/40"
     >
       <div className="relative flex items-center justify-center h-36 w-full mb-3">
