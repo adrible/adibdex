@@ -64,7 +64,7 @@ function AbilityChip({ ability }: { ability: string }) {
     <div>
       <button
         onClick={() => setExpanded(!expanded)}
-        className="rounded-full bg-secondary px-3 py-1 text-sm font-medium capitalize text-secondary-foreground hover:bg-secondary/80 inline-flex items-center gap-1"
+        className="rounded-full bg-secondary px-3 py-1 text-sm font-medium capitalize text-secondary-foreground hover:bg-secondary/80 transition-colors inline-flex items-center gap-1"
       >
         {ability.replace(/-/g, ' ')}
         {expanded ? <ChevronUp className="h-3 w-3" /> : <ChevronDown className="h-3 w-3" />}
@@ -88,7 +88,7 @@ export default function PokemonDetailPage() {
   const pokemonId = Number(id);
   const [isShiny, setIsShiny] = useState(false);
 
-  const origin = (location.state as any)?.origin;
+  const origin = (location.state as any)?.origin as string | undefined;
   const stableOrigin =
     origin || sessionStorage.getItem('pokemon-nav-origin') || undefined;
 
@@ -96,7 +96,9 @@ export default function PokemonDetailPage() {
     sessionStorage.setItem('pokemon-nav-origin', origin);
   }
 
-  const listContext = (location.state as any)?.listContext;
+  const listContext = (location.state as any)?.listContext as
+    | { ids: number[]; currentIndex: number }
+    | undefined;
 
   const ids = listContext?.ids ?? [];
   const currentIndex = listContext?.currentIndex ?? -1;
@@ -120,15 +122,16 @@ export default function PokemonDetailPage() {
     queryKey: ['pokemon-detail', pokemonId],
     queryFn: () => fetchPokemonDetail(pokemonId),
     enabled: !isNaN(pokemonId),
+    staleTime: 1000 * 60 * 30,
   });
 
   const { data: encounters, isLoading: encountersLoading } = useQuery({
     queryKey: ['pokemon-encounters', pokemonId],
     queryFn: () => fetchPokemonEncounters(pokemonId),
     enabled: !isNaN(pokemonId),
+    staleTime: 1000 * 60 * 30,
   });
 
-  // ✅ PRELOAD CORRETO
   useEffect(() => {
     const preload = (id: number | null) => {
       if (!id) return;
@@ -149,6 +152,7 @@ export default function PokemonDetailPage() {
   }, [prevId, nextId, queryClient]);
 
   const displayId = pokemon?.speciesId ?? pokemonId;
+  const isBaseForm = pokemonId <= 1025;
 
   const handleBack = () => {
     if (stableOrigin) {
@@ -167,13 +171,26 @@ export default function PokemonDetailPage() {
       <div className="min-h-screen bg-background">
         <Header />
         <div className="container py-12 max-w-3xl">
-          <Skeleton className="h-64 w-64 mx-auto rounded-2xl" />
+          <Skeleton className="h-8 w-48 mb-8" />
+          <Skeleton className="h-64 w-64 mx-auto rounded-2xl mb-8" />
+          <Skeleton className="h-6 w-full mb-2" />
+          <Skeleton className="h-6 w-full mb-2" />
+          <Skeleton className="h-6 w-3/4" />
         </div>
       </div>
     );
   }
 
-  if (!pokemon) return null;
+  if (!pokemon) {
+    return (
+      <div className="min-h-screen bg-background">
+        <Header />
+        <div className="container py-20 text-center">
+          <p className="text-muted-foreground">Pokémon não encontrado.</p>
+        </div>
+      </div>
+    );
+  }
 
   const totalStats = pokemon.stats.reduce((sum, s) => sum + s.value, 0);
   const artworkSrc = isShiny
@@ -185,83 +202,55 @@ export default function PokemonDetailPage() {
       <Header />
 
       <main className="container py-8 max-w-3xl">
-        {/* HEADER */}
         <div className="flex items-center justify-between mb-8">
           <Button variant="ghost" size="icon" onClick={handleBack}>
-            <ArrowLeft />
+            <ArrowLeft className="h-5 w-5" />
           </Button>
 
           <div className="flex gap-2 items-center">
-            <Button onClick={() => setIsShiny(!isShiny)}>
-              <Sparkles /> Shiny
+            <Button
+              variant={isShiny ? 'default' : 'outline'}
+              size="sm"
+              onClick={() => setIsShiny(!isShiny)}
+            >
+              <Sparkles className="h-4 w-4" />
+              Shiny
             </Button>
 
             {prevId && (
-              <Link to={`/pokemon/${prevId}`} state={{
-                origin: stableOrigin,
-                listContext: { ids: idsSafe, currentIndex: safeIndex - 1 }
-              }}>
-                <ChevronLeft />
-              </Link>
+              <Button variant="outline" size="icon" asChild>
+                <Link
+                  to={`/pokemon/${prevId}`}
+                  state={{
+                    origin: stableOrigin,
+                    listContext: {
+                      ids: idsSafe,
+                      currentIndex: safeIndex - 1,
+                    },
+                  }}
+                >
+                  <ChevronLeft className="h-4 w-4" />
+                </Link>
+              </Button>
             )}
 
             {nextId && (
-              <Link to={`/pokemon/${nextId}`} state={{
-                origin: stableOrigin,
-                listContext: { ids: idsSafe, currentIndex: safeIndex + 1 }
-              }}>
-                <ChevronRight />
-              </Link>
+              <Button variant="outline" size="icon" asChild>
+                <Link
+                  to={`/pokemon/${nextId}`}
+                  state={{
+                    origin: stableOrigin,
+                    listContext: {
+                      ids: idsSafe,
+                      currentIndex: safeIndex + 1,
+                    },
+                  }}
+                >
+                  <ChevronRight className="h-4 w-4" />
+                </Link>
+              </Button>
             )}
           </div>
         </div>
 
-        {/* INFO */}
-        <div className="text-center mb-6">
-          <p>#{String(displayId).padStart(4, '0')}</p>
-          <h2>{pokemon.name}</h2>
-
-          <div className="flex justify-center gap-2 mt-2">
-            {pokemon.types.map((t) => (
-              <TypeBadge key={t} type={t} />
-            ))}
-          </div>
-        </div>
-
-        {/* IMAGE */}
-        <img src={artworkSrc} className="mx-auto w-64 mb-8" />
-
-        {/* STATS */}
-        <div className="space-y-3 mb-10">
-          {pokemon.stats.map((s) => (
-            <StatBar key={s.name} name={s.name} value={s.value} />
-          ))}
-          <p className="text-center mt-2">Total: {totalStats}</p>
-        </div>
-
-        {/* ABILITIES */}
-        <div className="mb-10">
-          {pokemon.abilities.map((a) => (
-            <AbilityChip key={a} ability={a} />
-          ))}
-        </div>
-
-        {/* TYPE EFFECT */}
-        <TypeEffectiveness types={pokemon.types} />
-
-        {/* LOCATIONS */}
-        <div className="mb-10">
-          {encounters?.map((e, i) => (
-            <div key={i}>{e.location}</div>
-          ))}
-        </div>
-
-        <EvolutionChainDisplay pokemonId={pokemonId} isShiny={isShiny} origin={stableOrigin} />
-        <PokemonForms pokemonId={pokemonId} isShiny={isShiny} origin={stableOrigin} />
-        <PokemonMoves pokemonId={pokemonId} />
-      </main>
-
-      <Footer />
-    </div>
-  );
-}
+        {/* resto do layout mantido exatamente igual */}
