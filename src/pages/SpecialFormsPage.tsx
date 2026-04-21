@@ -18,7 +18,7 @@ import {
 } from '@/components/PokemonFilters';
 import { Footer } from '@/components/Footer';
 
-const PAGE_SIZE = 48;
+const PAGE_SIZE = 50;
 
 const SPECIAL_BG: Record<string, string> = {
   mega: '/backgrounds/mega.webp',
