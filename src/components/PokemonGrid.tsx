@@ -18,7 +18,7 @@ import {
   type FilterState,
 } from './PokemonFilters';
 
-const PAGE_SIZE = 48;
+const PAGE_SIZE = 50;
 
 export const PokemonGrid = React.memo(function PokemonGrid({
   generation,
