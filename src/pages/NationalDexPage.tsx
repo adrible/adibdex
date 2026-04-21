@@ -25,6 +25,7 @@ import {
 
 const PAGE_SIZE = 48;
 const VIEW_STATE_KEY = 'national-view-state';
+const SHINY_STATE_KEY = 'national-shiny-state';
 
 function sortNationalWithRegionalForms(a: any, b: any) {
   const aBase = a.baseId ?? a.id;
@@ -44,10 +45,14 @@ function sortNationalWithRegionalForms(a: any, b: any) {
 
 export default function NationalDexPage() {
   const saved = loadFiltersFromSession('national');
+  const savedShiny =
+    typeof window !== 'undefined'
+      ? sessionStorage.getItem(SHINY_STATE_KEY)
+      : null;
 
   const [page, setPage] = useState(saved?.page ?? 0);
   const [search, setSearch] = useState('');
-  const [isShiny, setIsShiny] = useState(false);
+  const [isShiny, setIsShiny] = useState(savedShiny === 'true');
   const [filters, setFilters] = useState<FilterState>(saved?.filters ?? DEFAULT_FILTERS);
   const [pageInput, setPageInput] = useState('');
 
@@ -73,6 +78,10 @@ export default function NationalDexPage() {
   useEffect(() => {
     saveFiltersToSession('national', filters, page);
   }, [filters, page]);
+
+  useEffect(() => {
+    sessionStorage.setItem(SHINY_STATE_KEY, String(isShiny));
+  }, [isShiny]);
 
   useEffect(() => {
     const raw = sessionStorage.getItem(VIEW_STATE_KEY);
