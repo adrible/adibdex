@@ -9,17 +9,14 @@ import { Header } from '@/components/Header';
 import { Footer } from '@/components/Footer';
 import { PokemonCard } from '@/components/PokemonCard';
 import { Skeleton } from '@/components/ui/skeleton';
-import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
-import { Search, ArrowLeft, ChevronLeft, ChevronRight, Sparkles } from 'lucide-react';
-import { Link, useNavigate, useLocation } from 'react-router-dom';
+import { ArrowLeft } from 'lucide-react';
+import { Link, useLocation } from 'react-router-dom';
 import {
-  PokemonFilterButton,
-  ActiveFilterChips,
   applyFilters,
   DEFAULT_FILTERS,
-  saveFiltersToSession,
   loadFiltersFromSession,
+  saveFiltersToSession,
   type FilterState,
 } from '@/components/PokemonFilters';
 
@@ -53,14 +50,12 @@ export default function NationalDexPage() {
   const [page, setPage] = useState(saved?.page ?? 0);
   const [search, setSearch] = useState('');
   const [isShiny, setIsShiny] = useState(savedShiny === 'true');
-  const [filters, setFilters] = useState<FilterState>(saved?.filters ?? DEFAULT_FILTERS);
-  const [pageInput, setPageInput] = useState('');
+  const [filters, setFilters] = useState<FilterState>(
+    saved?.filters ?? DEFAULT_FILTERS
+  );
 
-  const navigate = useNavigate();
   const location = useLocation();
-
   const isFirstRenderRef = useRef(true);
-  const restoredScrollRef = useRef(false);
 
   const saveViewState = useCallback(
     (nextPage?: number) => {
@@ -121,12 +116,6 @@ export default function NationalDexPage() {
     staleTime: 1000 * 60 * 60,
   });
 
-  const { data: allNames } = useQuery({
-    queryKey: ['all-pokemon-names'],
-    queryFn: fetchAllPokemonNames,
-    staleTime: Infinity,
-  });
-
   const nationalWithRegionalForms = useMemo(() => {
     const base = allPokemon ?? [];
     const regionals = regionalForms ?? [];
@@ -156,7 +145,17 @@ export default function NationalDexPage() {
     return result;
   }, [nationalWithRegionalForms, search, filters]);
 
-  const filteredTotalPages = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE));
+  const filteredTotalPages = Math.max(
+    1,
+    Math.ceil(filtered.length / PAGE_SIZE)
+  );
+
+  // ✅ CORREÇÃO 2 (BUG PAGE)
+  useEffect(() => {
+    if (page > filteredTotalPages - 1) {
+      setPage(0);
+    }
+  }, [page, filteredTotalPages]);
 
   const displayedPokemon = useMemo(() => {
     const safePage = Math.min(page, filteredTotalPages - 1);
@@ -164,30 +163,18 @@ export default function NationalDexPage() {
     return filtered.slice(start, start + PAGE_SIZE);
   }, [filtered, page, filteredTotalPages]);
 
-  const visibleIds = useMemo(() => filtered.map((p: any) => p.id), [filtered]);
+  const visibleIds = useMemo(
+    () => filtered.map((p: any) => p.id),
+    [filtered]
+  );
 
   const isLoading = allLoading || regionalLoading;
-
-  const handlePageInput = (e: React.KeyboardEvent<HTMLInputElement>) => {
-    if (e.key === 'Enter') {
-      const val = parseInt(pageInput);
-      if (!isNaN(val) && val >= 1 && val <= filteredTotalPages) {
-        const nextPage = val - 1;
-        setPage(nextPage);
-        saveViewState(nextPage);
-        window.scrollTo(0, 0);
-      }
-      setPageInput('');
-    }
-  };
 
   return (
     <div className="min-h-screen flex flex-col bg-background">
       <Header />
 
       <main className="flex-1 container py-8">
-
-        {/* HEADER */}
         <div className="flex items-center gap-4 mb-8">
           <Button variant="ghost" size="icon" asChild>
             <Link to="/">
@@ -195,33 +182,29 @@ export default function NationalDexPage() {
             </Link>
           </Button>
 
-          <div>
-            <h2 className="font-pixel text-sm sm:text-lg text-ui-title">
-              Pokédex Nacional
-            </h2>
-          </div>
+          <h2 className="font-pixel text-sm sm:text-lg text-ui-title">
+            Pokédex Nacional
+          </h2>
         </div>
 
-        {/* GRID */}
         {isLoading ? (
           <Skeleton className="h-40 w-full" />
         ) : (
-          <>
-            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
-              {displayedPokemon.map((p: any) => (
-                <PokemonCard
-                  key={p.id}
-                  pokemon={p}
-                  isShiny={isShiny}
-                  originPath={location.pathname}
-                  listContext={{
-                    ids: visibleIds,
-                    currentIndex: visibleIds.indexOf(p.id),
-                  }}
-                />
-              ))}
-            </div>
-          </>
+          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
+            {displayedPokemon.map((p: any, index: number) => (
+              <PokemonCard
+                key={p.id}
+                pokemon={p}
+                isShiny={isShiny}
+                originPath={location.pathname}
+                listContext={{
+                  ids: visibleIds,
+                  // ✅ CORREÇÃO 1 (PERFORMANCE + GLOBAL INDEX)
+                  currentIndex: page * PAGE_SIZE + index,
+                }}
+              />
+            ))}
+          </div>
         )}
       </main>
 
