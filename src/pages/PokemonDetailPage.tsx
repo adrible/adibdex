@@ -64,7 +64,7 @@ function AbilityChip({ ability }: { ability: string }) {
     <div>
       <button
         onClick={() => setExpanded(!expanded)}
-        className="rounded-full bg-secondary px-3 py-1 text-sm font-medium capitalize text-secondary-foreground hover:bg-secondary/80 transition-colors inline-flex items-center gap-1"
+        className="rounded-full bg-secondary px-3 py-1 text-sm font-medium capitalize text-secondary-foreground hover:bg-secondary/80 inline-flex items-center gap-1"
       >
         {ability.replace(/-/g, ' ')}
         {expanded ? <ChevronUp className="h-3 w-3" /> : <ChevronDown className="h-3 w-3" />}
@@ -120,16 +120,15 @@ export default function PokemonDetailPage() {
     queryKey: ['pokemon-detail', pokemonId],
     queryFn: () => fetchPokemonDetail(pokemonId),
     enabled: !isNaN(pokemonId),
-    staleTime: 1000 * 60 * 30,
   });
 
   const { data: encounters, isLoading: encountersLoading } = useQuery({
     queryKey: ['pokemon-encounters', pokemonId],
     queryFn: () => fetchPokemonEncounters(pokemonId),
     enabled: !isNaN(pokemonId),
-    staleTime: 1000 * 60 * 30,
   });
 
+  // ✅ PRELOAD CORRETO
   useEffect(() => {
     const preload = (id: number | null) => {
       if (!id) return;
@@ -177,7 +176,6 @@ export default function PokemonDetailPage() {
   if (!pokemon) return null;
 
   const totalStats = pokemon.stats.reduce((sum, s) => sum + s.value, 0);
-
   const artworkSrc = isShiny
     ? pokemon.sprites.artwork_shiny
     : pokemon.sprites.artwork;
@@ -188,24 +186,30 @@ export default function PokemonDetailPage() {
 
       <main className="container py-8 max-w-3xl">
         {/* HEADER */}
-        <div className="flex justify-between mb-8">
+        <div className="flex items-center justify-between mb-8">
           <Button variant="ghost" size="icon" onClick={handleBack}>
             <ArrowLeft />
           </Button>
 
-          <div className="flex gap-2">
+          <div className="flex gap-2 items-center">
             <Button onClick={() => setIsShiny(!isShiny)}>
               <Sparkles /> Shiny
             </Button>
 
             {prevId && (
-              <Link to={`/pokemon/${prevId}`}>
+              <Link to={`/pokemon/${prevId}`} state={{
+                origin: stableOrigin,
+                listContext: { ids: idsSafe, currentIndex: safeIndex - 1 }
+              }}>
                 <ChevronLeft />
               </Link>
             )}
 
             {nextId && (
-              <Link to={`/pokemon/${nextId}`}>
+              <Link to={`/pokemon/${nextId}`} state={{
+                origin: stableOrigin,
+                listContext: { ids: idsSafe, currentIndex: safeIndex + 1 }
+              }}>
                 <ChevronRight />
               </Link>
             )}
@@ -252,8 +256,8 @@ export default function PokemonDetailPage() {
           ))}
         </div>
 
-        <EvolutionChainDisplay pokemonId={pokemonId} isShiny={isShiny} />
-        <PokemonForms pokemonId={pokemonId} isShiny={isShiny} />
+        <EvolutionChainDisplay pokemonId={pokemonId} isShiny={isShiny} origin={stableOrigin} />
+        <PokemonForms pokemonId={pokemonId} isShiny={isShiny} origin={stableOrigin} />
         <PokemonMoves pokemonId={pokemonId} />
       </main>
 
