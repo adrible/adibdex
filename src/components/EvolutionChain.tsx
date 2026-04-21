@@ -206,7 +206,10 @@ export function EvolutionChainDisplay({
     queryKey: ['mega-evolutions', [...baseIds].sort().join(',')],
     queryFn: async () => {
       const results = await Promise.all(baseIds.map((id) => fetchMegaEvolutions(id)));
-      const megaMap: Record<number, Awaited<ReturnType<typeof fetchMegaEvolutions>>> = {};
+      const megaMap: Record<
+        number,
+        Awaited<ReturnType<typeof fetchMegaEvolutions>>
+      > = {};
       baseIds.forEach((id, i) => {
         if (results[i].length > 0) megaMap[id] = results[i];
       });
@@ -220,7 +223,10 @@ export function EvolutionChainDisplay({
     queryKey: ['gmax-forms', [...baseIds].sort().join(',')],
     queryFn: async () => {
       const results = await Promise.all(baseIds.map((id) => fetchGmaxForms(id)));
-      const gmaxMap: Record<number, Awaited<ReturnType<typeof fetchGmaxForms>>> = {};
+      const gmaxMap: Record<
+        number,
+        Awaited<ReturnType<typeof fetchGmaxForms>>
+      > = {};
       baseIds.forEach((id, i) => {
         if (results[i].length > 0) gmaxMap[id] = results[i];
       });
@@ -267,7 +273,7 @@ export function EvolutionChainDisplay({
 
   return (
     <div className="rounded-xl bg-card border border-border p-6">
-      <h3 className="font-bold text-card-foreground mb-4">Linha Evolutiva</h3>
+      <h3 className="font-bold text-card-foreground mb-5">Linha Evolutiva</h3>
 
       <div className="flex flex-col items-center gap-4">
         {chain?.steps.map((stage, stageIdx) => (
@@ -278,7 +284,7 @@ export function EvolutionChainDisplay({
               </div>
             )}
 
-            <div className="flex flex-wrap justify-center gap-4 sm:gap-6 max-w-xl">
+            <div className="flex flex-wrap justify-center gap-4 sm:gap-6 max-w-5xl w-full">
               {stage.map((evo) => (
                 <div key={evo.id} className="flex flex-col items-center">
                   {stageIdx > 0 && <EvolutionDetail evo={evo} />}
@@ -299,12 +305,12 @@ export function EvolutionChainDisplay({
                       />
                     </div>
 
-                    <span className="text-[11px] font-bold text-muted-foreground mt-1">
+                    <span className="mt-2 text-[11px] font-bold text-muted-foreground">
                       #{String(evo.id).padStart(4, '0')}
                     </span>
 
-                    <span className="text-xs sm:text-sm font-semibold capitalize text-card-foreground mt-1 text-center">
-                      {evo.name}
+                    <span className="text-xs sm:text-sm font-semibold capitalize text-card-foreground mt-1 text-center leading-tight">
+                      {evo.name.replace(/-/g, ' ')}
                     </span>
                   </Link>
 
@@ -337,11 +343,11 @@ export function EvolutionChainDisplay({
                           />
                         </div>
 
-                        <span className="text-xs sm:text-sm font-semibold capitalize text-card-foreground mt-1 text-center">
+                        <span className="text-xs sm:text-sm font-semibold capitalize text-card-foreground mt-2 text-center leading-tight">
                           {mega.name.replace(/-/g, ' ')}
                         </span>
 
-                        <div className="flex gap-1 mt-2 flex-wrap justify-center">
+                        <div className="flex flex-wrap justify-center gap-1 mt-2">
                           {mega.types.map((t) => (
                             <TypeBadge key={t} type={t} size="sm" />
                           ))}
@@ -376,11 +382,11 @@ export function EvolutionChainDisplay({
                           />
                         </div>
 
-                        <span className="text-xs sm:text-sm font-semibold capitalize text-card-foreground mt-1 text-center">
+                        <span className="text-xs sm:text-sm font-semibold capitalize text-card-foreground mt-2 text-center leading-tight">
                           {gmax.name.replace(/-/g, ' ')}
                         </span>
 
-                        <div className="flex gap-1 mt-2 flex-wrap justify-center">
+                        <div className="flex flex-wrap justify-center gap-1 mt-2">
                           {gmax.types.map((t) => (
                             <TypeBadge key={t} type={t} size="sm" />
                           ))}
