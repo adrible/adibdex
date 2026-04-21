@@ -27,11 +27,14 @@ export const PokemonGrid = React.memo(function PokemonGrid({
 }) {
   const storageKey = `gen-${generation.id}`;
   const saved = loadFiltersFromSession(storageKey);
+  const savedRaw =
+    typeof window !== 'undefined' ? sessionStorage.getItem(storageKey) : null;
+  const savedExtra = savedRaw ? JSON.parse(savedRaw) : null;
 
-  const [search, setSearch] = useState('');
-  const [showAll, setShowAll] = useState(false);
+  const [search, setSearch] = useState(savedExtra?.search ?? '');
+  const [showAll, setShowAll] = useState(savedExtra?.showAll ?? false);
   const [page, setPage] = useState(saved?.page ?? 0);
-  const [isShiny, setIsShiny] = useState(false);
+  const [isShiny, setIsShiny] = useState(savedExtra?.isShiny ?? false);
   const [filters, setFilters] = useState<FilterState>(
     saved?.filters ?? DEFAULT_FILTERS
   );
@@ -45,7 +48,18 @@ export const PokemonGrid = React.memo(function PokemonGrid({
 
   useEffect(() => {
     saveFiltersToSession(storageKey, filters, page);
-  }, [filters, page, storageKey]);
+
+    sessionStorage.setItem(
+      storageKey,
+      JSON.stringify({
+        filters,
+        page,
+        isShiny,
+        search,
+        showAll,
+      })
+    );
+  }, [filters, page, isShiny, search, showAll, storageKey]);
 
   const hasSearch = search.trim().length > 0;
   const needsAll = showAll || hasActiveFilters(filters) || hasSearch;
