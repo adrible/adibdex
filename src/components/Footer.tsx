@@ -47,22 +47,22 @@ export function Footer() {
           <div
             ref={popupRef}
             className="
-              absolute bottom-7 left-1/2 -translate-x-1/2
-              w-64
-              rounded-xl
+              absolute bottom-6 left-1/2 -translate-x-1/2
+              w-52
+              rounded-lg
               bg-black/70 backdrop-blur-xl
               border border-white/10
-              p-4
+              p-3
               text-ui-subtitle
-              shadow-2xl
+              shadow-xl
               z-50
             "
           >
-            <p className="text-xs font-bold mb-2 text-ui-title tracking-wide">
+            <p className="text-[11px] font-bold mb-1.5 text-ui-title tracking-wide">
               v{VERSION_INFO.version}
             </p>
 
-            <ul className="space-y-1 text-[11px]">
+            <ul className="space-y-0.5 text-[10px]">
               {VERSION_INFO.changes.map((change) => (
                 <li key={change}>• {change}</li>
               ))}
