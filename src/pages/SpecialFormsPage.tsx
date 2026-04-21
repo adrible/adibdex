@@ -1,4 +1,4 @@
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { fetchAllMegaForms, fetchAllGmaxForms } from '@/lib/pokeapi';
 import { Header } from '@/components/Header';
@@ -32,14 +32,31 @@ interface Props {
 export default function SpecialFormsPage({ type }: Props) {
   const isMega = type === 'mega';
   const storageKey = isMega ? 'mega-forms' : 'gmax-forms';
-  const saved = loadFiltersFromSession(storageKey);
 
-  const [isShiny, setIsShiny] = useState(false);
+  const saved = loadFiltersFromSession(storageKey);
+  const savedRaw =
+    typeof window !== 'undefined' ? sessionStorage.getItem(storageKey) : null;
+  const savedExtra = savedRaw ? JSON.parse(savedRaw) : null;
+
+  const [isShiny, setIsShiny] = useState(savedExtra?.isShiny ?? false);
   const [page, setPage] = useState(saved?.page ?? 0);
   const [pageInput, setPageInput] = useState('');
-  const [filters, setFilters] = useState<FilterState>(saved?.filters ?? DEFAULT_FILTERS);
+  const [filters, setFilters] = useState<FilterState>(
+    saved?.filters ?? DEFAULT_FILTERS
+  );
 
   const location = useLocation();
+
+  useEffect(() => {
+    sessionStorage.setItem(
+      storageKey,
+      JSON.stringify({
+        filters,
+        page,
+        isShiny,
+      })
+    );
+  }, [filters, page, isShiny, storageKey]);
 
   const { data: forms, isLoading } = useQuery({
     queryKey: [isMega ? 'all-mega-forms' : 'all-gmax-forms'],
@@ -77,7 +94,14 @@ export default function SpecialFormsPage({ type }: Props) {
       const val = parseInt(pageInput);
       if (!isNaN(val) && val >= 1 && val <= totalPages) {
         setPage(val - 1);
-        saveFiltersToSession(storageKey, filters, val - 1);
+        sessionStorage.setItem(
+          storageKey,
+          JSON.stringify({
+            filters,
+            page: val - 1,
+            isShiny,
+          })
+        );
         window.scrollTo(0, 0);
       }
       setPageInput('');
@@ -141,7 +165,10 @@ export default function SpecialFormsPage({ type }: Props) {
             </div>
 
             <div className="ml-auto flex items-center gap-2">
-              <PokemonFilterButton filters={filters} onChange={handleFiltersChange} />
+              <PokemonFilterButton
+                filters={filters}
+                onChange={handleFiltersChange}
+              />
               <Button
                 variant={isShiny ? 'default' : 'outline'}
                 size="sm"
@@ -158,12 +185,18 @@ export default function SpecialFormsPage({ type }: Props) {
             </div>
           </div>
 
-          <ActiveFilterChips filters={filters} onChange={handleFiltersChange} />
+          <ActiveFilterChips
+            filters={filters}
+            onChange={handleFiltersChange}
+          />
 
           {isLoading ? (
             <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4">
               {Array.from({ length: 24 }).map((_, i) => (
-                <div key={i} className="rounded-xl bg-card border border-border p-4">
+                <div
+                  key={i}
+                  className="rounded-xl bg-card border border-border p-4"
+                >
                   <Skeleton className="h-36 w-full rounded-lg mb-3" />
                   <Skeleton className="h-3 w-12 mb-2" />
                   <Skeleton className="h-5 w-24 mb-2" />
@@ -198,7 +231,14 @@ export default function SpecialFormsPage({ type }: Props) {
                     onClick={() => {
                       const p = safePage - 1;
                       setPage(p);
-                      saveFiltersToSession(storageKey, filters, p);
+                      sessionStorage.setItem(
+                        storageKey,
+                        JSON.stringify({
+                          filters,
+                          page: p,
+                          isShiny,
+                        })
+                      );
                       window.scrollTo(0, 0);
                     }}
                   >
@@ -209,7 +249,9 @@ export default function SpecialFormsPage({ type }: Props) {
                     <input
                       type="text"
                       value={pageInput}
-                      onChange={(e) => setPageInput(e.target.value.replace(/\D/g, ''))}
+                      onChange={(e) =>
+                        setPageInput(e.target.value.replace(/\D/g, ''))
+                      }
                       onKeyDown={handlePageInput}
                       onBlur={() => setPageInput('')}
                       placeholder={String(safePage + 1)}
@@ -225,7 +267,14 @@ export default function SpecialFormsPage({ type }: Props) {
                     onClick={() => {
                       const p = safePage + 1;
                       setPage(p);
-                      saveFiltersToSession(storageKey, filters, p);
+                      sessionStorage.setItem(
+                        storageKey,
+                        JSON.stringify({
+                          filters,
+                          page: p,
+                          isShiny,
+                        })
+                      );
                       window.scrollTo(0, 0);
                     }}
                   >
