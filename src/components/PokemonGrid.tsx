@@ -147,6 +147,41 @@ export const PokemonGrid = React.memo(function PokemonGrid({
     [pageInput, totalFilteredPages]
   );
 
+  const paginationControls = showPagination ? (
+    <div className="flex items-center justify-center gap-3">
+      <Button
+        variant="outline"
+        size="icon"
+        disabled={page === 0}
+        onClick={handlePrevPage}
+      >
+        <ChevronLeft className="h-4 w-4" />
+      </Button>
+
+      <div className="flex items-center gap-1.5 text-sm">
+        <input
+          type="text"
+          value={pageInput}
+          onChange={(e) => setPageInput(e.target.value.replace(/\D/g, ''))}
+          onKeyDown={handlePageInput}
+          onBlur={() => setPageInput('')}
+          placeholder={String(page + 1)}
+          className="w-10 text-center rounded border border-input bg-card text-foreground px-1 py-0.5 text-sm focus:outline-none focus:ring-1 focus:ring-ring"
+        />
+        <span>/ {totalFilteredPages}</span>
+      </div>
+
+      <Button
+        variant="outline"
+        size="icon"
+        disabled={page >= totalFilteredPages - 1}
+        onClick={handleNextPage}
+      >
+        <ChevronRight className="h-4 w-4" />
+      </Button>
+    </div>
+  ) : null;
+
   return (
     <div>
       <div className="flex flex-col sm:flex-row items-center gap-3 max-w-2xl mx-auto mb-4">
@@ -215,6 +250,12 @@ export const PokemonGrid = React.memo(function PokemonGrid({
         showRegionFilter={false}
       />
 
+      {!isLoading && paginationControls && (
+        <div className="mb-6">
+          {paginationControls}
+        </div>
+      )}
+
       {isLoading ? (
         <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4">
           {Array.from({ length: 24 }).map((_, i) => (
@@ -246,40 +287,9 @@ export const PokemonGrid = React.memo(function PokemonGrid({
             ))}
           </div>
 
-          {showPagination && (
-            <div className="flex items-center justify-center gap-3 mt-8">
-              <Button
-                variant="outline"
-                size="icon"
-                disabled={page === 0}
-                onClick={handlePrevPage}
-              >
-                <ChevronLeft className="h-4 w-4" />
-              </Button>
-
-              <div className="flex items-center gap-1.5 text-sm">
-                <input
-                  type="text"
-                  value={pageInput}
-                  onChange={(e) =>
-                    setPageInput(e.target.value.replace(/\D/g, ''))
-                  }
-                  onKeyDown={handlePageInput}
-                  onBlur={() => setPageInput('')}
-                  placeholder={String(page + 1)}
-                  className="w-10 text-center rounded border border-input bg-card text-foreground px-1 py-0.5 text-sm focus:outline-none focus:ring-1 focus:ring-ring"
-                />
-                <span>/ {totalFilteredPages}</span>
-              </div>
-
-              <Button
-                variant="outline"
-                size="icon"
-                disabled={page >= totalFilteredPages - 1}
-                onClick={handleNextPage}
-              >
-                <ChevronRight className="h-4 w-4" />
-              </Button>
+          {!isLoading && paginationControls && (
+            <div className="mt-8">
+              {paginationControls}
             </div>
           )}
         </>
