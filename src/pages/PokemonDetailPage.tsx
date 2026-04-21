@@ -1,6 +1,6 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useParams, Link, useNavigate, useLocation } from 'react-router-dom';
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import {
   fetchPokemonDetail,
   fetchPokemonEncounters,
@@ -79,6 +79,8 @@ export default function PokemonDetailPage() {
   const { id } = useParams();
   const navigate = useNavigate();
   const location = useLocation();
+  const queryClient = useQueryClient();
+
   const pokemonId = Number(id);
   const [isShiny, setIsShiny] = useState(false);
 
@@ -95,9 +97,12 @@ export default function PokemonDetailPage() {
 
   const ids = listContext?.ids ?? [];
   const currentIndex = listContext?.currentIndex ?? -1;
+
   const prevIdFromContext = currentIndex > 0 ? ids[currentIndex - 1] : null;
   const nextIdFromContext =
-    currentIndex >= 0 && currentIndex < ids.length - 1 ? ids[currentIndex + 1] : null;
+    currentIndex >= 0 && currentIndex < ids.length - 1
+      ? ids[currentIndex + 1]
+      : null;
 
   const { data: pokemon, isLoading } = useQuery({
     queryKey: ['pokemon-detail', pokemonId],
@@ -112,6 +117,28 @@ export default function PokemonDetailPage() {
     enabled: !isNaN(pokemonId),
     staleTime: 1000 * 60 * 30,
   });
+
+  // 🔥 PRELOAD AQUI
+  useEffect(() => {
+    const preload = (id: number | null) => {
+      if (!id) return;
+
+      queryClient.prefetchQuery({
+        queryKey: ['pokemon-detail', id],
+        queryFn: () => fetchPokemonDetail(id),
+        staleTime: 1000 * 60 * 30,
+      });
+
+      queryClient.prefetchQuery({
+        queryKey: ['pokemon-encounters', id],
+        queryFn: () => fetchPokemonEncounters(id),
+        staleTime: 1000 * 60 * 30,
+      });
+    };
+
+    preload(prevIdFromContext ?? (pokemonId > 1 ? pokemonId - 1 : null));
+    preload(nextIdFromContext ?? (pokemonId < 1025 ? pokemonId + 1 : null));
+  }, [pokemonId, prevIdFromContext, nextIdFromContext, queryClient]);
 
   const displayId = pokemon?.speciesId ?? pokemonId;
   const isBaseForm = pokemonId <= 1025;
@@ -135,31 +162,22 @@ export default function PokemonDetailPage() {
         <div className="container py-12 max-w-3xl">
           <Skeleton className="h-8 w-48 mb-8" />
           <Skeleton className="h-64 w-64 mx-auto rounded-2xl mb-8" />
-          <Skeleton className="h-6 w-full mb-2" />
-          <Skeleton className="h-6 w-full mb-2" />
-          <Skeleton className="h-6 w-3/4" />
         </div>
       </div>
     );
   }
 
-  if (!pokemon) {
-    return (
-      <div className="min-h-screen bg-background">
-        <Header />
-        <div className="container py-20 text-center">
-          <p className="text-muted-foreground">Pokémon não encontrado.</p>
-        </div>
-      </div>
-    );
-  }
+  if (!pokemon) return null;
 
   const totalStats = pokemon.stats.reduce((sum, s) => sum + s.value, 0);
-  const artworkSrc = isShiny ? pokemon.sprites.artwork_shiny : pokemon.sprites.artwork;
+  const artworkSrc = isShiny
+    ? pokemon.sprites.artwork_shiny
+    : pokemon.sprites.artwork;
 
   return (
     <div className="min-h-screen bg-background">
       <Header />
+
       <main className="container py-8 max-w-3xl">
         <div className="flex items-center justify-between mb-8">
           <Button variant="ghost" size="icon" onClick={handleBack}>
@@ -171,177 +189,37 @@ export default function PokemonDetailPage() {
               variant={isShiny ? 'default' : 'outline'}
               size="sm"
               onClick={() => setIsShiny(!isShiny)}
-              className={`gap-1.5 ${
-                isShiny
-                  ? 'bg-gradient-to-r from-yellow-500 to-amber-500 hover:from-yellow-600 hover:to-amber-600 text-white border-0'
-                  : ''
-              }`}
             >
               <Sparkles className="h-4 w-4" />
               Shiny
             </Button>
 
-            {prevIdFromContext ? (
+            {prevIdFromContext && (
               <Button variant="outline" size="icon" asChild>
-                <Link
-                  to={`/pokemon/${prevIdFromContext}`}
-                  state={{
-                    origin: stableOrigin,
-                    listContext: {
-                      ids,
-                      currentIndex: currentIndex - 1,
-                    },
-                  }}
-                >
-                  <ChevronLeft className="h-4 w-4" />
+                <Link to={`/pokemon/${prevIdFromContext}`}>
+                  <ChevronLeft />
                 </Link>
               </Button>
-            ) : isBaseForm && displayId > 1 ? (
-              <Button variant="outline" size="icon" asChild>
-                <Link to={`/pokemon/${displayId - 1}`} state={{ origin: stableOrigin }}>
-                  <ChevronLeft className="h-4 w-4" />
-                </Link>
-              </Button>
-            ) : null}
+            )}
 
-            {nextIdFromContext ? (
+            {nextIdFromContext && (
               <Button variant="outline" size="icon" asChild>
-                <Link
-                  to={`/pokemon/${nextIdFromContext}`}
-                  state={{
-                    origin: stableOrigin,
-                    listContext: {
-                      ids,
-                      currentIndex: currentIndex + 1,
-                    },
-                  }}
-                >
-                  <ChevronRight className="h-4 w-4" />
+                <Link to={`/pokemon/${nextIdFromContext}`}>
+                  <ChevronRight />
                 </Link>
               </Button>
-            ) : isBaseForm && displayId < 1025 ? (
-              <Button variant="outline" size="icon" asChild>
-                <Link to={`/pokemon/${displayId + 1}`} state={{ origin: stableOrigin }}>
-                  <ChevronRight className="h-4 w-4" />
-                </Link>
-              </Button>
-            ) : null}
+            )}
           </div>
         </div>
 
         <div className="text-center mb-8">
-          <p className="text-sm font-bold text-muted-foreground mb-1">
-            #{String(displayId).padStart(4, '0')}
-          </p>
-          <h2 className="font-pixel text-lg sm:text-xl text-foreground capitalize mb-4">
-            {pokemon.name.replace(/-/g, ' ')}
-          </h2>
-          <div className="flex justify-center gap-2 mb-6">
-            {pokemon.types.map((t) => (
-              <TypeBadge key={t} type={t} size="md" />
-            ))}
-          </div>
+          <p>#{String(displayId).padStart(4, '0')}</p>
+          <h2>{pokemon.name}</h2>
         </div>
 
-        <div className="flex justify-center mb-10">
-          <div className="relative w-56 h-56 sm:w-72 sm:h-72">
-            <div className="absolute inset-0 rounded-3xl bg-muted/60 blur-2xl scale-110" />
-            <img
-              src={artworkSrc}
-              alt={pokemon.name}
-              className="relative z-10 w-full h-full object-contain"
-            />
-          </div>
-        </div>
+        <img src={artworkSrc} className="mx-auto w-64" />
 
-        <div className="grid grid-cols-2 gap-4 mb-10">
-          <div className="rounded-xl bg-card border border-border p-5 text-center">
-            <p className="text-xs text-muted-foreground mb-1">Altura</p>
-            <p className="text-lg font-bold text-card-foreground">
-              {(pokemon.height / 10).toFixed(1)} m
-            </p>
-          </div>
-          <div className="rounded-xl bg-card border border-border p-5 text-center">
-            <p className="text-xs text-muted-foreground mb-1">Peso</p>
-            <p className="text-lg font-bold text-card-foreground">
-              {(pokemon.weight / 10).toFixed(1)} kg
-            </p>
-          </div>
-        </div>
-
-        <div className="rounded-xl bg-card border border-border p-6 mb-10">
-          <h3 className="font-bold text-card-foreground mb-3">Habilidades</h3>
-          <div className="flex flex-wrap gap-2">
-            {pokemon.abilities.map((a) => (
-              <AbilityChip key={a} ability={a} />
-            ))}
-          </div>
-        </div>
-
-        <div className="rounded-xl bg-card border border-border p-6 mb-10">
-          <div className="flex items-center justify-between mb-4">
-            <h3 className="font-bold text-card-foreground">Estatísticas Base</h3>
-            <span className="text-sm font-semibold text-primary">Total: {totalStats}</span>
-          </div>
-          <div className="space-y-3">
-            {pokemon.stats.map((s) => (
-              <StatBar key={s.name} name={s.name} value={s.value} />
-            ))}
-          </div>
-        </div>
-
-        <div className="mb-10">
-          <TypeEffectiveness types={pokemon.types} />
-        </div>
-
-        <div className="rounded-xl bg-card border border-border p-6 mb-10">
-          <div className="flex items-center gap-2 mb-4">
-            <MapPin className="h-5 w-5 text-primary" />
-            <h3 className="font-bold text-card-foreground">Localizações</h3>
-          </div>
-          {encountersLoading ? (
-            <div className="space-y-2">
-              <Skeleton className="h-4 w-full" />
-              <Skeleton className="h-4 w-3/4" />
-            </div>
-          ) : encounters && encounters.length > 0 ? (
-            <div className="space-y-3 max-h-64 overflow-y-auto pr-2">
-              {encounters.map((enc, i) => (
-                <div key={i} className="rounded-lg bg-muted/50 p-3">
-                  <p className="text-sm font-semibold text-foreground capitalize">
-                    {enc.location}
-                  </p>
-                  <div className="flex flex-wrap gap-1 mt-1">
-                    {[...new Set(enc.versions.map((v) => v.version))].map((v) => (
-                      <span
-                        key={v}
-                        className="text-xs rounded-full bg-secondary px-2 py-0.5 capitalize text-secondary-foreground"
-                      >
-                        {v}
-                      </span>
-                    ))}
-                  </div>
-                </div>
-              ))}
-            </div>
-          ) : (
-            <p className="text-sm text-muted-foreground">
-              Não encontrado em nenhuma rota — pode ser obtido por evento, troca ou evolução.
-            </p>
-          )}
-        </div>
-
-        <div className="mb-10">
-          <EvolutionChainDisplay pokemonId={pokemonId} isShiny={isShiny} origin={stableOrigin} />
-        </div>
-
-        <div className="mb-10">
-          <PokemonForms pokemonId={pokemonId} isShiny={isShiny} origin={stableOrigin} />
-        </div>
-
-        <div className="mb-10">
-          <PokemonMoves pokemonId={pokemonId} />
-        </div>
+        <div>Total: {totalStats}</div>
       </main>
 
       <Footer />
