@@ -263,13 +263,25 @@ export function EvolutionChainDisplay({
     }
   }
 
-  function getShinySprite(id: number) {
-    return `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/shiny/${id}.png`;
-  }
+  function getOfficialArtwork(id: number) {
+  return `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/${id}.png`;
+}
 
-  function getSprite(id: number, normalSprite: string) {
-    return isShiny ? getShinySprite(id) : normalSprite;
-  }
+function getShinySprite(id: number) {
+  return `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/shiny/${id}.png`;
+}
+
+function getSprite(id: number, normalSprite: string) {
+  return isShiny ? getShinySprite(id) : normalSprite;
+}
+
+function getArtwork(
+  id: number,
+  normalFallback?: string,
+  shinyFallback?: string
+) {
+  return isShiny ? getShinySprite(id) : getOfficialArtwork(id);
+}
 
   return (
     <div className="rounded-xl bg-card border border-border p-6">
@@ -298,11 +310,14 @@ export function EvolutionChainDisplay({
                   >
                     <div className="h-20 w-20 sm:h-24 sm:w-24 flex items-center justify-center">
                       <img
-                        src={getSprite(evo.id, evo.sprite)}
-                        alt={evo.name}
-                        className="max-h-full max-w-full object-contain"
-                        loading="lazy"
-                      />
+                          src={getArtwork(evo.id, evo.sprite, evo.sprite)}
+                          alt={evo.name}
+                          className="max-h-full max-w-full object-contain"
+                          loading="lazy"
+                          onError={(e) => {
+                            e.currentTarget.src = getSprite(evo.id, evo.sprite);
+                          }}
+                        />
                     </div>
 
                     <span className="mt-2 text-[11px] font-bold text-muted-foreground">
@@ -336,11 +351,14 @@ export function EvolutionChainDisplay({
                       >
                         <div className="h-20 w-20 sm:h-24 sm:w-24 flex items-center justify-center">
                           <img
-                            src={isShiny ? mega.spriteShiny : mega.sprite}
-                            alt={mega.name}
-                            className="max-h-full max-w-full object-contain"
-                            loading="lazy"
-                          />
+  src={getArtwork(mega.id, mega.sprite, mega.spriteShiny)}
+  alt={mega.name}
+  className="max-h-full max-w-full object-contain"
+  loading="lazy"
+  onError={(e) => {
+    e.currentTarget.src = isShiny ? mega.spriteShiny : mega.sprite;
+  }}
+/>
                         </div>
 
                         <span className="text-xs sm:text-sm font-semibold capitalize text-card-foreground mt-2 text-center leading-tight">
@@ -375,11 +393,14 @@ export function EvolutionChainDisplay({
                       >
                         <div className="h-20 w-20 sm:h-24 sm:w-24 flex items-center justify-center">
                           <img
-                            src={isShiny ? gmax.spriteShiny : gmax.sprite}
-                            alt={gmax.name}
-                            className="max-h-full max-w-full object-contain"
-                            loading="lazy"
-                          />
+  src={getArtwork(gmax.id, gmax.sprite, gmax.spriteShiny)}
+  alt={gmax.name}
+  className="max-h-full max-w-full object-contain"
+  loading="lazy"
+  onError={(e) => {
+    e.currentTarget.src = isShiny ? gmax.spriteShiny : gmax.sprite;
+  }}
+/>
                         </div>
 
                         <span className="text-xs sm:text-sm font-semibold capitalize text-card-foreground mt-2 text-center leading-tight">
