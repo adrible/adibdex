@@ -360,7 +360,7 @@ export default function NationalDexPage() {
         ) : (
           <>
             <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4">
-             const visibleIds = displayedPokemon.map((x: any) => x.id);
+const visibleIds = filtered.map((x: any) => x.id);
 
 {displayedPokemon.map((p: any, index: number) => (
   <div
@@ -372,9 +372,9 @@ export default function NationalDexPage() {
       isShiny={isShiny}
       originPath={location.pathname}
       listContext={{
-        ids: visibleIds,
-        currentIndex: index,
-      }}
+  ids: visibleIds,
+  currentIndex: visibleIds.indexOf(p.id),
+}}
     />
   </div>
 ))}
