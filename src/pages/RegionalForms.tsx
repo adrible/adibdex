@@ -1,4 +1,4 @@
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { fetchAllRegionalForms } from '@/lib/pokeapi';
 import { Header } from '@/components/Header';
@@ -8,9 +8,13 @@ import { Button } from '@/components/ui/button';
 import { ArrowLeft, ArrowUp, ChevronLeft, ChevronRight, Sparkles } from 'lucide-react';
 import { Link, useLocation } from 'react-router-dom';
 import {
-  PokemonFilterButton, ActiveFilterChips, applyFilters,
-  type FilterState, DEFAULT_FILTERS,
-  saveFiltersToSession, loadFiltersFromSession,
+  PokemonFilterButton,
+  ActiveFilterChips,
+  applyFilters,
+  type FilterState,
+  DEFAULT_FILTERS,
+  saveFiltersToSession,
+  loadFiltersFromSession,
 } from '@/components/PokemonFilters';
 import { Footer } from '@/components/Footer';
 
@@ -18,13 +22,31 @@ const PAGE_SIZE = 48;
 
 export default function RegionalForms() {
   const storageKey = 'regional-forms';
-  const saved = loadFiltersFromSession(storageKey);
 
-  const [isShiny, setIsShiny] = useState(false);
+  const saved = loadFiltersFromSession(storageKey);
+  const savedRaw =
+    typeof window !== 'undefined' ? sessionStorage.getItem(storageKey) : null;
+  const savedExtra = savedRaw ? JSON.parse(savedRaw) : null;
+
+  const [isShiny, setIsShiny] = useState(savedExtra?.isShiny ?? false);
   const [page, setPage] = useState(saved?.page ?? 0);
   const [pageInput, setPageInput] = useState('');
-  const [filters, setFilters] = useState<FilterState>(saved?.filters ?? DEFAULT_FILTERS);
+  const [filters, setFilters] = useState<FilterState>(
+    saved?.filters ?? DEFAULT_FILTERS
+  );
+
   const location = useLocation();
+
+  useEffect(() => {
+    sessionStorage.setItem(
+      storageKey,
+      JSON.stringify({
+        filters,
+        page,
+        isShiny,
+      })
+    );
+  }, [filters, page, isShiny, storageKey]);
 
   const { data: forms, isLoading } = useQuery({
     queryKey: ['all-regional-forms'],
@@ -68,7 +90,14 @@ export default function RegionalForms() {
       const val = parseInt(pageInput);
       if (!isNaN(val) && val >= 1 && val <= totalPages) {
         setPage(val - 1);
-        saveFiltersToSession(storageKey, filters, val - 1);
+        sessionStorage.setItem(
+          storageKey,
+          JSON.stringify({
+            filters,
+            page: val - 1,
+            isShiny,
+          })
+        );
         window.scrollTo(0, 0);
       }
       setPageInput('');
@@ -77,54 +106,61 @@ export default function RegionalForms() {
 
   return (
     <div className="min-h-screen bg-background">
-  <Header />
+      <Header />
 
-  <main className="container py-8">
-    <div className="flex items-center gap-4 mb-8">
-      <Button variant="ghost" size="icon" asChild>
-        <Link to="/">
-          <ArrowLeft className="h-5 w-5 text-ui-title" />
-        </Link>
-      </Button>
+      <main className="container py-8">
+        <div className="flex items-center gap-4 mb-8">
+          <Button variant="ghost" size="icon" asChild>
+            <Link to="/">
+              <ArrowLeft className="h-5 w-5 text-ui-title" />
+            </Link>
+          </Button>
 
-      <div>
-        {/* TÍTULO */}
-        <h2 className="font-pixel text-sm sm:text-lg text-ui-title">
-          Formas Regionais
-        </h2>
+          <div>
+            <h2 className="font-pixel text-sm sm:text-lg text-ui-title">
+              Formas Regionais
+            </h2>
 
-        {/* SUBTÍTULO */}
-        <p className="text-sm text-ui-subtitle">
-          Alolan, Galarian, Hisuian e Paldean
-          {filtered.length > 0 && ` (${filtered.length})`}
-        </p>
-      </div>
+            <p className="text-sm text-ui-subtitle">
+              Alolan, Galarian, Hisuian e Paldean
+              {filtered.length > 0 && ` (${filtered.length})`}
+            </p>
+          </div>
 
-      <div className="ml-auto flex items-center gap-2">
-        <PokemonFilterButton filters={filters} onChange={handleFiltersChange} />
+          <div className="ml-auto flex items-center gap-2">
+            <PokemonFilterButton
+              filters={filters}
+              onChange={handleFiltersChange}
+            />
 
-        <Button
-          variant={isShiny ? "default" : "outline"}
-          size="sm"
-          onClick={() => setIsShiny(!isShiny)}
-          className={`gap-1 ${
-            isShiny
-              ? 'bg-gradient-to-r from-yellow-500 to-amber-500 hover:from-yellow-600 hover:to-amber-600 text-white border-0'
-              : ''
-          }`}
-        >
-          <Sparkles className="h-3.5 w-3.5" />
-          Shiny
-        </Button>
-      </div>
-    </div>
+            <Button
+              variant={isShiny ? 'default' : 'outline'}
+              size="sm"
+              onClick={() => setIsShiny(!isShiny)}
+              className={`gap-1 ${
+                isShiny
+                  ? 'bg-gradient-to-r from-yellow-500 to-amber-500 hover:from-yellow-600 hover:to-amber-600 text-white border-0'
+                  : ''
+              }`}
+            >
+              <Sparkles className="h-3.5 w-3.5" />
+              Shiny
+            </Button>
+          </div>
+        </div>
 
-        <ActiveFilterChips filters={filters} onChange={handleFiltersChange} />
+        <ActiveFilterChips
+          filters={filters}
+          onChange={handleFiltersChange}
+        />
 
         {isLoading ? (
           <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4">
             {Array.from({ length: 24 }).map((_, i) => (
-              <div key={i} className="rounded-xl bg-card border border-border p-4">
+              <div
+                key={i}
+                className="rounded-xl bg-card border border-border p-4"
+              >
                 <Skeleton className="h-36 w-full rounded-lg mb-3" />
                 <Skeleton className="h-3 w-12 mb-2" />
                 <Skeleton className="h-5 w-24 mb-2" />
@@ -143,11 +179,6 @@ export default function RegionalForms() {
                   originPath={location.pathname}
                 />
               ))}
-              {displayed.length === 0 && (
-                <p className="col-span-full text-center text-muted-foreground py-12">
-                  Nenhum Pokémon encontrado.
-                </p>
-              )}
             </div>
 
             {totalPages > 1 && (
@@ -159,17 +190,27 @@ export default function RegionalForms() {
                   onClick={() => {
                     const p = safePage - 1;
                     setPage(p);
-                    saveFiltersToSession(storageKey, filters, p);
+                    sessionStorage.setItem(
+                      storageKey,
+                      JSON.stringify({
+                        filters,
+                        page: p,
+                        isShiny,
+                      })
+                    );
                     window.scrollTo(0, 0);
                   }}
                 >
                   <ChevronLeft className="h-4 w-4" />
                 </Button>
+
                 <div className="flex items-center gap-1.5 text-sm font-medium text-foreground">
                   <input
                     type="text"
                     value={pageInput}
-                    onChange={(e) => setPageInput(e.target.value.replace(/\D/g, ''))}
+                    onChange={(e) =>
+                      setPageInput(e.target.value.replace(/\D/g, ''))
+                    }
                     onKeyDown={handlePageInput}
                     onBlur={() => setPageInput('')}
                     placeholder={String(safePage + 1)}
@@ -177,6 +218,7 @@ export default function RegionalForms() {
                   />
                   <span>/ {totalPages}</span>
                 </div>
+
                 <Button
                   variant="outline"
                   size="icon"
@@ -184,7 +226,14 @@ export default function RegionalForms() {
                   onClick={() => {
                     const p = safePage + 1;
                     setPage(p);
-                    saveFiltersToSession(storageKey, filters, p);
+                    sessionStorage.setItem(
+                      storageKey,
+                      JSON.stringify({
+                        filters,
+                        page: p,
+                        isShiny,
+                      })
+                    );
                     window.scrollTo(0, 0);
                   }}
                 >
@@ -196,7 +245,9 @@ export default function RegionalForms() {
             <div className="flex justify-center mt-10">
               <Button
                 variant="outline"
-                onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
+                onClick={() =>
+                  window.scrollTo({ top: 0, behavior: 'smooth' })
+                }
                 className="gap-2"
               >
                 <ArrowUp className="h-4 w-4" />
@@ -207,7 +258,7 @@ export default function RegionalForms() {
         )}
       </main>
 
-      <Footer/ >
+      <Footer />
     </div>
   );
 }
