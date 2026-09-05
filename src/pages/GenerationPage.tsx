@@ -17,7 +17,7 @@ const REGION_BG: Record<string, string> = {
   Galar: '/backgrounds/galar.webp',
   Hisui: '/backgrounds/hisui.webp',
   Paldea: '/backgrounds/paldea.webp',
-  Desconhecida: '/backgrounds/national.PNG',
+  Desconhecida: '',
 };
 
 export default function GenerationPage() {
@@ -41,13 +41,14 @@ export default function GenerationPage() {
 
   return (
     <div className="relative min-h-screen">
-      
       {/* FUNDO UNIVERSAL (desktop + mobile estável) */}
       <div className="fixed top-0 left-0 w-full h-[100lvh] -z-10 pointer-events-none">
         <div
           className="absolute inset-0"
           style={{
-            backgroundImage: `url(${bg})`,
+            backgroundImage: bg
+              ? `url(${bg})`
+              : 'radial-gradient(circle at top, #26354a 0%, #0b0f14 65%)',
             backgroundSize: 'cover',
             backgroundPosition: 'center',
             backgroundRepeat: 'no-repeat',
@@ -66,25 +67,24 @@ export default function GenerationPage() {
         <main className="container py-8">
           <div className="flex items-center gap-4 mb-8">
             <Button variant="ghost" size="icon" asChild>
-              <Link to="/">
+              <Link to="/" aria-label="Voltar ao início">
                 <ArrowLeft className="h-5 w-5 text-ui-title" />
               </Link>
             </Button>
 
             <div>
-              <h2 className="font-pixel text-sm sm:text-lg text-ui-title">
-                {gen.region}
-              </h2>
+              <h2 className="font-pixel text-sm sm:text-lg text-ui-title">{gen.region}</h2>
 
               <p className="text-sm text-ui-subtitle">
                 {gen.region === 'Desconhecida'
                   ? 'Pokémon sem região definida'
-                  : `Região de ${gen.region}`} · #{gen.pokemonRange[0]}–#{gen.pokemonRange[1]}
+                  : `Região de ${gen.region}`}{' '}
+                · #{gen.pokemonRange[0]}–#{gen.pokemonRange[1]}
               </p>
             </div>
           </div>
 
-          <PokemonGrid generation={gen} />
+          <PokemonGrid key={gen.id} generation={gen} />
 
           <div className="flex justify-center mt-10">
             <Button variant="outline" onClick={scrollToTop} className="gap-2">

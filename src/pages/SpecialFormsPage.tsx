@@ -1,118 +1,39 @@
-import { useState, useMemo, useEffect } from 'react';
 import { useQuery } from '@tanstack/react-query';
-import { fetchAllMegaForms, fetchAllGmaxForms } from '@/lib/pokeapi';
+import { useCatalogView } from '@/features/catalog/use-catalog-view';
+import { PokemonFilterButton, ActiveFilterChips } from '@/components/PokemonFilters';
 import { Header } from '@/components/Header';
+import { Footer } from '@/components/Footer';
 import { PokemonCard } from '@/components/PokemonCard';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Button } from '@/components/ui/button';
+import { QueryErrorState } from '@/components/QueryErrorState';
+import { fetchAllMegaForms, fetchAllGmaxForms } from '@/lib/pokeapi/catalog';
 import { ArrowLeft, ArrowUp, ChevronLeft, ChevronRight, Sparkles } from 'lucide-react';
 import { Link, useLocation } from 'react-router-dom';
-import {
-  PokemonFilterButton,
-  ActiveFilterChips,
-  applyFilters,
-  type FilterState,
-  DEFAULT_FILTERS,
-  saveFiltersToSession,
-  loadFiltersFromSession,
-} from '@/components/PokemonFilters';
-import { Footer } from '@/components/Footer';
 
-const PAGE_SIZE = 50;
-
-const SPECIAL_BG: Record<string, string> = {
-  mega: '/backgrounds/mega.webp',
-  gmax: '/backgrounds/gmax.webp',
-};
-
-interface Props {
-  type: 'mega' | 'gmax';
-}
-
-export default function SpecialFormsPage({ type }: Props) {
+export default function SpecialFormsPage({ type }: { type: 'mega' | 'gmax' }) {
   const isMega = type === 'mega';
   const storageKey = isMega ? 'mega-forms' : 'gmax-forms';
-
-  const saved = loadFiltersFromSession(storageKey);
-  const savedRaw =
-    typeof window !== 'undefined' ? sessionStorage.getItem(storageKey) : null;
-  const savedExtra = savedRaw ? JSON.parse(savedRaw) : null;
-
-  const [isShiny, setIsShiny] = useState(savedExtra?.isShiny ?? false);
-  const [page, setPage] = useState(saved?.page ?? 0);
-  const [pageInput, setPageInput] = useState('');
-  const [filters, setFilters] = useState<FilterState>(
-    saved?.filters ?? DEFAULT_FILTERS
-  );
-
-  const location = useLocation();
-
-  useEffect(() => {
-    sessionStorage.setItem(
-      storageKey,
-      JSON.stringify({
-        filters,
-        page,
-        isShiny,
-      })
-    );
-  }, [filters, page, isShiny, storageKey]);
-
-  const { data: forms, isLoading } = useQuery({
-    queryKey: [isMega ? 'all-mega-forms' : 'all-gmax-forms'],
-    queryFn: isMega ? fetchAllMegaForms : fetchAllGmaxForms,
-    staleTime: 1000 * 60 * 60,
+  const bg = isMega ? '/backgrounds/mega.webp' : '/backgrounds/gmax.webp';
+  const query = useQuery({
+    queryKey: ['catalog', type],
+    queryFn: ({ signal }) => (isMega ? fetchAllMegaForms(signal) : fetchAllGmaxForms(signal)),
+    staleTime: 60 * 60_000,
   });
-
-  const applicableFilters: FilterState = {
-    ...filters,
-    hasMega: null,
-    hasGmax: null,
-  };
-
-  const filtered = useMemo(() => {
-    if (!forms) return [];
-    return applyFilters(forms, applicableFilters);
-  }, [forms, applicableFilters]);
-
-  const totalPages = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE));
-  const safePage = Math.min(page, totalPages - 1);
-
-  const displayed = useMemo(() => {
-    const start = safePage * PAGE_SIZE;
-    return filtered.slice(start, start + PAGE_SIZE);
-  }, [filtered, safePage]);
-
-  // 🔥 AQUI É A CORREÇÃO
-  const visibleIds = useMemo(() => filtered.map((p) => p.id), [filtered]);
-
-  const handleFiltersChange = (f: FilterState) => {
-    setFilters(f);
-    setPage(0);
-    saveFiltersToSession(storageKey, f, 0);
-  };
-
-  const handlePageInput = (e: React.KeyboardEvent<HTMLInputElement>) => {
-    if (e.key === 'Enter') {
-      const val = parseInt(pageInput);
-      if (!isNaN(val) && val >= 1 && val <= totalPages) {
-        setPage(val - 1);
-        sessionStorage.setItem(
-          storageKey,
-          JSON.stringify({
-            filters,
-            page: val - 1,
-            isShiny,
-          })
-        );
-        window.scrollTo(0, 0);
-      }
-      setPageInput('');
-    }
-  };
-
-  const bg = SPECIAL_BG[type];
-
+  const {
+    isShiny,
+    setIsShiny,
+    setPage,
+    filters,
+    setFilters: handleFiltersChange,
+    filtered,
+    displayed,
+    visibleIds,
+    totalPages,
+    page: safePage,
+  } = useCatalogView(storageKey, query.data, query.isSuccess, false);
+  const { isPending: isLoading, isError, refetch } = query;
+  const location = useLocation();
   return (
     <div className="relative">
       <div
@@ -148,7 +69,7 @@ export default function SpecialFormsPage({ type }: Props) {
         <main className="container py-8">
           <div className="flex items-center gap-4 mb-8">
             <Button variant="ghost" size="icon" asChild>
-              <Link to="/">
+              <Link to="/" aria-label="Voltar ao início">
                 <ArrowLeft className="h-5 w-5 text-ui-title" />
               </Link>
             </Button>
@@ -168,15 +89,15 @@ export default function SpecialFormsPage({ type }: Props) {
               <PokemonFilterButton
                 filters={filters}
                 onChange={handleFiltersChange}
+                showSpecialFormFilters={false}
               />
               <Button
                 variant={isShiny ? 'default' : 'outline'}
                 size="sm"
                 onClick={() => setIsShiny(!isShiny)}
+                aria-pressed={isShiny}
                 className={`gap-1 ${
-                  isShiny
-                    ? 'bg-gradient-to-r from-yellow-500 to-amber-500 text-white border-0'
-                    : ''
+                  isShiny ? 'bg-gradient-to-r from-yellow-500 to-amber-500 text-white border-0' : ''
                 }`}
               >
                 <Sparkles className="h-3.5 w-3.5" />
@@ -188,9 +109,12 @@ export default function SpecialFormsPage({ type }: Props) {
           <ActiveFilterChips
             filters={filters}
             onChange={handleFiltersChange}
+            showSpecialFormFilters={false}
           />
 
-          {isLoading ? (
+          {isError ? (
+            <QueryErrorState onRetry={() => void refetch()} />
+          ) : isLoading ? (
             <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
               {Array.from({ length: 24 }).map((_, i) => (
                 <div key={i} className="rounded-xl bg-card border p-4">
@@ -202,6 +126,11 @@ export default function SpecialFormsPage({ type }: Props) {
           ) : (
             <>
               <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
+                {displayed.length === 0 && (
+                  <p className="col-span-full text-center text-muted-foreground py-12">
+                    Nenhum Pokémon encontrado.
+                  </p>
+                )}
                 {displayed.map((p) => (
                   <PokemonCard
                     key={p.id}
@@ -218,13 +147,23 @@ export default function SpecialFormsPage({ type }: Props) {
 
               {totalPages > 1 && (
                 <div className="flex justify-center gap-3 mt-10">
-                  <Button disabled={safePage === 0} onClick={() => setPage(safePage - 1)}>
+                  <Button
+                    aria-label="Página anterior"
+                    disabled={safePage === 0}
+                    onClick={() => setPage(safePage - 1)}
+                  >
                     <ChevronLeft />
                   </Button>
 
-                  <span>{safePage + 1} / {totalPages}</span>
+                  <span>
+                    {safePage + 1} / {totalPages}
+                  </span>
 
-                  <Button disabled={safePage >= totalPages - 1} onClick={() => setPage(safePage + 1)}>
+                  <Button
+                    aria-label="Próxima página"
+                    disabled={safePage >= totalPages - 1}
+                    onClick={() => setPage(safePage + 1)}
+                  >
                     <ChevronRight />
                   </Button>
                 </div>

@@ -1,19 +1,49 @@
-# AdibDex 
+# AdibDex
 
-O AdibDex é uma Pokédex moderna, rápida e completa, desenvolvida para oferecer uma experiência muito mais avançada do que as Pokédex tradicionais. O projeto combina uma interface limpa com um sistema robusto de dados, permitindo explorar Pokémon de forma intuitiva, detalhada e eficiente, tanto no desktop quanto no mobile.
+Pokédex em português com catálogo nacional (1.025 espécies), formas regionais, Mega/Primal e Gigantamax, filtros e detalhes obtidos da PokeAPI.
 
-A aplicação foi pensada para ser altamente funcional, trazendo filtros inteligentes, navegação consistente e suporte completo às diferentes formas existentes no universo Pokémon, como Mega Evolutions, Gigantamax, formas regionais e Primal forms. Além disso, a experiência do usuário foi cuidadosamente construída para manter sempre o contexto de navegação, evitando comportamentos confusos ao explorar diferentes Pokémon.
+## Executar localmente
 
-Um dos principais diferenciais do AdibDex é o sistema avançado de filtros. É possível buscar Pokémon por tipo, fraquezas, vantagens contra determinados tipos, além de classificações específicas como lendários, míticos, pseudo-lendários, iniciais, ultra beasts, paradox e baby Pokémon. Todos esses filtros podem ser combinados entre si e funcionam perfeitamente junto com paginação e ordenação, permitindo uma navegação rápida mesmo com grandes volumes de dados.
+Requisitos: Node.js 24.18.0 e npm 11.16.0 (versões de referência em `.nvmrc` e `package.json`). Use apenas npm; o lockfile oficial é `package-lock.json`.
 
-A parte de batalha também recebe bastante atenção. Cada Pokémon possui sua move pool organizada por jogo ou geração, separando movimentos aprendidos por level, por TM/HM e por breeding (egg moves). Ao clicar em um movimento ou habilidade, o usuário pode visualizar uma descrição detalhada do efeito, sem redundância de informações já exibidas. Essas descrições ainda são automaticamente traduzidas de acordo com o idioma do usuário, mantendo a acessibilidade global da aplicação.
+```sh
+npm ci
+npm run dev
+```
 
-Outro ponto importante é o tratamento correto das formas alternativas. A cadeia evolutiva se adapta dinamicamente à forma visualizada, garantindo consistência — por exemplo, um Pokémon em sua forma regional exibirá apenas evoluções compatíveis com aquela variação, sem misturar com a forma base. Além disso, foram criadas categorias específicas para Mega Evolutions e Gigantamax, funcionando como “regiões” próprias dentro da Pokédex, com ordenação pela National Dex e identidade visual personalizada.
+Abra http://127.0.0.1:8080. Nenhuma variável de ambiente, credencial ou banco é necessário. Listas usam o catálogo versionado; detalhes e imagens precisam de acesso à internet.
 
-A navegação também foi projetada com atenção especial. O botão de voltar sempre respeita a origem do usuário, mantendo o contexto correto mesmo após navegar entre Pokémon por meio da evolution chain ou outras interações internas. O estado da página — incluindo filtros, ordenação e número da página — é preservado integralmente, evitando frustrações durante o uso.
+## Verificação
 
-Em termos de performance, o AdibDex utiliza paginação como padrão, carregamento sob demanda (lazy loading), divisão de código (code splitting) e otimização de imagens para garantir tempos de resposta rápidos e baixo consumo de dados, especialmente em dispositivos móveis. O sistema também inclui um toggle de sprites shiny, que alterna entre versões normais e brilhantes sem causar desalinhamento visual.
+```sh
+npm run typecheck
+npm run lint
+npm run format:check
+npm run test:coverage
+npm run build
+npx --no-install playwright install chromium
+npm run test:e2e
+npm audit
+```
 
-Por fim, o projeto utiliza dados estruturados da PokeAPI e segue como referência visual e organizacional o Pokémon Database, garantindo consistência, precisão e familiaridade para os usuários.
+Os E2E iniciam automaticamente um preview local na porta 8080 e **exigem um build atualizado**. Feche outro servidor nessa porta antes de executá-los. No Linux de CI, use `playwright install --with-deps chromium`.
 
-O objetivo do AdibDex é simples: criar uma Pokédex completa, rápida, intuitiva e fiel aos jogos, com uma experiência de uso moderna e altamente funcional.
+Testes cobrem filtros, estado salvo inválido, storage bloqueado, paginação durante carregamento, busca além da primeira página, retorno dos detalhes, falhas HTTP, recuperação e cancelamento compartilhado. Relatórios ficam em `coverage/` e `playwright-report/`. Serviços externos são simulados nos testes; faça também o checklist do host real.
+
+## Manutenção
+
+- `npm run data:generate`: atualiza o JSON compacto a partir do commit oficial fixado no script. Revise o diff antes de publicar.
+- `npm run images:convert`: converte os originais de `assets/backgrounds` para os WebP em `public/backgrounds`. Não é executado automaticamente no build.
+- `npm run format`: formata código e configuração.
+- A CI verifica qualidade, testes e build. A auditoria online tem workflow semanal separado. O conversor manual entrega um artefato; não faz commits ou push automático.
+
+**Regra de produto:** estágio evolutivo ausente é tratado como **Básico**, inclusive nas formas sem enriquecimento. Essa regra tem testes e não deve ser removida como “dado inválido”.
+
+## Documentação
+
+- [Arquitetura, regras e atualização dos dados](docs/architecture.md)
+- [Publicação, cabeçalhos e verificações de produção](docs/production.md)
+
+Stack: React 18, TypeScript estrito, React Router, TanStack Query, Vite, Tailwind CSS, Radix UI, Zod, Vitest e Playwright. As versões exatas instaladas ficam no lockfile.
+
+Dados: [PokeAPI](https://pokeapi.co/) e seu [repositório oficial](https://github.com/PokeAPI/pokeapi). Sprites: [PokeAPI/sprites](https://github.com/PokeAPI/sprites). Pokémon e os nomes relacionados pertencem aos respectivos titulares; este é um projeto independente.

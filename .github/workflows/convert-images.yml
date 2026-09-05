@@ -1,62 +1,22 @@
 name: Convert PNG to WebP
-
 on:
-  workflow_dispatch
-
+  workflow_dispatch:
+permissions:
+  contents: read
 jobs:
   convert:
     runs-on: ubuntu-latest
-
+    timeout-minutes: 10
     steps:
-      - name: Checkout repo
-        uses: actions/checkout@v3
-
-      - name: Setup Node
-        uses: actions/setup-node@v4
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+      - uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38 # v6
         with:
-          node-version: 20
-
-      - name: Install sharp
-        run: npm install sharp
-
-      - name: Convert images
-        run: |
-          node -e "
-          const fs = require('fs');
-          const path = require('path');
-          const sharp = require('sharp');
-
-          const dir = 'public/backgrounds';
-
-          if (!fs.existsSync(dir)) {
-            console.log('Folder not found:', dir);
-            process.exit(1);
-          }
-
-          const files = fs.readdirSync(dir).filter(f =>
-            f.toLowerCase().endsWith('.png')
-          );
-
-          if (files.length === 0) {
-            console.log('No PNG files found');
-          }
-
-          (async () => {
-            for (const file of files) {
-              const input = path.join(dir, file);
-              const output = path.join(dir, file.replace(/\\.(png)$/i, '.webp'));
-
-              await sharp(input).webp({ quality: 80 }).toFile(output);
-
-              console.log('Converted:', file);
-            }
-          })();
-          "
-
-      - name: Commit changes
-        run: |
-          git config --global user.name "github-actions"
-          git config --global user.email "actions@github.com"
-          git add .
-          git commit -m "convert images to webp" || echo "No changes"
-          git push
+          node-version-file: .nvmrc
+          cache: npm
+      - run: npm ci
+      - run: npm run images:convert
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: converted-backgrounds
+          path: public/backgrounds/*.webp
+          retention-days: 7

@@ -1,23 +1,17 @@
+import { useMemo } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { Link } from 'react-router-dom';
 import {
   fetchEvolutionChain,
   fetchMegaEvolutions,
   fetchGmaxForms,
+  type EvolutionStep,
 } from '@/lib/pokeapi';
 import { TypeBadge } from '@/components/TypeBadge';
 import { Skeleton } from '@/components/ui/skeleton';
-import {
-  ArrowDown,
-  Sparkles,
-  Swords,
-  Heart,
-  Moon,
-  Sun,
-  Droplets,
-  Zap,
-  Crown,
-} from 'lucide-react';
+import { QueryErrorState } from '@/components/QueryErrorState';
+import type { PokemonListContext } from '@/lib/navigation';
+import { ArrowDown, Sparkles, Swords, Heart, Moon, Sun, Droplets, Zap, Crown } from 'lucide-react';
 
 const TRIGGER_LABELS: Record<string, string> = {
   'level-up': 'Subir de Nível',
@@ -35,7 +29,7 @@ const TRIGGER_LABELS: Record<string, string> = {
   'recoil-damage': 'Dano de Recuo',
 };
 
-function EvolutionDetail({ evo }: { evo: any }) {
+function EvolutionDetail({ evo }: { evo: EvolutionStep }) {
   const details: React.ReactNode[] = [];
 
   if (evo.minLevel) {
@@ -45,7 +39,7 @@ function EvolutionDetail({ evo }: { evo: any }) {
         className="inline-flex items-center gap-1 rounded-full bg-primary/15 px-2.5 py-0.5 text-[11px] font-bold text-primary border border-primary/20"
       >
         <Sparkles className="h-3 w-3" /> Nv. {evo.minLevel}
-      </span>
+      </span>,
     );
   }
 
@@ -58,7 +52,7 @@ function EvolutionDetail({ evo }: { evo: any }) {
       >
         {evo.trigger === 'trade' && <Swords className="h-3 w-3" />}
         {label}
-      </span>
+      </span>,
     );
   }
 
@@ -69,7 +63,7 @@ function EvolutionDetail({ evo }: { evo: any }) {
         className="inline-flex items-center gap-1 rounded-full bg-secondary px-2.5 py-0.5 text-[11px] font-semibold text-secondary-foreground border border-border capitalize"
       >
         🧪 {evo.item.replace(/-/g, ' ')}
-      </span>
+      </span>,
     );
   }
 
@@ -80,7 +74,7 @@ function EvolutionDetail({ evo }: { evo: any }) {
         className="inline-flex items-center gap-1 rounded-full bg-muted px-2.5 py-0.5 text-[11px] font-semibold text-muted-foreground border border-border capitalize"
       >
         🎒 Segurar: {evo.heldItem.replace(/-/g, ' ')}
-      </span>
+      </span>,
     );
   }
 
@@ -91,7 +85,7 @@ function EvolutionDetail({ evo }: { evo: any }) {
         className="inline-flex items-center gap-1 rounded-full bg-primary/10 px-2.5 py-0.5 text-[11px] font-semibold text-primary border border-primary/20"
       >
         <Heart className="h-3 w-3" /> Felicidade {evo.minHappiness}+
-      </span>
+      </span>,
     );
   }
 
@@ -104,7 +98,7 @@ function EvolutionDetail({ evo }: { evo: any }) {
       >
         {isNight ? <Moon className="h-3 w-3" /> : <Sun className="h-3 w-3" />}
         {isNight ? 'Noite' : 'Dia'}
-      </span>
+      </span>,
     );
   }
 
@@ -115,7 +109,7 @@ function EvolutionDetail({ evo }: { evo: any }) {
         className="inline-flex items-center gap-1 rounded-full bg-secondary px-2.5 py-0.5 text-[11px] font-semibold text-secondary-foreground border border-border capitalize"
       >
         ⚔️ Saber: {evo.knownMove.replace(/-/g, ' ')}
-      </span>
+      </span>,
     );
   }
 
@@ -126,7 +120,7 @@ function EvolutionDetail({ evo }: { evo: any }) {
         className="inline-flex items-center gap-1 rounded-full bg-secondary px-2.5 py-0.5 text-[11px] font-semibold text-secondary-foreground border border-border capitalize"
       >
         Saber golpe tipo: {evo.knownMoveType.replace(/-/g, ' ')}
-      </span>
+      </span>,
     );
   }
 
@@ -137,7 +131,7 @@ function EvolutionDetail({ evo }: { evo: any }) {
         className="inline-flex items-center gap-1 rounded-full bg-muted px-2.5 py-0.5 text-[11px] font-semibold text-muted-foreground border border-border capitalize"
       >
         📍 {evo.location.replace(/-/g, ' ')}
-      </span>
+      </span>,
     );
   }
 
@@ -148,7 +142,7 @@ function EvolutionDetail({ evo }: { evo: any }) {
         className="inline-flex items-center gap-1 rounded-full bg-primary/10 px-2.5 py-0.5 text-[11px] font-semibold text-primary border border-primary/20"
       >
         💕 Afeição {evo.minAffection}+
-      </span>
+      </span>,
     );
   }
 
@@ -159,7 +153,7 @@ function EvolutionDetail({ evo }: { evo: any }) {
         className="inline-flex items-center gap-1 rounded-full bg-accent/40 px-2.5 py-0.5 text-[11px] font-semibold text-accent-foreground border border-accent/20"
       >
         <Droplets className="h-3 w-3" /> Chovendo
-      </span>
+      </span>,
     );
   }
 
@@ -170,7 +164,7 @@ function EvolutionDetail({ evo }: { evo: any }) {
         className="inline-flex items-center gap-1 rounded-full bg-accent/40 px-2.5 py-0.5 text-[11px] font-semibold text-accent-foreground border border-accent/20"
       >
         🔄 Console de cabeça pra baixo
-      </span>
+      </span>,
     );
   }
 
@@ -187,31 +181,43 @@ interface EvolutionChainDisplayProps {
   pokemonId: number;
   isShiny?: boolean;
   origin?: string;
+  listContext?: PokemonListContext;
 }
 
 export function EvolutionChainDisplay({
   pokemonId,
   isShiny = false,
   origin,
+  listContext,
 }: EvolutionChainDisplayProps) {
-  const { data: chain, isLoading } = useQuery({
+  const {
+    data: chain,
+    isLoading,
+    isError,
+    refetch,
+  } = useQuery({
     queryKey: ['evolution-chain', pokemonId],
-    queryFn: () => fetchEvolutionChain(pokemonId),
+    queryFn: ({ signal }) => fetchEvolutionChain(pokemonId, signal),
     staleTime: 1000 * 60 * 60,
   });
 
-  const baseIds = chain?.steps.flat().map((s) => s.id) || [];
+  const baseIds = useMemo(
+    () => [...new Set(chain?.steps.flat().map((step) => step.id) ?? [])],
+    [chain],
+  );
 
-  const { data: allMegas } = useQuery({
+  const {
+    data: allMegas,
+    isPending: megasLoading,
+    isError: megasError,
+    refetch: refetchMegas,
+  } = useQuery({
     queryKey: ['mega-evolutions', [...baseIds].sort().join(',')],
-    queryFn: async () => {
-      const results = await Promise.all(baseIds.map((id) => fetchMegaEvolutions(id)));
-      const megaMap: Record<
-        number,
-        Awaited<ReturnType<typeof fetchMegaEvolutions>>
-      > = {};
-      baseIds.forEach((id, i) => {
-        if (results[i].length > 0) megaMap[id] = results[i];
+    queryFn: async ({ signal }) => {
+      const results = await Promise.all(baseIds.map((id) => fetchMegaEvolutions(id, signal)));
+      const megaMap: Record<number, Awaited<ReturnType<typeof fetchMegaEvolutions>>> = {};
+      baseIds.forEach((id, index) => {
+        if (results[index].length > 0) megaMap[id] = results[index];
       });
       return megaMap;
     },
@@ -219,14 +225,16 @@ export function EvolutionChainDisplay({
     staleTime: 1000 * 60 * 60,
   });
 
-  const { data: allGmax } = useQuery({
+  const {
+    data: allGmax,
+    isPending: gmaxLoading,
+    isError: gmaxError,
+    refetch: refetchGmax,
+  } = useQuery({
     queryKey: ['gmax-forms', [...baseIds].sort().join(',')],
-    queryFn: async () => {
-      const results = await Promise.all(baseIds.map((id) => fetchGmaxForms(id)));
-      const gmaxMap: Record<
-        number,
-        Awaited<ReturnType<typeof fetchGmaxForms>>
-      > = {};
+    queryFn: async ({ signal }) => {
+      const results = await Promise.all(baseIds.map((id) => fetchGmaxForms(id, signal)));
+      const gmaxMap: Record<number, Awaited<ReturnType<typeof fetchGmaxForms>>> = {};
       baseIds.forEach((id, i) => {
         if (results[i].length > 0) gmaxMap[id] = results[i];
       });
@@ -236,7 +244,7 @@ export function EvolutionChainDisplay({
     staleTime: 1000 * 60 * 60,
   });
 
-  if (isLoading) {
+  if (isLoading || (baseIds.length > 0 && (megasLoading || gmaxLoading))) {
     return (
       <div className="rounded-xl bg-card border border-border p-6">
         <h3 className="font-bold text-card-foreground mb-4">Linha Evolutiva</h3>
@@ -249,7 +257,28 @@ export function EvolutionChainDisplay({
     );
   }
 
-  if (!chain || (chain.steps.length <= 1 && chain.steps[0]?.length <= 1)) {
+  if (isError) {
+    return (
+      <QueryErrorState
+        title="Não foi possível carregar a linha evolutiva"
+        onRetry={() => void refetch()}
+      />
+    );
+  }
+
+  if (megasError || gmaxError) {
+    return (
+      <QueryErrorState
+        title="Não foi possível carregar as formas especiais"
+        onRetry={() => {
+          void refetchMegas();
+          void refetchGmax();
+        }}
+      />
+    );
+  }
+
+  if (!chain || (chain.steps.length <= 1 && (chain.steps[0]?.length ?? 0) <= 1)) {
     const megas = allMegas?.[pokemonId];
     const gmax = allGmax?.[pokemonId];
 
@@ -264,24 +293,29 @@ export function EvolutionChainDisplay({
   }
 
   function getOfficialArtwork(id: number) {
-  return `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/${id}.png`;
-}
+    return `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/${id}.png`;
+  }
 
-function getShinySprite(id: number) {
-  return `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/shiny/${id}.png`;
-}
+  function getShinySprite(id: number) {
+    return `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/shiny/${id}.png`;
+  }
 
-function getSprite(id: number, normalSprite: string) {
-  return isShiny ? getShinySprite(id) : normalSprite;
-}
+  function getArtwork(id: number) {
+    return isShiny ? getShinySprite(id) : getOfficialArtwork(id);
+  }
 
-function getArtwork(
-  id: number,
-  normalFallback?: string,
-  shinyFallback?: string
-) {
-  return isShiny ? getShinySprite(id) : getOfficialArtwork(id);
-}
+  function handleImageError(event: React.SyntheticEvent<HTMLImageElement>, id: number) {
+    const image = event.currentTarget;
+    const fallback = `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${
+      isShiny ? 'shiny/' : ''
+    }${id}.png`;
+
+    if (image.src === fallback) {
+      image.style.visibility = 'hidden';
+      return;
+    }
+    image.src = fallback;
+  }
 
   return (
     <div className="rounded-xl bg-card border border-border p-6">
@@ -303,21 +337,21 @@ function getArtwork(
 
                   <Link
                     to={`/pokemon/${evo.id}`}
-                    state={{ origin }}
+                    state={{ origin, listContext }}
                     className={`flex flex-col items-center w-28 sm:w-32 p-3 rounded-xl border border-border bg-card transition-all hover:scale-105 hover:border-primary/40 ${
                       evo.id === pokemonId ? 'ring-2 ring-primary bg-muted/40' : ''
                     }`}
                   >
                     <div className="h-20 w-20 sm:h-24 sm:w-24 flex items-center justify-center">
                       <img
-                          src={getArtwork(evo.id, evo.sprite, evo.sprite)}
-                          alt={evo.name}
-                          className="max-h-full max-w-full object-contain"
-                          loading="lazy"
-                          onError={(e) => {
-                            e.currentTarget.src = getSprite(evo.id, evo.sprite);
-                          }}
-                        />
+                        src={getArtwork(evo.id)}
+                        alt={evo.name}
+                        className="max-h-full max-w-full object-contain"
+                        loading="lazy"
+                        onError={(e) => {
+                          handleImageError(e, evo.id);
+                        }}
+                      />
                     </div>
 
                     <span className="mt-2 text-[11px] font-bold text-muted-foreground">
@@ -346,19 +380,19 @@ function getArtwork(
 
                       <Link
                         to={`/pokemon/${mega.id}`}
-                        state={{ origin }}
+                        state={{ origin, listContext }}
                         className="flex flex-col items-center w-28 sm:w-32 p-3 rounded-xl border border-primary/20 bg-gradient-to-b from-primary/5 to-transparent transition-all hover:scale-105"
                       >
                         <div className="h-20 w-20 sm:h-24 sm:w-24 flex items-center justify-center">
                           <img
-  src={getArtwork(mega.id, mega.sprite, mega.spriteShiny)}
-  alt={mega.name}
-  className="max-h-full max-w-full object-contain"
-  loading="lazy"
-  onError={(e) => {
-    e.currentTarget.src = isShiny ? mega.spriteShiny : mega.sprite;
-  }}
-/>
+                            src={getArtwork(mega.id)}
+                            alt={mega.name}
+                            className="max-h-full max-w-full object-contain"
+                            loading="lazy"
+                            onError={(e) => {
+                              handleImageError(e, mega.id);
+                            }}
+                          />
                         </div>
 
                         <span className="text-xs sm:text-sm font-semibold capitalize text-card-foreground mt-2 text-center leading-tight">
@@ -388,19 +422,19 @@ function getArtwork(
 
                       <Link
                         to={`/pokemon/${gmax.id}`}
-                        state={{ origin }}
+                        state={{ origin, listContext }}
                         className="flex flex-col items-center w-28 sm:w-32 p-3 rounded-xl border border-purple-500/20 bg-gradient-to-b from-purple-500/5 to-transparent transition-all hover:scale-105"
                       >
                         <div className="h-20 w-20 sm:h-24 sm:w-24 flex items-center justify-center">
                           <img
-  src={getArtwork(gmax.id, gmax.sprite, gmax.spriteShiny)}
-  alt={gmax.name}
-  className="max-h-full max-w-full object-contain"
-  loading="lazy"
-  onError={(e) => {
-    e.currentTarget.src = isShiny ? gmax.spriteShiny : gmax.sprite;
-  }}
-/>
+                            src={getArtwork(gmax.id)}
+                            alt={gmax.name}
+                            className="max-h-full max-w-full object-contain"
+                            loading="lazy"
+                            onError={(e) => {
+                              handleImageError(e, gmax.id);
+                            }}
+                          />
                         </div>
 
                         <span className="text-xs sm:text-sm font-semibold capitalize text-card-foreground mt-2 text-center leading-tight">

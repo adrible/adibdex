@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { useParams, Link, useNavigate, useLocation } from 'react-router-dom';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import {
@@ -26,6 +26,8 @@ import {
 } from 'lucide-react';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Footer } from '@/components/Footer';
+import { QueryErrorState } from '@/components/QueryErrorState';
+import { parsePokemonNavigationState } from '@/lib/navigation';
 
 function StatBar({ name, value }: { name: string; value: number }) {
   const percentage = Math.min((value / 255) * 100, 100);
@@ -33,9 +35,7 @@ function StatBar({ name, value }: { name: string; value: number }) {
 
   return (
     <div className="flex items-center gap-3">
-      <span className="text-xs font-semibold text-muted-foreground w-24 text-right">
-        {label}
-      </span>
+      <span className="text-xs font-semibold text-muted-foreground w-24 text-right">{label}</span>
       <span className="text-sm font-bold w-8 text-foreground">{value}</span>
       <div className="flex-1 h-2.5 rounded-full bg-muted overflow-hidden">
         <div
@@ -50,9 +50,13 @@ function StatBar({ name, value }: { name: string; value: number }) {
 function AbilityChip({ ability }: { ability: string }) {
   const [expanded, setExpanded] = useState(false);
 
-  const { data: description } = useQuery({
+  const {
+    data: description,
+    isLoading,
+    isError,
+  } = useQuery({
     queryKey: ['ability-desc', ability],
-    queryFn: () => fetchAbilityDescription(ability),
+    queryFn: ({ signal }) => fetchAbilityDescription(ability, signal),
     enabled: expanded,
     staleTime: Infinity,
   });
@@ -61,6 +65,7 @@ function AbilityChip({ ability }: { ability: string }) {
     <div>
       <button
         onClick={() => setExpanded(!expanded)}
+        aria-expanded={expanded}
         className="rounded-full bg-secondary px-3 py-1 text-sm font-medium capitalize text-secondary-foreground hover:bg-secondary/80 transition-colors inline-flex items-center gap-1"
       >
         {ability.replace(/-/g, ' ')}
@@ -68,7 +73,11 @@ function AbilityChip({ ability }: { ability: string }) {
       </button>
       {expanded && (
         <p className="text-xs text-muted-foreground mt-1.5 ml-1 max-w-md">
-          {description || 'Carregando...'}
+          {isLoading
+            ? 'Carregando...'
+            : isError
+              ? 'Não foi possível carregar a descrição.'
+              : description || 'Descrição indisponível.'}
         </p>
       )}
     </div>
@@ -82,26 +91,22 @@ export default function PokemonDetailPage() {
   const queryClient = useQueryClient();
 
   const pokemonId = Number(id);
+  const isValidPokemonId = Number.isSafeInteger(pokemonId) && pokemonId > 0;
   const [isShiny, setIsShiny] = useState(false);
 
-  const origin = (location.state as any)?.origin as string | undefined;
-  const stableOrigin =
-    origin || sessionStorage.getItem('pokemon-nav-origin') || undefined;
+  const navigationState = useMemo(
+    () => parsePokemonNavigationState(location.state),
+    [location.state],
+  );
+  const origin = navigationState.origin;
+  const stableOrigin = origin;
 
-  if (origin) {
-    sessionStorage.setItem('pokemon-nav-origin', origin);
-  }
-
-  const listContext = (location.state as any)?.listContext as
-    | { ids: number[]; currentIndex: number }
-    | undefined;
+  const listContext = navigationState.listContext;
 
   const ids = listContext?.ids ?? [];
   const currentIndex = listContext?.currentIndex ?? -1;
 
-  const idsSafe = ids.length
-    ? ids
-    : Array.from({ length: 1025 }, (_, i) => i + 1);
+  const idsSafe = ids.length ? ids : Array.from({ length: 1025 }, (_, i) => i + 1);
 
   const safeIndex =
     currentIndex >= 0 && idsSafe[currentIndex] === pokemonId
@@ -109,22 +114,29 @@ export default function PokemonDetailPage() {
       : idsSafe.indexOf(pokemonId);
 
   const prevId = safeIndex > 0 ? idsSafe[safeIndex - 1] : null;
-  const nextId =
-    safeIndex >= 0 && safeIndex < idsSafe.length - 1
-      ? idsSafe[safeIndex + 1]
-      : null;
+  const nextId = safeIndex >= 0 && safeIndex < idsSafe.length - 1 ? idsSafe[safeIndex + 1] : null;
 
-  const { data: pokemon, isLoading } = useQuery({
+  const {
+    data: pokemon,
+    isLoading,
+    isError: pokemonError,
+    refetch: refetchPokemon,
+  } = useQuery({
     queryKey: ['pokemon-detail', pokemonId],
-    queryFn: () => fetchPokemonDetail(pokemonId),
-    enabled: !isNaN(pokemonId),
+    queryFn: ({ signal }) => fetchPokemonDetail(pokemonId, signal),
+    enabled: isValidPokemonId,
     staleTime: 1000 * 60 * 30,
   });
 
-  const { data: encounters, isLoading: encountersLoading } = useQuery({
+  const {
+    data: encounters,
+    isLoading: encountersLoading,
+    isError: encountersError,
+    refetch: refetchEncounters,
+  } = useQuery({
     queryKey: ['pokemon-encounters', pokemonId],
-    queryFn: () => fetchPokemonEncounters(pokemonId),
-    enabled: !isNaN(pokemonId),
+    queryFn: ({ signal }) => fetchPokemonEncounters(pokemonId, signal),
+    enabled: isValidPokemonId,
     staleTime: 1000 * 60 * 30,
   });
 
@@ -134,13 +146,13 @@ export default function PokemonDetailPage() {
 
       queryClient.prefetchQuery({
         queryKey: ['pokemon-detail', id],
-        queryFn: () => fetchPokemonDetail(id),
+        queryFn: ({ signal }) => fetchPokemonDetail(id, signal),
         staleTime: 1000 * 60 * 30,
       });
 
       queryClient.prefetchQuery({
         queryKey: ['pokemon-encounters', id],
-        queryFn: () => fetchPokemonEncounters(id),
+        queryFn: ({ signal }) => fetchPokemonEncounters(id, signal),
         staleTime: 1000 * 60 * 30,
       });
     };
@@ -150,19 +162,31 @@ export default function PokemonDetailPage() {
   }, [prevId, nextId, queryClient]);
 
   const displayId = pokemon?.speciesId ?? pokemonId;
-  const isBaseForm = pokemonId <= 1025;
 
   const handleBack = () => {
     if (stableOrigin) {
-      sessionStorage.removeItem('pokemon-nav-origin');
-      navigate(stableOrigin);
+      navigate(stableOrigin, { replace: true });
     } else {
       const gen = GENERATIONS.find(
-        (g) => displayId >= g.pokemonRange[0] && displayId <= g.pokemonRange[1]
+        (g) => displayId >= g.pokemonRange[0] && displayId <= g.pokemonRange[1],
       );
       navigate(gen ? `/generation/${gen.id}` : '/');
     }
   };
+
+  if (!isValidPokemonId) {
+    return (
+      <div className="min-h-screen bg-background">
+        <Header />
+        <main className="container py-20 max-w-2xl">
+          <QueryErrorState
+            title="Identificador inválido"
+            message="Use um número inteiro positivo para acessar um Pokémon."
+          />
+        </main>
+      </div>
+    );
+  }
 
   if (isLoading) {
     return (
@@ -179,28 +203,30 @@ export default function PokemonDetailPage() {
     );
   }
 
-  if (!pokemon) {
+  if (pokemonError || !pokemon) {
     return (
       <div className="min-h-screen bg-background">
         <Header />
-        <div className="container py-20 text-center">
-          <p className="text-muted-foreground">Pokémon não encontrado.</p>
-        </div>
+        <main className="container py-20 max-w-2xl">
+          <QueryErrorState
+            title="Pokémon não encontrado"
+            message="O registro não existe ou a PokeAPI está indisponível."
+            onRetry={() => void refetchPokemon()}
+          />
+        </main>
       </div>
     );
   }
 
   const totalStats = pokemon.stats.reduce((sum, s) => sum + s.value, 0);
-  const artworkSrc = isShiny
-    ? pokemon.sprites.artwork_shiny
-    : pokemon.sprites.artwork;
+  const artworkSrc = isShiny ? pokemon.sprites.artwork_shiny : pokemon.sprites.artwork;
 
   return (
     <div className="min-h-screen bg-background">
       <Header />
       <main className="container py-8 max-w-3xl">
         <div className="flex items-center justify-between mb-8">
-          <Button variant="ghost" size="icon" onClick={handleBack}>
+          <Button variant="ghost" size="icon" onClick={handleBack} aria-label="Voltar à lista">
             <ArrowLeft className="h-5 w-5" />
           </Button>
 
@@ -220,38 +246,42 @@ export default function PokemonDetailPage() {
             </Button>
 
             {prevId && (
-  <Button variant="outline" size="icon" asChild>
-    <Link
-      to={`/pokemon/${prevId}`}
-      state={{
-        origin: stableOrigin,
-        listContext: {
-          ids: idsSafe,
-          currentIndex: safeIndex - 1,
-        },
-      }}
-    >
-      <ChevronLeft className="h-4 w-4" />
-    </Link>
-  </Button>
-)}
+              <Button variant="outline" size="icon" asChild>
+                <Link
+                  to={`/pokemon/${prevId}`}
+                  replace
+                  aria-label="Pokémon anterior"
+                  state={{
+                    origin: stableOrigin,
+                    listContext: {
+                      ids: idsSafe,
+                      currentIndex: safeIndex - 1,
+                    },
+                  }}
+                >
+                  <ChevronLeft className="h-4 w-4" />
+                </Link>
+              </Button>
+            )}
 
-{nextId && (
-  <Button variant="outline" size="icon" asChild>
-    <Link
-      to={`/pokemon/${nextId}`}
-      state={{
-        origin: stableOrigin,
-        listContext: {
-          ids: idsSafe,
-          currentIndex: safeIndex + 1,
-        },
-      }}
-    >
-      <ChevronRight className="h-4 w-4" />
-    </Link>
-  </Button>
-)}
+            {nextId && (
+              <Button variant="outline" size="icon" asChild>
+                <Link
+                  to={`/pokemon/${nextId}`}
+                  replace
+                  aria-label="Próximo Pokémon"
+                  state={{
+                    origin: stableOrigin,
+                    listContext: {
+                      ids: idsSafe,
+                      currentIndex: safeIndex + 1,
+                    },
+                  }}
+                >
+                  <ChevronRight className="h-4 w-4" />
+                </Link>
+              </Button>
+            )}
           </div>
         </div>
 
@@ -307,9 +337,7 @@ export default function PokemonDetailPage() {
         <div className="rounded-xl bg-card border border-border p-6 mb-10">
           <div className="flex items-center justify-between mb-4">
             <h3 className="font-bold text-card-foreground">Estatísticas Base</h3>
-            <span className="text-sm font-semibold text-primary">
-              Total: {totalStats}
-            </span>
+            <span className="text-sm font-semibold text-primary">Total: {totalStats}</span>
           </div>
           <div className="space-y-3">
             {pokemon.stats.map((s) => (
@@ -332,13 +360,16 @@ export default function PokemonDetailPage() {
               <Skeleton className="h-4 w-full" />
               <Skeleton className="h-4 w-3/4" />
             </div>
+          ) : encountersError ? (
+            <QueryErrorState
+              title="Não foi possível carregar as localizações"
+              onRetry={() => void refetchEncounters()}
+            />
           ) : encounters && encounters.length > 0 ? (
             <div className="space-y-3 max-h-64 overflow-y-auto pr-2">
               {encounters.map((enc, i) => (
                 <div key={i} className="rounded-lg bg-muted/50 p-3">
-                  <p className="text-sm font-semibold text-foreground capitalize">
-                    {enc.location}
-                  </p>
+                  <p className="text-sm font-semibold text-foreground capitalize">{enc.location}</p>
                   <div className="flex flex-wrap gap-1 mt-1">
                     {[...new Set(enc.versions.map((v) => v.version))].map((v) => (
                       <span
@@ -364,6 +395,7 @@ export default function PokemonDetailPage() {
             pokemonId={pokemonId}
             isShiny={isShiny}
             origin={stableOrigin}
+            listContext={listContext}
           />
         </div>
 
@@ -372,6 +404,7 @@ export default function PokemonDetailPage() {
             pokemonId={pokemonId}
             isShiny={isShiny}
             origin={stableOrigin}
+            listContext={listContext}
           />
         </div>
 

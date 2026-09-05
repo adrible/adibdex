@@ -4,17 +4,25 @@ import { fetchPokemonForms } from '@/lib/pokeapi';
 import { TypeBadge } from '@/components/TypeBadge';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Globe } from 'lucide-react';
+import { QueryErrorState } from '@/components/QueryErrorState';
+import type { PokemonListContext } from '@/lib/navigation';
 
 interface Props {
   pokemonId: number;
   isShiny?: boolean;
   origin?: string;
+  listContext?: PokemonListContext;
 }
 
-export function PokemonForms({ pokemonId, isShiny = false, origin }: Props) {
-  const { data: forms, isLoading } = useQuery({
+export function PokemonForms({ pokemonId, isShiny = false, origin, listContext }: Props) {
+  const {
+    data: forms,
+    isLoading,
+    isError,
+    refetch,
+  } = useQuery({
     queryKey: ['pokemon-forms', pokemonId],
-    queryFn: () => fetchPokemonForms(pokemonId),
+    queryFn: ({ signal }) => fetchPokemonForms(pokemonId, signal),
     staleTime: 1000 * 60 * 60,
   });
 
@@ -27,6 +35,15 @@ export function PokemonForms({ pokemonId, isShiny = false, origin }: Props) {
           <Skeleton className="h-20 w-20 rounded-xl" />
         </div>
       </div>
+    );
+  }
+
+  if (isError) {
+    return (
+      <QueryErrorState
+        title="Não foi possível carregar as formas alternativas"
+        onRetry={() => void refetch()}
+      />
     );
   }
 
@@ -43,7 +60,7 @@ export function PokemonForms({ pokemonId, isShiny = false, origin }: Props) {
           <Link
             key={form.name}
             to={`/pokemon/${form.id}`}
-            state={{ origin }}
+            state={{ origin, listContext }}
             className="flex flex-col items-center p-3 rounded-xl bg-muted/40 border border-border transition-all hover:bg-muted/70 hover:scale-105"
           >
             <div className="h-16 w-16 sm:h-20 sm:w-20 flex items-center justify-center">
@@ -58,7 +75,9 @@ export function PokemonForms({ pokemonId, isShiny = false, origin }: Props) {
               {form.formName || form.name.replace(/-/g, ' ')}
             </span>
             <div className="flex gap-1 mt-1">
-              {form.types.map(t => <TypeBadge key={t} type={t} size="sm" />)}
+              {form.types.map((t) => (
+                <TypeBadge key={t} type={t} size="sm" />
+              ))}
             </div>
           </Link>
         ))}

@@ -23,7 +23,7 @@ export function TypeEffectiveness({ types }: Props) {
           </div>
           {defense.weaknesses.length > 0 ? (
             <div className="flex flex-wrap gap-1.5">
-              {defense.weaknesses.map(w => (
+              {defense.weaknesses.map((w) => (
                 <div key={w.type} className="flex items-center gap-1">
                   <TypeBadge type={w.type} size="sm" />
                   {w.multiplier > 2 && (
@@ -44,7 +44,7 @@ export function TypeEffectiveness({ types }: Props) {
           </div>
           {defense.resistances.length > 0 ? (
             <div className="flex flex-wrap gap-1.5">
-              {defense.resistances.map(r => (
+              {defense.resistances.map((r) => (
                 <div key={r.type} className="flex items-center gap-1">
                   <TypeBadge type={r.type} size="sm" />
                   {r.multiplier < 0.5 && (
@@ -65,7 +65,7 @@ export function TypeEffectiveness({ types }: Props) {
               <span className="text-sm font-semibold text-foreground">Imunidades</span>
             </div>
             <div className="flex flex-wrap gap-1.5">
-              {defense.immunities.map(t => (
+              {defense.immunities.map((t) => (
                 <TypeBadge key={t} type={t} size="sm" />
               ))}
             </div>
@@ -82,7 +82,9 @@ export function TypeEffectiveness({ types }: Props) {
           </div>
           {offense.superEffective.length > 0 ? (
             <div className="flex flex-wrap gap-1.5">
-              {offense.superEffective.map(t => <TypeBadge key={t} type={t} size="sm" />)}
+              {offense.superEffective.map((t) => (
+                <TypeBadge key={t} type={t} size="sm" />
+              ))}
             </div>
           ) : (
             <p className="text-xs text-muted-foreground">Nenhum</p>
@@ -96,7 +98,9 @@ export function TypeEffectiveness({ types }: Props) {
               <span className="text-sm font-semibold text-foreground">Sem efeito contra</span>
             </div>
             <div className="flex flex-wrap gap-1.5">
-              {offense.noEffect.map(t => <TypeBadge key={t} type={t} size="sm" />)}
+              {offense.noEffect.map((t) => (
+                <TypeBadge key={t} type={t} size="sm" />
+              ))}
             </div>
           </div>
         )}

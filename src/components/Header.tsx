@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom';
-import { useTheme } from './ThemeProvider';
+import { useTheme } from '@/hooks/use-theme';
 import { Button } from './ui/button';
 import { Moon, Sun } from 'lucide-react';
 
@@ -28,13 +28,10 @@ export function Header() {
           variant="ghost"
           size="icon"
           onClick={toggleTheme}
+          aria-label={theme === 'dark' ? 'Ativar tema claro' : 'Ativar tema escuro'}
           className="text-primary-foreground hover:bg-primary-foreground/20"
         >
-          {theme === 'dark' ? (
-            <Sun className="h-5 w-5" />
-          ) : (
-            <Moon className="h-5 w-5" />
-          )}
+          {theme === 'dark' ? <Sun className="h-5 w-5" /> : <Moon className="h-5 w-5" />}
         </Button>
       </div>
     </header>

@@ -2,7 +2,6 @@ import { Link } from 'react-router-dom';
 import { GENERATIONS } from '@/lib/pokeapi';
 import { Header } from '@/components/Header';
 import { ChevronRight } from 'lucide-react';
-import { Home } from 'lucide-react';
 import { Footer } from '@/components/Footer';
 
 const REGION_STARTERS: Record<string, string[]> = {
@@ -69,9 +68,9 @@ const MEGA_SPRITES = [
 ];
 
 const GMAX_SPRITES = [
-  'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/25.png',   // Charizard
-  'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/6.png',  // Pikachu
-  'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/94.png',  // Gengar
+  'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/25.png', // Charizard
+  'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/6.png', // Pikachu
+  'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/94.png', // Gengar
 ];
 
 export default function Index() {
@@ -81,9 +80,7 @@ export default function Index() {
 
       <main className="container py-12">
         <div className="text-center mb-12">
-          <h2 className="font-pixel text-lg sm:text-2xl text-foreground mb-4">
-            Todas as Regiões
-          </h2>
+          <h2 className="font-pixel text-lg sm:text-2xl text-foreground mb-4">Todas as Regiões</h2>
           <p className="text-muted-foreground max-w-lg mx-auto mb-6">
             Explore todos os Pokémon organizados por região ou veja a Pokédex Nacional completa.
           </p>
@@ -134,41 +131,39 @@ export default function Index() {
               <div className="absolute -bottom-4 -right-4 h-24 w-24 rounded-full bg-primary/5 group-hover:bg-primary/10 transition-colors" />
             </Link>
           ))}
-<Link
-  to="/regional-forms"
-  className="group relative overflow-hidden rounded-xl border border-border bg-card p-6 transition-all hover:shadow-xl hover:-translate-y-1 hover:border-primary/50"
->
-  <div className="flex items-start justify-between mb-3">
-    <div className="flex items-center gap-2 justify-center">
-      <img
-        src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/10091.png" // Rattata
-        className="w-14 h-14 object-contain transition-transform group-hover:scale-110"
-      />
-      <img
-        src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/10100.png" // Raichu
-        className="w-14 h-14 object-contain transition-transform group-hover:scale-110"
-      />
-      <img
-        src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/10103.png" // Vulpix
-        className="w-14 h-14 object-contain transition-transform group-hover:scale-110"
-      />
-    </div>
+          <Link
+            to="/regional-forms"
+            className="group relative overflow-hidden rounded-xl border border-border bg-card p-6 transition-all hover:shadow-xl hover:-translate-y-1 hover:border-primary/50"
+          >
+            <div className="flex items-start justify-between mb-3">
+              <div className="flex items-center gap-2 justify-center">
+                <img
+                  src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/10091.png" // Rattata
+                  className="w-14 h-14 object-contain transition-transform group-hover:scale-110"
+                />
+                <img
+                  src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/10100.png" // Raichu
+                  className="w-14 h-14 object-contain transition-transform group-hover:scale-110"
+                />
+                <img
+                  src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/10103.png" // Vulpix
+                  className="w-14 h-14 object-contain transition-transform group-hover:scale-110"
+                />
+              </div>
 
-    <ChevronRight className="h-5 w-5 text-muted-foreground group-hover:text-primary transition-colors" />
-  </div>
+              <ChevronRight className="h-5 w-5 text-muted-foreground group-hover:text-primary transition-colors" />
+            </div>
 
-  <h3 className="font-bold text-lg text-card-foreground mb-1">Formas Regionais</h3>
+            <h3 className="font-bold text-lg text-card-foreground mb-1">Formas Regionais</h3>
 
-  <p className="text-sm text-muted-foreground mb-3">
-    Alolan, Galarian, Hisuian e Paldean forms
-  </p>
+            <p className="text-sm text-muted-foreground mb-3">
+              Alolan, Galarian, Hisuian e Paldean forms
+            </p>
 
-  <p className="text-xs font-semibold text-primary">
-    VARIAÇÕES POR REGIÃO
-  </p>
+            <p className="text-xs font-semibold text-primary">VARIAÇÕES POR REGIÃO</p>
 
-  <div className="absolute -bottom-4 -right-4 h-24 w-24 rounded-full bg-primary/5 group-hover:bg-primary/10 transition-colors" />
-</Link>
+            <div className="absolute -bottom-4 -right-4 h-24 w-24 rounded-full bg-primary/5 group-hover:bg-primary/10 transition-colors" />
+          </Link>
           <Link
             to="/mega"
             className="group relative overflow-hidden rounded-xl border border-border bg-card p-6 transition-all hover:shadow-xl hover:-translate-y-1 hover:border-primary/50"
@@ -224,9 +219,8 @@ export default function Index() {
           </Link>
         </div>
       </main>
-      
-      <Footer/ >
+
+      <Footer />
     </div>
   );
 }
-

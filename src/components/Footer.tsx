@@ -7,11 +7,7 @@ export function Footer() {
 
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
-      if (
-        showInfo &&
-        popupRef.current &&
-        !popupRef.current.contains(event.target as Node)
-      ) {
+      if (showInfo && popupRef.current && !popupRef.current.contains(event.target as Node)) {
         setShowInfo(false);
       }
     }
@@ -24,13 +20,16 @@ export function Footer() {
 
   return (
     <footer className="relative mt-12 pb-6 text-center">
-      <div className="flex items-center justify-center gap-2 relative">
-        <span className="text-xs text-ui-subtitle">
-          v{VERSION_INFO.version}
-        </span>
+      <div ref={popupRef} className="flex items-center justify-center gap-2 relative">
+        <span className="text-xs text-ui-subtitle">v{VERSION_INFO.version}</span>
 
         <button
           onClick={() => setShowInfo((v) => !v)}
+          aria-label="Informações da versão"
+          aria-expanded={showInfo}
+          onKeyDown={(event) => {
+            if (event.key === 'Escape') setShowInfo(false);
+          }}
           className="
             w-5 h-5 flex items-center justify-center
             rounded-full
@@ -45,7 +44,6 @@ export function Footer() {
 
         {showInfo && (
           <div
-            ref={popupRef}
             className="
               absolute bottom-6 left-1/2 -translate-x-1/2
               w-52

@@ -1,16 +1,28 @@
-import { defineConfig } from "vitest/config";
-import react from "@vitejs/plugin-react-swc";
-import path from "path";
+import { defineConfig } from 'vitest/config';
+import react from '@vitejs/plugin-react';
+import { fileURLToPath } from 'node:url';
 
 export default defineConfig({
   plugins: [react()],
   test: {
-    environment: "jsdom",
+    environment: 'jsdom',
     globals: true,
-    setupFiles: ["./src/test/setup.ts"],
-    include: ["src/**/*.{test,spec}.{ts,tsx}"],
+    restoreMocks: true,
+    coverage: {
+      provider: 'v8',
+      include: [
+        'src/lib/pokeapi/**/*.ts',
+        'src/lib/session-storage.ts',
+        'src/lib/navigation.ts',
+        'src/features/catalog/**/*.ts',
+      ],
+      reporter: ['text', 'html', 'lcov'],
+      thresholds: { statements: 80, branches: 65, functions: 75, lines: 80 },
+    },
+    setupFiles: ['./src/test/setup.ts'],
+    include: ['src/**/*.{test,spec}.{ts,tsx}'],
   },
   resolve: {
-    alias: { "@": path.resolve(__dirname, "./src") },
+    alias: { '@': fileURLToPath(new URL('./src', import.meta.url)) },
   },
 });

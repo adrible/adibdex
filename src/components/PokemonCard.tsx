@@ -19,11 +19,9 @@ export const PokemonCard = React.memo(function PokemonCard({
   originPath,
   listContext,
 }: Props) {
-  const displayId =
-    (pokemon as any).baseId ?? (pokemon.id <= 1025 ? pokemon.id : null);
+  const displayId = pokemon.baseId ?? (pokemon.id <= 1025 ? pokemon.id : null);
 
-  const isSpecialFormsPage =
-    originPath?.includes('/mega') || originPath?.includes('/gmax');
+  const isSpecialFormsPage = originPath?.includes('/mega') || originPath?.includes('/gmax');
 
   const imageSrc = useMemo(() => {
     if (isSpecialFormsPage) {
@@ -33,13 +31,7 @@ export const PokemonCard = React.memo(function PokemonCard({
     }
 
     return isShiny ? pokemon.spriteShiny : pokemon.sprite;
-  }, [
-    isSpecialFormsPage,
-    isShiny,
-    pokemon.id,
-    pokemon.sprite,
-    pokemon.spriteShiny,
-  ]);
+  }, [isSpecialFormsPage, isShiny, pokemon.id, pokemon.sprite, pokemon.spriteShiny]);
 
   const pokemonName = useMemo(() => {
     return pokemon.name.replace(/-/g, ' ');
