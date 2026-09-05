@@ -123,26 +123,78 @@
   .evolution-special-grid {
     @apply grid grid-cols-2 gap-3 sm:grid-cols-3;
   }
-  .changelog {
-    @apply mx-auto mt-14 max-w-4xl scroll-mt-24 overflow-hidden rounded-2xl border border-border bg-card p-5 shadow-sm sm:p-7;
+  .evolution-tree-node {
+    @apply min-w-0;
   }
-  .changelog-heading {
-    @apply mb-6 flex items-center justify-between gap-4;
+  .evolution-tree-member {
+    @apply mx-auto w-full max-w-[200px];
+  }
+  .evolution-tree-member--compact {
+    @apply max-w-none;
+  }
+  .evolution-tree-member--compact .evolution-card {
+    @apply rounded-xl p-2;
+  }
+  .evolution-tree-member--compact .evolution-artwork-wrap {
+    @apply my-1 h-16;
+  }
+  .evolution-tree-member--compact .evolution-name {
+    @apply text-xs;
+  }
+  .evolution-tree-connector {
+    @apply relative mx-auto flex min-h-10 items-center justify-center gap-2 py-3 text-center text-xs text-muted-foreground;
+  }
+  .evolution-tree-children {
+    @apply mx-auto grid gap-4;
+  }
+  .evolution-tree-children--split {
+    @apply grid-cols-2 items-start gap-x-3 gap-y-5 border-t border-primary/20 pt-4;
+  }
+  .evolution-tree-children--split > .evolution-tree-node {
+    @apply relative;
+  }
+  .evolution-tree-children--split > .evolution-tree-node::before {
+    content: '';
+    @apply absolute -top-4 left-1/2 h-4 w-px bg-primary/20;
+  }
+  .evolution-tree-children--many {
+    @apply sm:grid-cols-4;
+  }
+  .changelog {
+    @apply mx-auto mt-10 max-w-4xl scroll-mt-24 border-t border-border py-5 text-foreground;
+  }
+  .changelog-bar {
+    @apply flex flex-wrap items-center justify-between gap-3;
+  }
+  .changelog-label {
+    @apply flex items-center gap-2;
   }
   .changelog-version {
-    @apply rounded-full bg-primary/10 px-3 py-1 text-xs font-semibold text-primary;
+    @apply rounded bg-muted px-1.5 py-0.5 text-[10px] font-medium text-muted-foreground;
   }
-  .changelog-release {
-    @apply rounded-xl border border-border/70 bg-background/50 p-4 sm:p-5;
+  .changelog-toggle {
+    @apply flex items-center gap-1 rounded px-2 py-1 text-xs font-medium text-muted-foreground hover:text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary;
+  }
+  .changelog-content {
+    @apply pt-5;
+  }
+  .changelog-release-heading {
+    @apply flex flex-wrap items-baseline justify-between gap-2;
+  }
+  .changelog-changes {
+    @apply mt-3 list-disc space-y-1.5 pl-4 text-xs leading-relaxed text-muted-foreground marker:text-primary/60;
+  }
+  .changelog-history-entry {
+    @apply mt-4 border-l border-border pl-3;
   }
   .changelog-data {
-    @apply mt-5 flex items-start gap-2 rounded-xl bg-muted/40 p-4;
+    @apply mt-5 border-t border-border/60 pt-3 text-[11px] leading-relaxed text-muted-foreground;
   }
   .changelog-previous {
-    @apply mt-5 border-t border-border pt-4;
+    @apply mt-4;
   }
   .changelog-previous summary {
-    @apply cursor-pointer text-sm font-medium text-muted-foreground transition-colors hover:text-primary;
+    @apply cursor-pointer text-xs font-medium text-muted-foreground hover:text-primary;
   }
 }
 
@@ -157,31 +209,10 @@
     display: none;
   }
 }
-.evolution-stages--branched {
-  grid-template-columns: minmax(0, 1fr);
-}
-.evolution-stages--branched .evolution-stage-cards {
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-}
-.evolution-stages--branched .evolution-stage:first-child .evolution-stage-cards {
-  grid-template-columns: minmax(0, 200px);
-  justify-content: center;
-}
 .evolution-stages--single .evolution-stage-cards,
 .evolution-special-grid--single {
   grid-template-columns: minmax(0, 200px);
   justify-content: center;
-}
-.evolution-stages--branched .evolution-connector-desktop {
-  display: none;
-}
-.evolution-stages--branched .evolution-connector-mobile {
-  display: block;
-}
-@media (min-width: 640px) {
-  .evolution-stages--branched .evolution-stage-cards {
-    grid-template-columns: repeat(4, minmax(0, 1fr));
-  }
 }
 @media (prefers-reduced-motion: reduce) {
   .evolution-card,

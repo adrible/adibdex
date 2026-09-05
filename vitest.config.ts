@@ -15,6 +15,7 @@ export default defineConfig({
         'src/lib/session-storage.ts',
         'src/lib/navigation.ts',
         'src/features/catalog/**/*.ts',
+        'src/features/evolution/**/*.ts',
       ],
       reporter: ['text', 'html', 'lcov'],
       thresholds: { statements: 80, branches: 65, functions: 75, lines: 80 },

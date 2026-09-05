@@ -7,6 +7,16 @@ export interface ChangelogEntry {
 
 export const CHANGELOG: ChangelogEntry[] = [
   {
+    version: '0.9.1',
+    date: '2026-09-05',
+    title: 'Evoluções mais claras',
+    changes: [
+      'Novidades em uma faixa discreta, com o histórico aberto somente quando solicitado.',
+      'Quadro evolutivo adaptável às ramificações de cada espécie, incluindo Eevee e Wurmple.',
+      'Mega, Primal e Gigantamax aparecem somente para a espécie que está sendo consultada.',
+    ],
+  },
+  {
     version: '0.9.0',
     date: '2026-09-05',
     title: 'Novas formas de explorar',

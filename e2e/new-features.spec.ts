@@ -1,4 +1,5 @@
 import { test, expect, entries } from './fixtures';
+import { CHANGELOG } from '../src/lib/version';
 
 const cards = (page: import('@playwright/test').Page) =>
   page.locator('main a.group[href^="/pokemon/"]');
@@ -78,7 +79,14 @@ test('home changelog shows the release, actual catalog metadata and history', as
   await page.goto('/');
   await page.getByRole('link', { name: 'Ver novidades da versão' }).click();
   const changelog = page.getByRole('region', { name: 'Novidades' });
-  await expect(changelog.getByText('v0.9.0', { exact: true })).toBeVisible();
+  await expect(changelog.getByText(`v${CHANGELOG[0].version}`, { exact: true })).toBeVisible();
+  await expect(changelog.getByRole('button', { name: 'Ver alterações' })).toHaveAttribute(
+    'aria-expanded',
+    'false',
+  );
+  await expect(changelog.getByText(/Dados conferidos em/)).toBeHidden();
+  await changelog.screenshot({ path: testInfo.outputPath('changelog-compact.png') });
+  await changelog.getByRole('button', { name: 'Ver alterações' }).click();
   await expect(changelog.getByText(/Dados conferidos em/)).toContainText(
     `${entries.length.toLocaleString('pt-BR')} registros`,
   );
@@ -89,6 +97,8 @@ test('home changelog shows the release, actual catalog metadata and history', as
   await changelog.getByText('Versões anteriores', { exact: true }).click();
   await expect(changelog.getByRole('heading', { name: /v0.8.0/ })).toBeVisible();
   await changelog.screenshot({ path: testInfo.outputPath('changelog.png') });
+  await changelog.getByRole('button', { name: 'Fechar' }).click();
+  await expect(changelog.getByText(/Dados conferidos em/)).toBeHidden();
 });
 
 test('three-stage evolution is linked, highlights the current Pokémon and separates transformations', async ({
@@ -114,7 +124,7 @@ test('three-stage evolution is linked, highlights the current Pokémon and separ
   );
   await expect(panel.getByText('Nível 16', { exact: true })).toBeVisible();
   await expect(panel.getByText('Evolui de bulbasaur', { exact: true })).toBeVisible();
-  await expect(panel.getByRole('region', { name: 'Mega e Primal', exact: true })).toBeVisible();
+  await expect(panel.getByRole('region', { name: 'Mega e Primal', exact: true })).toHaveCount(0);
   await panel.screenshot({
     path: testInfo.outputPath('evolution-desktop.png'),
     style: 'header { visibility: hidden; }',
@@ -136,6 +146,7 @@ test('three-stage evolution is linked, highlights the current Pokémon and separ
   });
   await panel.locator('a.evolution-card[href="/pokemon/3"]').click();
   await expect(page).toHaveURL(/\/pokemon\/3$/);
+  await expect(panel.getByRole('region', { name: 'Mega e Primal', exact: true })).toBeVisible();
 });
 
 test('branching evolutions show every alternative condition on mobile', async ({
@@ -171,12 +182,22 @@ test('branching evolutions show every alternative condition on mobile', async ({
   await page.goto('/pokemon/133');
   const panel = page.getByRole('region', { name: 'Linha Evolutiva' });
   await expect(panel.getByText('Evolui de eevee', { exact: true })).toHaveCount(8);
+  await expect(panel.getByText('8 evoluções possíveis de eevee', { exact: true })).toBeVisible();
+  await expect(panel.locator('[data-layout="branched"]')).toHaveCount(1);
+  await expect(panel.locator('.evolution-tree-children--many > .evolution-tree-node')).toHaveCount(
+    8,
+  );
   await panel.getByText('Ver condições (2 alternativas)', { exact: true }).click();
   await expect(panel.getByText('leaf stone', { exact: true })).toBeVisible();
   await expect(panel.getByText('eterna forest', { exact: true })).toBeVisible();
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
   await panel.screenshot({
     path: testInfo.outputPath('evolution-branches-mobile.png'),
+    style: 'header { visibility: hidden; }',
+  });
+  await page.setViewportSize({ width: 1280, height: 900 });
+  await panel.screenshot({
+    path: testInfo.outputPath('evolution-branches-desktop.png'),
     style: 'header { visibility: hidden; }',
   });
 });
@@ -190,7 +211,8 @@ test('changelog metadata failures offer recovery without hiding release notes', 
   );
   await page.goto('/');
   const changelog = page.getByRole('region', { name: 'Novidades' });
-  await expect(changelog.getByText('v0.9.0', { exact: true })).toBeVisible();
+  await expect(changelog.getByText(`v${CHANGELOG[0].version}`, { exact: true })).toBeVisible();
+  await changelog.getByRole('button', { name: 'Ver alterações' }).click();
   await expect(changelog.getByRole('button', { name: 'Tentar novamente' })).toBeVisible({
     timeout: 15000,
   });

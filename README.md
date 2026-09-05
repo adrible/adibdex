@@ -41,7 +41,7 @@ Testes cobrem filtros, estado salvo inválido, storage bloqueado, paginação du
 
 **Regra de produto:** estágio evolutivo ausente é tratado como **Básico**, inclusive nas formas sem enriquecimento. Essa regra tem testes e não deve ser removida como “dado inválido”.
 
-A busca usa os nomes oficiais de habilidades da PokeAPI, como `Overgrow` e `Solar Power`. Não diferencia maiúsculas, acentos, espaços e hífens. As alternativas de evolução aparecem em cards responsivos com suas condições; transformações Mega/Primal e Gigantamax ficam separadas.
+A busca usa os nomes oficiais de habilidades da PokeAPI, como `Overgrow` e `Solar Power`. Não diferencia maiúsculas, acentos, espaços e hífens. O quadro evolutivo se adapta automaticamente às ramificações, mantendo os descendentes de cada ramo agrupados. Transformações Mega/Primal e Gigantamax ficam separadas e pertencem somente à espécie aberta. As novidades aparecem em uma faixa compacta na página inicial; use “Ver alterações” para abrir o histórico e as datas dos dados.
 
 ## Documentação
 

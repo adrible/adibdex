@@ -28,7 +28,7 @@ Aplicação estática React + TypeScript. Não há backend próprio, autenticaç
 
 `CatalogPageShell`, `CatalogBrowser`, `CatalogToolbar` e `CatalogPagination` centralizam layout, estados da consulta, busca e controles. As páginas definem somente o recorte de dados, o título e o fundo. Seus estilos ficam no bloco compartilhado de `src/index.css`, assim como os estilos dos painéis evolutivo e de novidades. Cores, fundos e temas existentes foram preservados; o quadro evolutivo ganhou uma nova apresentação.
 
-O changelog é mantido em `src/lib/version.ts`; o rodapé consome a mesma versão. A página inicial consulta metadados pelo mesmo transporte/cache do catálogo, exibindo datas reais de conferência e da revisão da fonte.
+O changelog é mantido em `src/lib/version.ts`; o rodapé consome a mesma versão. Na página inicial, uma faixa compacta permite abrir/fechar as novidades. Os metadados são consultados apenas ao abrir, pelo mesmo transporte/cache do catálogo, exibindo datas reais de conferência e da revisão da fonte.
 
 ## Regras preservadas
 
@@ -51,5 +51,5 @@ O snapshot conferido em 05/09/2026 tem 1.217 registros. A revisão da fonte é d
 - Cache de transporte: até 100 respostas tipadas/sem campos não utilizados, expiração em cinco minutos. Catálogo: uma resposta, uma hora. React Query mantém dados de tela separadamente, com coleta após inatividade.
 - Persistência é opcional: exceções de storage e valores inválidos nunca devem derrubar a UI. O tema usa localStorage; cada catálogo usa um único registro versionado em sessionStorage.
 - Descrições dependem dos idiomas disponibilizados pela PokeAPI. A ausência real de texto é diferente de erro de rede.
-- A linha evolutiva conserva os vínculos pai/filho e todos os conjuntos alternativos de condições retornados pela API (incluindo valores zero). Cada ramo identifica seu predecessor; Mega/Primal e Gigantamax ficam em grupos separados. A seleção de equivalentes regionais continua baseada nas variedades da espécie; não é um simulador das regras de cada jogo. Condições ausentes na API não são inventadas.
+- A linha evolutiva conserva os vínculos pai/filho e todos os conjuntos alternativos de condições retornados pela API (incluindo valores zero). `features/evolution/tree.ts` detecta divisões pelos vínculos entre espécies, sem uma lista manual de exceções. Linhas simples usam estágios; divisões usam uma árvore compacta que mantém as continuações de cada ramo juntas (Eevee, Wurmple, divisões tardias etc.). Mega/Primal e Gigantamax aparecem somente quando seu `baseId` corresponde ao `speciesId` do Pokémon aberto: Pikachu Gigantamax não aparece no Pichu nem no Raichu. A seleção de equivalentes regionais continua baseada nas variedades da espécie; não é um simulador das regras de cada jogo. Condições ausentes na API não são inventadas.
 - Testes automatizados validam busca por habilidade, persistência, navegação, condições alternativas, ramos, ausência de overflow no celular e o changelog. Imagens/serviços externos são simulados nos E2E; a disponibilidade real dos sprites e regras específicas dos jogos ainda depende das fontes externas.

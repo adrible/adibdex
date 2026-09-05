@@ -393,6 +393,7 @@ export default function PokemonDetailPage() {
         <div className="mb-10">
           <EvolutionChainDisplay
             pokemonId={pokemonId}
+            speciesId={pokemon.speciesId}
             isShiny={isShiny}
             origin={stableOrigin}
             listContext={listContext}

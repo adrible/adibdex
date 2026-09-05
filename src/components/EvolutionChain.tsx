@@ -8,15 +8,24 @@ import { QueryErrorState } from '@/components/QueryErrorState';
 import type { PokemonListContext } from '@/lib/navigation';
 import { EvolutionCard } from './evolution/EvolutionCard';
 import { EvolutionRequirements } from './evolution/EvolutionRequirements';
+import { EvolutionBranchTree } from './evolution/EvolutionBranchTree';
+import { buildEvolutionForest, hasEvolutionBranches } from '@/features/evolution/tree';
 
 interface Props {
   pokemonId: number;
+  speciesId: number;
   isShiny?: boolean;
   origin?: string;
   listContext?: PokemonListContext;
 }
 
-export function EvolutionChainDisplay({ pokemonId, isShiny = false, origin, listContext }: Props) {
+export function EvolutionChainDisplay({
+  pokemonId,
+  speciesId,
+  isShiny = false,
+  origin,
+  listContext,
+}: Props) {
   const query = useQuery({
     queryKey: ['evolution-chain', pokemonId],
     queryFn: ({ signal }) => fetchEvolutionChain(pokemonId, signal),
@@ -37,16 +46,17 @@ export function EvolutionChainDisplay({ pokemonId, isShiny = false, origin, list
     () =>
       formsQuery.data?.filter(
         (form) =>
-          members.has(form.baseId) && (form.category === 'mega' || form.category === 'gmax'),
+          form.baseId === speciesId && (form.category === 'mega' || form.category === 'gmax'),
       ) ?? [],
-    [formsQuery.data, members],
+    [formsQuery.data, speciesId],
   );
   const byId = useMemo(
     () => new Map(formsQuery.data?.map((form) => [form.id, form]) ?? []),
     [formsQuery.data],
   );
   const navigation = { origin, listContext };
-  const branched = steps?.some((stage) => stage.length > 2);
+  const forest = useMemo(() => buildEvolutionForest(steps ?? []), [steps]);
+  const branched = hasEvolutionBranches(forest);
 
   return (
     <section className="evolution-panel" aria-labelledby="evolution-title">
@@ -83,50 +93,61 @@ export function EvolutionChainDisplay({ pokemonId, isShiny = false, origin, list
         </p>
       ) : (
         <>
-          <div
-            className={`evolution-stages ${branched ? 'evolution-stages--branched' : ''} ${members.size === 1 ? 'evolution-stages--single' : ''}`}
-            style={{ '--stage-count': steps.length } as CSSProperties}
-          >
-            {steps.map((stage, index) => (
-              <div className="evolution-stage" key={index}>
-                <div className="evolution-stage-heading">
-                  {index > 0 && (
-                    <>
-                      <ArrowRight className="evolution-connector-desktop" aria-hidden="true" />
-                      <ArrowDown className="evolution-connector-mobile" aria-hidden="true" />
-                    </>
-                  )}
-                  <span className="evolution-stage-number">{index + 1}</span>
-                  <h4>{index === 0 ? 'Forma inicial' : `Evolução ${index}`}</h4>
+          {branched ? (
+            <EvolutionBranchTree
+              key={pokemonId}
+              nodes={forest}
+              pokemonId={pokemonId}
+              isShiny={isShiny}
+              navigation={navigation}
+              byId={byId}
+            />
+          ) : (
+            <div
+              className={`evolution-stages ${members.size === 1 ? 'evolution-stages--single' : ''}`}
+              style={{ '--stage-count': steps.length } as CSSProperties}
+            >
+              {steps.map((stage, index) => (
+                <div className="evolution-stage" key={index}>
+                  <div className="evolution-stage-heading">
+                    {index > 0 && (
+                      <>
+                        <ArrowRight className="evolution-connector-desktop" aria-hidden="true" />
+                        <ArrowDown className="evolution-connector-mobile" aria-hidden="true" />
+                      </>
+                    )}
+                    <span className="evolution-stage-number">{index + 1}</span>
+                    <h4>{index === 0 ? 'Forma inicial' : `Evolução ${index}`}</h4>
+                  </div>
+                  <div className="evolution-stage-cards">
+                    {stage.map((step) => (
+                      <div key={step.id} className="evolution-node">
+                        <EvolutionCard
+                          id={step.id}
+                          speciesId={step.speciesId}
+                          name={step.name}
+                          isShiny={isShiny}
+                          selected={step.id === pokemonId}
+                          navigation={navigation}
+                          types={byId.get(step.id)?.types}
+                        />
+                        {step.parentId !== null && (
+                          <p className="evolution-parent">
+                            Evolui de{' '}
+                            <span>
+                              {members.get(step.parentId)?.name.replace(/-/g, ' ') ??
+                                `#${step.parentId}`}
+                            </span>
+                          </p>
+                        )}
+                        <EvolutionRequirements conditions={step.conditions} />
+                      </div>
+                    ))}
+                  </div>
                 </div>
-                <div className="evolution-stage-cards">
-                  {stage.map((step) => (
-                    <div key={step.id} className="evolution-node">
-                      <EvolutionCard
-                        id={step.id}
-                        speciesId={step.speciesId}
-                        name={step.name}
-                        isShiny={isShiny}
-                        selected={step.id === pokemonId}
-                        navigation={navigation}
-                        types={byId.get(step.id)?.types}
-                      />
-                      {step.parentId !== null && (
-                        <p className="evolution-parent">
-                          Evolui de{' '}
-                          <span>
-                            {members.get(step.parentId)?.name.replace(/-/g, ' ') ??
-                              `#${step.parentId}`}
-                          </span>
-                        </p>
-                      )}
-                      <EvolutionRequirements conditions={step.conditions} />
-                    </div>
-                  ))}
-                </div>
-              </div>
-            ))}
-          </div>
+              ))}
+            </div>
+          )}
           {members.size === 1 && (
             <p className="evolution-note">Não há outras evoluções registradas para esta espécie.</p>
           )}
@@ -150,7 +171,7 @@ export function EvolutionChainDisplay({ pokemonId, isShiny = false, origin, list
                 <div className="mb-5">
                   <h4 className="font-semibold text-card-foreground">Formas especiais</h4>
                   <p className="mt-1 text-xs text-muted-foreground">
-                    Transformações em batalha, separadas da evolução da espécie.
+                    Apenas as transformações desta espécie, separadas da linha evolutiva.
                   </p>
                 </div>
                 <div className="evolution-form-groups">
