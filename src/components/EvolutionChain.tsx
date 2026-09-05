@@ -10,6 +10,7 @@ import { EvolutionCard } from './evolution/EvolutionCard';
 import { EvolutionRequirements } from './evolution/EvolutionRequirements';
 import { EvolutionBranchTree } from './evolution/EvolutionBranchTree';
 import { buildEvolutionForest, hasEvolutionBranches } from '@/features/evolution/tree';
+import './evolution/evolution.css';
 
 interface Props {
   pokemonId: number;
@@ -65,14 +66,15 @@ export function EvolutionChainDisplay({
           <GitBranch aria-hidden="true" className="h-5 w-5" />
         </div>
         <div className="min-w-0">
-          <p className="evolution-eyebrow">Crescimento e transformações</p>
+          <p className="evolution-eyebrow">Registro evolutivo</p>
           <h3 id="evolution-title" className="evolution-title">
             Linha Evolutiva
           </h3>
         </div>
         {members.size > 0 && (
           <span className="evolution-count">
-            {members.size} {members.size === 1 ? 'forma' : 'formas'}
+            <span className="evolution-count-number">{String(members.size).padStart(2, '0')}</span>
+            <span>{members.size === 1 ? 'forma' : 'formas'}</span>
           </span>
         )}
       </div>
@@ -112,11 +114,17 @@ export function EvolutionChainDisplay({
                   <div className="evolution-stage-heading">
                     {index > 0 && (
                       <>
-                        <ArrowRight className="evolution-connector-desktop" aria-hidden="true" />
-                        <ArrowDown className="evolution-connector-mobile" aria-hidden="true" />
+                        <span className="evolution-connector-desktop" aria-hidden="true">
+                          <ArrowRight />
+                        </span>
+                        <span className="evolution-connector-mobile" aria-hidden="true">
+                          <ArrowDown />
+                        </span>
                       </>
                     )}
-                    <span className="evolution-stage-number">{index + 1}</span>
+                    <span className="evolution-stage-number">
+                      {String(index + 1).padStart(2, '0')}
+                    </span>
                     <h4>{index === 0 ? 'Forma inicial' : `Evolução ${index}`}</h4>
                   </div>
                   <div className="evolution-stage-cards">
@@ -168,7 +176,7 @@ export function EvolutionChainDisplay({
           ) : (
             specialForms.length > 0 && (
               <div className="evolution-transformations">
-                <div className="mb-5">
+                <div className="evolution-transformations-heading">
                   <h4 className="font-semibold text-card-foreground">Formas especiais</h4>
                   <p className="mt-1 text-xs text-muted-foreground">
                     Apenas as transformações desta espécie, separadas da linha evolutiva.

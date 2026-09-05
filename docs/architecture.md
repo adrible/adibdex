@@ -26,7 +26,7 @@ Aplicação estática React + TypeScript. Não há backend próprio, autenticaç
 
 `src/lib/pokeapi.ts` é uma fachada pública de exports, não um módulo com todas as responsabilidades.
 
-`CatalogPageShell`, `CatalogBrowser`, `CatalogToolbar` e `CatalogPagination` centralizam layout, estados da consulta, busca e controles. As páginas definem somente o recorte de dados, o título e o fundo. Seus estilos ficam no bloco compartilhado de `src/index.css`, assim como os estilos dos painéis evolutivo e de novidades. Cores, fundos e temas existentes foram preservados; o quadro evolutivo ganhou uma nova apresentação.
+`CatalogPageShell`, `CatalogBrowser`, `CatalogToolbar` e `CatalogPagination` centralizam layout, estados da consulta, busca e controles. As páginas definem somente o recorte de dados, o título e o fundo. Seus estilos e os do changelog ficam em `src/index.css`. O quadro evolutivo compartilha `components/evolution/evolution.css` entre linhas simples, ramos e formas especiais; esse CSS é carregado junto à página de detalhes. Seus cards usam as cores dos tipos oficiais, com fallback neutro, destaque do Pokémon atual, detalhes do modo shiny e suporte a movimento reduzido. Os fundos e demais telas permanecem preservados.
 
 O changelog é mantido em `src/lib/version.ts`; o rodapé consome a mesma versão. Na página inicial, uma faixa compacta permite abrir/fechar as novidades. Os metadados são consultados apenas ao abrir, pelo mesmo transporte/cache do catálogo, exibindo datas reais de conferência e da revisão da fonte.
 

@@ -7,6 +7,15 @@ export interface ChangelogEntry {
 
 export const CHANGELOG: ChangelogEntry[] = [
   {
+    version: '0.9.2',
+    date: '2026-09-05',
+    title: 'Um novo visual para evoluir',
+    changes: [
+      'Quadro evolutivo com moldura de Pokédex, cards coloridos pelos tipos e conexões mais definidas.',
+      'Destaque do Pokémon atual, detalhes próprios para o modo shiny e temas claro e escuro.',
+    ],
+  },
+  {
     version: '0.9.1',
     date: '2026-09-05',
     title: 'Evoluções mais claras',

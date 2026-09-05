@@ -1,8 +1,9 @@
-import { useState } from 'react';
+import { useState, type CSSProperties } from 'react';
 import { Link } from 'react-router-dom';
-import { Check } from 'lucide-react';
+import { Check, ArrowUpRight, Sparkles } from 'lucide-react';
 import type { PokemonNavigationState } from '@/lib/navigation';
 import { TypeBadge } from '@/components/TypeBadge';
+import { TYPE_TRANSLATIONS } from '@/lib/pokemon/constants';
 
 interface Props {
   id: number;
@@ -47,12 +48,22 @@ export function EvolutionCard({
   navigation,
   types,
 }: Props) {
+  const primaryType = types?.find((type) => Object.hasOwn(TYPE_TRANSLATIONS, type)) ?? 'normal';
+  const secondaryType =
+    types?.find((type) => type !== primaryType && Object.hasOwn(TYPE_TRANSLATIONS, type)) ??
+    primaryType;
   return (
     <Link
       to={`/pokemon/${id}`}
       state={navigation}
       aria-current={selected ? 'page' : undefined}
-      className={`evolution-card ${selected ? 'evolution-card--selected' : ''}`}
+      className={`evolution-card ${selected ? 'evolution-card--selected' : ''} ${isShiny ? 'evolution-card--shiny' : ''}`}
+      style={
+        {
+          '--evo-type': `var(--type-${primaryType})`,
+          '--evo-secondary': `var(--type-${secondaryType})`,
+        } as CSSProperties
+      }
     >
       <div className="evolution-card-meta">
         <span>#{String(speciesId).padStart(4, '0')}</span>
@@ -62,18 +73,23 @@ export function EvolutionCard({
             Atual
           </span>
         )}
+        {!selected && <ArrowUpRight aria-hidden="true" className="evolution-card-open" />}
       </div>
       <div className="evolution-artwork-wrap">
+        <span className="evolution-orbit" aria-hidden="true" />
+        {isShiny && <Sparkles aria-hidden="true" className="evolution-shiny-icon" />}
         <Artwork key={`${id}-${isShiny}`} id={id} name={name} shiny={isShiny} />
       </div>
-      <span className="evolution-name">{name.replace(/-/g, ' ')}</span>
-      {!!types?.length && (
-        <span className="mt-2 flex flex-wrap justify-center gap-1">
-          {types.map((type) => (
-            <TypeBadge key={type} type={type} size="sm" />
-          ))}
-        </span>
-      )}
+      <div className="evolution-card-info">
+        <span className="evolution-name">{name.replace(/-/g, ' ')}</span>
+        {!!types?.length && (
+          <span className="evolution-card-types">
+            {types.map((type) => (
+              <TypeBadge key={type} type={type} size="sm" />
+            ))}
+          </span>
+        )}
+      </div>
     </Link>
   );
 }
