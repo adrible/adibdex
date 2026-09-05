@@ -10,6 +10,9 @@ export const catalogEntrySchema = z.object({
   name: z.string().min(1),
   category: z.enum(['base', 'regional', 'mega', 'gmax']),
   types: z.array(z.string().min(1)).min(1).max(2),
+  abilities: z.array(z.object({ name: z.string().min(1), isHidden: z.boolean() })).max(4),
+  hasMega: z.boolean(),
+  hasGmax: z.boolean(),
   stats: z.object({
     hp: value,
     attack: value,
@@ -24,7 +27,9 @@ export const catalogEntrySchema = z.object({
 });
 export const catalogSchema = z
   .object({
-    version: z.literal(1),
+    version: z.literal(2),
+    generatedAt: z.string().datetime(),
+    sourceUpdatedAt: z.string().datetime(),
     source: z.string().url(),
     entries: z.array(catalogEntrySchema).max(3000),
   })
@@ -39,12 +44,15 @@ export const catalogSchema = z
     }
   });
 const catalogClient = new JsonClient(1, 60 * 60_000);
-export async function fetchCatalog(signal?: AbortSignal) {
-  const data = await catalogClient.request(
-    `${import.meta.env.BASE_URL}data/catalog.json`,
+export async function fetchCatalogSnapshot(signal?: AbortSignal) {
+  return catalogClient.request(
+    `${import.meta.env.BASE_URL}data/catalog.json?v=2`,
     catalogSchema,
     signal,
   );
+}
+export async function fetchCatalog(signal?: AbortSignal) {
+  const data = await fetchCatalogSnapshot(signal);
   return data.entries.map((p) => ({
     ...p,
     sprite: spriteUrl(p.id),

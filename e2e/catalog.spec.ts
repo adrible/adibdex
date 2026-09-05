@@ -10,7 +10,9 @@ test('generation search finds entries beyond the first fifty without per-Pokémo
   page.on('request', (request) => requests.push(request.url()));
   await page.goto('/generation/1');
   await expect(cards(page)).toHaveCount(50);
-  await page.getByRole('textbox', { name: 'Buscar Pokémon por nome ou número' }).fill('mewtwo');
+  await page
+    .getByRole('searchbox', { name: 'Buscar Pokémon por nome, número ou habilidade' })
+    .fill('mewtwo');
   await expect(cards(page)).toHaveCount(1);
   await expect(cards(page).first()).toHaveAttribute('href', '/pokemon/150');
   expect(requests.filter((url) => url.includes('pokeapi.co/api/'))).toHaveLength(0);
@@ -28,7 +30,7 @@ test('saved national pagination survives a delayed initial catalog and reload', 
   const gate = new Promise<void>((resolve) => {
     release = resolve;
   });
-  await page.route('**/data/catalog.json', async (route) => {
+  await page.route('**/data/catalog.json*', async (route) => {
     await gate;
     await route.continue();
   });
@@ -83,7 +85,7 @@ test('catalog errors expose retry and recover without retaining partial results'
   page,
 }) => {
   let failing = true;
-  await page.route('**/data/catalog.json', (route) =>
+  await page.route('**/data/catalog.json*', (route) =>
     failing ? route.fulfill({ status: 503, body: 'unavailable' }) : route.continue(),
   );
   await page.goto('/national');

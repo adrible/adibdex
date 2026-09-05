@@ -1,34 +1,50 @@
 import { apiRequest, assertPokemonId, extractIdFromUrl } from './client';
 import { evolutionSchema, pokemonSchema, type RawEvolutionNode } from './schemas';
 import { fetchPokemonRaw, fetchSpeciesRaw } from './pokemon';
-import type { EvolutionChain, EvolutionStep } from '../pokemon/types';
+import type { EvolutionChain, EvolutionStep, EvolutionCondition } from '../pokemon/types';
+
+function condition(
+  details: RawEvolutionNode['evolution_details'][number] | undefined,
+): EvolutionCondition {
+  return {
+    minLevel: details?.min_level ?? null,
+    trigger: details?.trigger?.name ?? null,
+    item: details?.item?.name ?? null,
+    heldItem: details?.held_item?.name ?? null,
+    minHappiness: details?.min_happiness ?? null,
+    timeOfDay: details?.time_of_day || null,
+    knownMove: details?.known_move?.name ?? null,
+    knownMoveType: details?.known_move_type?.name ?? null,
+    location: details?.location?.name ?? null,
+    minAffection: details?.min_affection ?? null,
+    needsRain: details?.needs_overworld_rain ?? false,
+    turnUpsideDown: details?.turn_upside_down ?? false,
+    gender: details?.gender ?? null,
+    minBeauty: details?.min_beauty ?? null,
+    relativePhysicalStats: details?.relative_physical_stats ?? null,
+    partySpecies: details?.party_species?.name ?? null,
+    partyType: details?.party_type?.name ?? null,
+    tradeSpecies: details?.trade_species?.name ?? null,
+  };
+}
 
 function flattenChain(chain: RawEvolutionNode): EvolutionStep[][] {
   const stages: EvolutionStep[][] = [];
-  function traverse(node: RawEvolutionNode, depth: number) {
+  function traverse(node: RawEvolutionNode, depth: number, parentId: number | null) {
     if (!stages[depth]) stages[depth] = [];
     const id = extractIdFromUrl(node.species.url);
-    const details = node.evolution_details?.[0];
     stages[depth].push({
       id,
+      speciesId: id,
+      parentId,
       name: node.species.name,
       sprite: `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/${id}.png`,
-      minLevel: details?.min_level || null,
-      trigger: details?.trigger?.name || null,
-      item: details?.item?.name || null,
-      heldItem: details?.held_item?.name || null,
-      minHappiness: details?.min_happiness || null,
-      timeOfDay: details?.time_of_day || null,
-      knownMove: details?.known_move?.name || null,
-      knownMoveType: details?.known_move_type?.name || null,
-      location: details?.location?.name || null,
-      minAffection: details?.min_affection || null,
-      needsRain: details?.needs_overworld_rain || false,
-      turnUpsideDown: details?.turn_upside_down || false,
+      ...condition(node.evolution_details[0]),
+      conditions: node.evolution_details.map(condition),
     });
-    for (const next of node.evolves_to) traverse(next, depth + 1);
+    for (const next of node.evolves_to) traverse(next, depth + 1, id);
   }
-  traverse(chain, 0);
+  traverse(chain, 0, null);
   return stages;
 }
 
@@ -44,7 +60,7 @@ export async function fetchEvolutionChain(
     speciesId = extractIdFromUrl(pokData.species.url);
     // Detect form suffix (e.g., "alola", "galar", "hisui")
     const speciesName = pokData.species.name;
-    const pokName = pokData.name as string;
+    const pokName = pokData.name;
     if (pokName.startsWith(speciesName + '-')) {
       formSuffix = pokName.substring(speciesName.length + 1);
     }

@@ -102,7 +102,9 @@ describe('typed resource projections and failures', () => {
     vi.stubGlobal('fetch', fetchMock);
     const api = await import('@/lib/pokeapi/catalog');
     expect(await api.fetchAllPokemonBasic()).toHaveLength(1025);
-    expect(await api.fetchAllRegionalForms()).toHaveLength(56);
+    expect(await api.fetchAllRegionalForms()).toHaveLength(
+      catalog.entries.filter((p: { category: string }) => p.category === 'regional').length,
+    );
     expect((await api.fetchAllMegaForms()).length).toBeGreaterThan(80);
     expect((await api.fetchAllGmaxForms()).length).toBeGreaterThan(30);
     expect(await api.fetchAllPokemonNames()).toHaveLength(1025);
@@ -278,8 +280,67 @@ describe('typed resource projections and failures', () => {
       id: 2,
       minLevel: 16,
       trigger: 'level-up',
+      speciesId: 2,
+      parentId: 1,
+      conditions: [expect.objectContaining({ minLevel: 16 })],
     });
     expect(await fetchEvolutionChain(2)).toEqual({ steps: [] });
+  });
+  it('preserves alternative conditions, zero values and branch parents', async () => {
+    const branch = {
+      ...node(2),
+      evolution_details: [
+        {
+          ...details,
+          min_happiness: 0,
+          min_affection: 0,
+          min_beauty: 0,
+          relative_physical_stats: 0,
+          gender: 1,
+          party_species: resource('pikachu', 'pokemon-species', 25),
+          party_type: resource('electric'),
+          trade_species: resource('shelmet', 'pokemon-species', 616),
+        },
+        {
+          ...details,
+          min_level: null,
+          trigger: resource('use-item', 'evolution-trigger'),
+          item: resource('leaf-stone', 'item'),
+        },
+      ],
+      evolves_to: [node(3)],
+    };
+    vi.stubGlobal(
+      'fetch',
+      vi.fn(
+        async (url: string) =>
+          new Response(
+            JSON.stringify(
+              url.includes('pokemon-species')
+                ? species()
+                : { chain: { ...node(1), evolution_details: [], evolves_to: [branch, node(4)] } },
+            ),
+          ),
+      ),
+    );
+    const { fetchEvolutionChain } = await import('@/lib/pokeapi/evolution');
+    const { steps } = await fetchEvolutionChain(1);
+    expect(steps[0][0]).toMatchObject({ parentId: null, conditions: [] });
+    expect(steps[1].map((p) => p.parentId)).toEqual([1, 1]);
+    expect(steps[2][0].parentId).toBe(2);
+    expect(steps[1][0].conditions).toEqual([
+      expect.objectContaining({
+        minHappiness: 0,
+        minAffection: 0,
+        minBeauty: 0,
+        relativePhysicalStats: 0,
+        gender: 1,
+        partySpecies: 'pikachu',
+        partyType: 'electric',
+        tradeSpecies: 'shelmet',
+      }),
+      expect.objectContaining({ minLevel: null, trigger: 'use-item', item: 'leaf-stone' }),
+    ]);
   });
   it('propagates regional evolutionary lookup failures without silently replacing the form', async () => {
     let failing = true;

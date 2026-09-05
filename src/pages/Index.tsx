@@ -2,6 +2,7 @@ import { Link } from 'react-router-dom';
 import { GENERATIONS } from '@/lib/pokeapi';
 import { Header } from '@/components/Header';
 import { ChevronRight } from 'lucide-react';
+import { Changelog } from '@/components/Changelog';
 import { Footer } from '@/components/Footer';
 
 const REGION_STARTERS: Record<string, string[]> = {
@@ -91,15 +92,19 @@ export default function Index() {
             🌍 Pokédex Nacional
             <ChevronRight className="h-4 w-4" />
           </Link>
+          <div className="mt-4">
+            <a
+              href="#novidades"
+              className="text-sm font-medium text-primary underline-offset-4 hover:underline"
+            >
+              Ver novidades da versão
+            </a>
+          </div>
         </div>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5 max-w-4xl mx-auto">
           {GENERATIONS.map((gen) => (
-            <Link
-              key={gen.id}
-              to={`/generation/${gen.id}`}
-              className="group relative overflow-hidden rounded-xl border border-border bg-card p-6 transition-all hover:shadow-xl hover:-translate-y-1 hover:border-primary/50"
-            >
+            <Link key={gen.id} to={`/generation/${gen.id}`} className="group home-category-card">
               <div className="flex items-start justify-between mb-3">
                 <div className="flex items-center gap-2 justify-center">
                   {REGION_STARTERS[gen.region]?.map((sprite, index) => (
@@ -131,22 +136,22 @@ export default function Index() {
               <div className="absolute -bottom-4 -right-4 h-24 w-24 rounded-full bg-primary/5 group-hover:bg-primary/10 transition-colors" />
             </Link>
           ))}
-          <Link
-            to="/regional-forms"
-            className="group relative overflow-hidden rounded-xl border border-border bg-card p-6 transition-all hover:shadow-xl hover:-translate-y-1 hover:border-primary/50"
-          >
+          <Link to="/regional-forms" className="group home-category-card">
             <div className="flex items-start justify-between mb-3">
               <div className="flex items-center gap-2 justify-center">
                 <img
-                  src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/10091.png" // Rattata
+                  src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/10091.png"
+                  alt="Rattata de Alola"
                   className="w-14 h-14 object-contain transition-transform group-hover:scale-110"
                 />
                 <img
-                  src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/10100.png" // Raichu
+                  src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/10100.png"
+                  alt="Raichu de Alola"
                   className="w-14 h-14 object-contain transition-transform group-hover:scale-110"
                 />
                 <img
-                  src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/10103.png" // Vulpix
+                  src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/10103.png"
+                  alt="Vulpix de Alola"
                   className="w-14 h-14 object-contain transition-transform group-hover:scale-110"
                 />
               </div>
@@ -164,10 +169,7 @@ export default function Index() {
 
             <div className="absolute -bottom-4 -right-4 h-24 w-24 rounded-full bg-primary/5 group-hover:bg-primary/10 transition-colors" />
           </Link>
-          <Link
-            to="/mega"
-            className="group relative overflow-hidden rounded-xl border border-border bg-card p-6 transition-all hover:shadow-xl hover:-translate-y-1 hover:border-primary/50"
-          >
+          <Link to="/mega" className="group home-category-card">
             <div className="flex items-start justify-between mb-3">
               <div className="flex items-center gap-2 justify-center">
                 {MEGA_SPRITES.map((sprite, index) => (
@@ -191,10 +193,7 @@ export default function Index() {
             <div className="absolute -bottom-4 -right-4 h-24 w-24 rounded-full bg-primary/5 group-hover:bg-primary/10 transition-colors" />
           </Link>
 
-          <Link
-            to="/gmax"
-            className="group relative overflow-hidden rounded-xl border border-border bg-card p-6 transition-all hover:shadow-xl hover:-translate-y-1 hover:border-primary/50"
-          >
+          <Link to="/gmax" className="group home-category-card">
             <div className="flex items-start justify-between mb-3">
               <div className="flex items-center gap-2 justify-center">
                 {GMAX_SPRITES.map((sprite, index) => (
@@ -218,6 +217,7 @@ export default function Index() {
             <div className="absolute -bottom-4 -right-4 h-24 w-24 rounded-full bg-primary/5 group-hover:bg-primary/10 transition-colors" />
           </Link>
         </div>
+        <Changelog />
       </main>
 
       <Footer />

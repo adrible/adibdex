@@ -2,6 +2,7 @@ import { useCallback, useEffect, useMemo, useRef, useState, type SetStateAction 
 import type { PokemonBasic } from '@/lib/pokemon/types';
 import { writeSessionJson } from '@/lib/session-storage';
 import { applyFilters } from './filtering';
+import { matchesPokemonSearch } from './search';
 import type { FilterState } from './filter-state';
 import { loadCatalogView, viewStateKey, type CatalogViewState } from './view-state';
 
@@ -54,15 +55,7 @@ export function useCatalogView(
   }, [state, storageKey]);
 
   const filtered = useMemo(() => {
-    const query = state.search.trim().toLowerCase();
-    const source = query
-      ? (data ?? EMPTY).filter(
-          (p) =>
-            p.name.includes(query) ||
-            String(p.id).includes(query) ||
-            String(p.baseId ?? p.id).includes(query),
-        )
-      : (data ?? EMPTY);
+    const source = (data ?? EMPTY).filter((p) => matchesPokemonSearch(p, state.search));
     return applyFilters(source, {
       ...state.filters,
       ...(!showSpecial ? { hasMega: null, hasGmax: null } : {}),

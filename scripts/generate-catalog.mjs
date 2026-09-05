@@ -1,10 +1,26 @@
 import { mkdir, rename, writeFile } from 'node:fs/promises';
 import { fileURLToPath } from 'node:url';
-import { MEGA_FORM_SLUGS, REGIONAL_FORM_SLUGS } from '../src/lib/pokemon/form-slugs.ts';
 
-// Pin upstream data: updates must be explicit and reviewed with the generated diff.
-const revision = process.env.POKEAPI_DATA_REVISION || 'd4f9a4af58ade123fbc0558f68b1c69daa97d9e4';
-if (!/^[a-f0-9]{40}$/.test(revision)) throw new Error('Expected a full PokeAPI commit SHA.');
+// Resolve once, then use the same immutable revision for every table.
+const latest = process.argv.includes('--latest');
+const requestedRevision = latest
+  ? 'master'
+  : process.env.POKEAPI_DATA_REVISION || 'd4f9a4af58ade123fbc0558f68b1c69daa97d9e4';
+if (!latest && !/^[a-f0-9]{40}$/.test(requestedRevision))
+  throw new Error('Expected a full PokeAPI commit SHA.');
+const commitResponse = await fetch(
+  `https://api.github.com/repos/PokeAPI/pokeapi/commits/${requestedRevision}`,
+  {
+    signal: AbortSignal.timeout(30_000),
+    headers: { 'User-Agent': 'adibdex-data-updater', Accept: 'application/vnd.github+json' },
+  },
+);
+if (!commitResponse.ok) throw new Error(`PokeAPI revision lookup: HTTP ${commitResponse.status}`);
+const commit = await commitResponse.json();
+const revision = commit.sha;
+const sourceUpdatedAt = commit.commit?.committer?.date;
+if (!/^[a-f0-9]{40}$/.test(revision) || !Number.isFinite(Date.parse(sourceUpdatedAt)))
+  throw new Error('Invalid upstream revision metadata.');
 const base = `https://raw.githubusercontent.com/PokeAPI/pokeapi/${revision}/data/v2/csv/`;
 
 function parseCsv(text) {
@@ -42,9 +58,20 @@ async function csv(name) {
   return parseCsv(await response.text());
 }
 
-const [pokemon, species, types, pokemonTypes, pokemonStats] = await Promise.all(
-  ['pokemon', 'pokemon_species', 'types', 'pokemon_types', 'pokemon_stats'].map(csv),
-);
+const tables = [];
+const tableNames = [
+  'pokemon',
+  'pokemon_species',
+  'types',
+  'pokemon_types',
+  'pokemon_stats',
+  'abilities',
+  'pokemon_abilities',
+];
+for (let i = 0; i < tableNames.length; i += 5)
+  tables.push(...(await Promise.all(tableNames.slice(i, i + 5).map(csv))));
+const [pokemon, species, types, pokemonTypes, pokemonStats, abilities, pokemonAbilities] = tables;
+
 const bySpecies = new Map(species.map((s) => [Number(s.id), s]));
 const typeNames = new Map(types.map((t) => [t.id, t.identifier]));
 const typeMap = new Map(),
@@ -57,8 +84,25 @@ for (const s of pokemonStats) {
   if (!statMap.has(s.pokemon_id)) statMap.set(s.pokemon_id, {});
   statMap.get(s.pokemon_id)[s.stat_id] = Number(s.base_stat);
 }
-const mega = new Set(MEGA_FORM_SLUGS.map((f) => f.slug));
-const regional = new Set(REGIONAL_FORM_SLUGS.map((f) => f.slug));
+const abilityNames = new Map(abilities.map((a) => [a.id, a.identifier]));
+const abilityMap = new Map();
+for (const ability of pokemonAbilities) {
+  const name = abilityNames.get(ability.ability_id);
+  if (!name) throw new Error(`Unknown ability ${ability.ability_id}`);
+  if (!abilityMap.has(ability.pokemon_id)) abilityMap.set(ability.pokemon_id, []);
+  abilityMap
+    .get(ability.pokemon_id)
+    .push({ name, isHidden: ability.is_hidden === '1', slot: Number(ability.slot) });
+}
+const isMega = (name) => /-(mega|primal)(-|$)/.test(name);
+const isRegional = (name) =>
+  /-(alola|galar|hisui|paldea)(-|$)/.test(name) && !name.includes('-totem');
+const megaSpecies = new Set(
+  pokemon.filter((p) => isMega(p.identifier)).map((p) => Number(p.species_id)),
+);
+const gmaxSpecies = new Set(
+  pokemon.filter((p) => p.identifier.includes('-gmax')).map((p) => Number(p.species_id)),
+);
 const entries = [];
 for (const p of pokemon) {
   const id = Number(p.id),
@@ -66,9 +110,9 @@ for (const p of pokemon) {
   const category =
     id <= 1025 && p.is_default === '1'
       ? 'base'
-      : regional.has(p.identifier)
+      : isRegional(p.identifier)
         ? 'regional'
-        : mega.has(p.identifier)
+        : isMega(p.identifier)
           ? 'mega'
           : p.identifier.includes('-gmax') && baseId <= 1025
             ? 'gmax'
@@ -92,12 +136,18 @@ for (const p of pokemon) {
     name: p.identifier,
     category,
     types: entryTypes,
+    abilities: (abilityMap.get(p.id) || [])
+      .sort((a, b) => a.slot - b.slot)
+      .map(({ name, isHidden }) => ({ name, isHidden })),
+    hasMega: megaSpecies.has(baseId),
+    hasGmax: gmaxSpecies.has(baseId),
     stats: { hp: s[1], attack: s[2], defense: s[3], spAtk: s[4], spDef: s[5], speed: s[6] },
     height: Number(p.height),
     weight: Number(p.weight),
   };
   // Alternate forms intentionally have no enriched stage: missing means Basic.
   if (category === 'base') {
+    if (entry.abilities.length === 0) throw new Error(`Missing base abilities: ${p.identifier}`);
     const parent = bySpecies.get(baseId)?.evolves_from_species_id;
     entry.evolutionStage = !parent
       ? 'basic'
@@ -113,15 +163,10 @@ if (baseEntries.length !== 1025 || baseEntries.some((p, i) => p.id !== i + 1))
   throw new Error('Incomplete national catalog.');
 if (new Set(entries.map((p) => p.id)).size !== entries.length)
   throw new Error('Duplicate catalog IDs.');
-for (const form of REGIONAL_FORM_SLUGS) {
-  if (!entries.some((p) => p.name === form.slug && p.baseId === form.baseId))
-    throw new Error(`Missing regional form ${form.slug}`);
-}
-const missingMega = MEGA_FORM_SLUGS.filter((f) => !entries.some((p) => p.name === f.slug));
-if (missingMega.length)
-  console.warn('Mega slugs not yet available upstream:', missingMega.map((f) => f.slug).join(', '));
 const output = {
-  version: 1,
+  version: 2,
+  generatedAt: new Date().toISOString(),
+  sourceUpdatedAt,
   source: `https://github.com/PokeAPI/pokeapi/tree/${revision}`,
   entries,
 };

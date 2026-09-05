@@ -72,6 +72,12 @@ const evolutionDetailsSchema = z.object({
   min_affection: z.number().nullable(),
   needs_overworld_rain: z.boolean(),
   turn_upside_down: z.boolean(),
+  gender: z.number().nullable().optional(),
+  min_beauty: z.number().nullable().optional(),
+  relative_physical_stats: z.number().nullable().optional(),
+  party_species: resource.nullable().optional(),
+  party_type: resource.nullable().optional(),
+  trade_species: resource.nullable().optional(),
 });
 type EvolutionDetails = z.infer<typeof evolutionDetailsSchema>;
 export interface RawEvolutionNode {

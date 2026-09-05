@@ -6,6 +6,23 @@ import { DEFAULT_FILTERS } from '@/features/catalog/filter-state';
 
 const raw: unknown = JSON.parse(readFileSync('public/data/catalog.json', 'utf8'));
 describe('checked-in compact catalog', () => {
+  it('includes source dates, visible and hidden abilities, and the official Meowstic forms', () => {
+    const catalog = catalogSchema.parse(raw);
+    expect(Date.parse(catalog.generatedAt)).toBeGreaterThanOrEqual(
+      Date.parse(catalog.sourceUpdatedAt),
+    );
+    expect(catalog.entries.find((p) => p.id === 1)?.abilities).toEqual([
+      { name: 'overgrow', isHidden: false },
+      { name: 'chlorophyll', isHidden: true },
+    ]);
+    expect(
+      catalog.entries.filter((p) => p.category === 'base').every((p) => p.abilities.length > 0),
+    ).toBe(true);
+    expect(
+      catalog.entries.filter((p) => p.category === 'mega' && p.baseId === 678).map((p) => p.name),
+    ).toEqual(expect.arrayContaining(['meowstic-male-mega', 'meowstic-female-mega']));
+    expect(catalog.entries.find((p) => p.id === 678)?.hasMega).toBe(true);
+  });
   it('contains every national ID once and complete filter attributes', () => {
     const catalog = catalogSchema.parse(raw);
     expect(catalog.entries.filter((p) => p.category === 'base')).toHaveLength(1025);

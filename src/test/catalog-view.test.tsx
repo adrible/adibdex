@@ -19,6 +19,22 @@ beforeEach(() => {
 });
 
 describe('shared catalog state', () => {
+  it('combines hidden ability search with filters and persists it', () => {
+    const source = pokemon.map((p) => ({
+      ...p,
+      abilities: [{ name: 'solar-power', isHidden: true }],
+    }));
+    const view = renderHook(() => useCatalogView('ability-search', source, true));
+    act(() => view.result.current.setPage(2));
+    act(() => view.result.current.setSearch('SOLAR POWER'));
+    act(() => view.result.current.setFilters({ ...DEFAULT_FILTERS, types: ['fire'] }));
+    expect(view.result.current.page).toBe(0);
+    expect(view.result.current.filtered).toHaveLength(76);
+    view.unmount();
+    const restored = renderHook(() => useCatalogView('ability-search', source, true));
+    expect(restored.result.current.search).toBe('SOLAR POWER');
+    expect(restored.result.current.filtered).toHaveLength(76);
+  });
   it('keeps restored pagination during loading and across unmount/reload', async () => {
     writeSessionJson(viewStateKey('national'), { page: 2, filters: DEFAULT_FILTERS });
     const initialProps: { data: PokemonBasic[] | undefined; ready: boolean } = {

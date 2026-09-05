@@ -1,7 +1,7 @@
 {
   "name": "adibdex",
   "private": true,
-  "version": "0.8.0",
+  "version": "0.9.0",
   "type": "module",
   "scripts": {
     "dev": "vite",
@@ -18,7 +18,8 @@
     "api:check": "node scripts/check-pokeapi.mjs",
     "images:convert": "node scripts/convert-images.mjs",
     "format": "prettier --write src scripts e2e '*.{ts,js,json,html}' README.md docs .github",
-    "format:check": "prettier --check src scripts e2e '*.{ts,js,json,html}' README.md docs .github"
+    "format:check": "prettier --check src scripts e2e '*.{ts,js,json,html}' README.md docs .github",
+    "data:update": "node scripts/generate-catalog.mjs --latest"
   },
   "dependencies": {
     "@radix-ui/react-dialog": "^1.1.14",

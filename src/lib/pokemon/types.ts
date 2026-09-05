@@ -5,6 +5,9 @@ export interface PokemonBasic {
   sprite: string;
   spriteShiny: string;
   types: string[];
+  abilities?: { name: string; isHidden: boolean }[];
+  hasMega?: boolean;
+  hasGmax?: boolean;
   stats?: {
     hp: number;
     attack: number;
@@ -63,10 +66,7 @@ export interface MovesByVersionGroup {
   tutor: MoveByGame[];
 }
 
-export interface EvolutionStep {
-  id: number;
-  name: string;
-  sprite: string;
+export interface EvolutionCondition {
   minLevel: number | null;
   trigger: string | null;
   item: string | null;
@@ -79,6 +79,21 @@ export interface EvolutionStep {
   minAffection: number | null;
   needsRain: boolean;
   turnUpsideDown: boolean;
+  gender: number | null;
+  minBeauty: number | null;
+  relativePhysicalStats: number | null;
+  partySpecies: string | null;
+  partyType: string | null;
+  tradeSpecies: string | null;
+}
+
+export interface EvolutionStep extends EvolutionCondition {
+  id: number;
+  speciesId: number;
+  parentId: number | null;
+  name: string;
+  sprite: string;
+  conditions: EvolutionCondition[];
 }
 
 export interface EvolutionChain {

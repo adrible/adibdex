@@ -1,6 +1,6 @@
 # AdibDex
 
-Pokédex em português com catálogo nacional (1.025 espécies), formas regionais, Mega/Primal e Gigantamax, filtros e detalhes obtidos da PokeAPI.
+Pokédex em português com catálogo nacional (1.025 espécies), formas regionais, Mega/Primal e Gigantamax, busca por nome, número ou habilidade (inclusive oculta), filtros e detalhes obtidos da PokeAPI. A página inicial mostra novidades e a data de conferência dos dados.
 
 ## Executar localmente
 
@@ -32,12 +32,16 @@ Testes cobrem filtros, estado salvo inválido, storage bloqueado, paginação du
 
 ## Manutenção
 
-- `npm run data:generate`: atualiza o JSON compacto a partir do commit oficial fixado no script. Revise o diff antes de publicar.
+- `npm run data:generate`: gera o JSON compacto a partir do commit oficial fixado no script.
+- `npm run data:update`: consulta a revisão mais recente do repositório oficial da PokeAPI e atualiza o catálogo, incluindo habilidades e descoberta de formas. Revise o diff e rode testes/build antes de publicar. Não há atualização ou publicação automática em produção.
+- `src/lib/version.ts`: fonte única do changelog da página inicial e da versão no rodapé. A data dos dados vem do catálogo, não da data do release.
 - `npm run images:convert`: converte os originais de `assets/backgrounds` para os WebP em `public/backgrounds`. Não é executado automaticamente no build.
 - `npm run format`: formata código e configuração.
 - A CI verifica qualidade, testes e build. A auditoria online tem workflow semanal separado. O conversor manual entrega um artefato; não faz commits ou push automático.
 
 **Regra de produto:** estágio evolutivo ausente é tratado como **Básico**, inclusive nas formas sem enriquecimento. Essa regra tem testes e não deve ser removida como “dado inválido”.
+
+A busca usa os nomes oficiais de habilidades da PokeAPI, como `Overgrow` e `Solar Power`. Não diferencia maiúsculas, acentos, espaços e hífens. As alternativas de evolução aparecem em cards responsivos com suas condições; transformações Mega/Primal e Gigantamax ficam separadas.
 
 ## Documentação
 

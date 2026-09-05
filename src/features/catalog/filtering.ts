@@ -81,19 +81,27 @@ export function applyFilters(pokemons: PokemonBasic[], filters: FilterState): Po
   }
 
   if (filters.hasMega === true) {
-    result = result.filter((pokemon) => MEGA_POKEMON_IDS.has(getBaseId(pokemon)));
+    result = result.filter(
+      (pokemon) => pokemon.hasMega ?? MEGA_POKEMON_IDS.has(getBaseId(pokemon)),
+    );
   }
 
   if (filters.hasMega === false) {
-    result = result.filter((pokemon) => !MEGA_POKEMON_IDS.has(getBaseId(pokemon)));
+    result = result.filter(
+      (pokemon) => !(pokemon.hasMega ?? MEGA_POKEMON_IDS.has(getBaseId(pokemon))),
+    );
   }
 
   if (filters.hasGmax === true) {
-    result = result.filter((pokemon) => GMAX_POKEMON_IDS.has(getBaseId(pokemon)));
+    result = result.filter(
+      (pokemon) => pokemon.hasGmax ?? GMAX_POKEMON_IDS.has(getBaseId(pokemon)),
+    );
   }
 
   if (filters.hasGmax === false) {
-    result = result.filter((pokemon) => !GMAX_POKEMON_IDS.has(getBaseId(pokemon)));
+    result = result.filter(
+      (pokemon) => !(pokemon.hasGmax ?? GMAX_POKEMON_IDS.has(getBaseId(pokemon))),
+    );
   }
 
   if (filters.regions.length > 0) {
