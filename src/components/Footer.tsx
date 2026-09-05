@@ -21,7 +21,7 @@ export function Footer() {
   return (
     <footer className="relative mt-12 pb-6 text-center">
       <div ref={popupRef} className="flex items-center justify-center gap-2 relative">
-        <span className="text-xs text-ui-subtitle">v{VERSION_INFO.version}</span>
+        <span className="footer-version">v{VERSION_INFO.version}</span>
 
         <button
           onClick={() => setShowInfo((v) => !v)}
@@ -30,14 +30,7 @@ export function Footer() {
           onKeyDown={(event) => {
             if (event.key === 'Escape') setShowInfo(false);
           }}
-          className="
-            w-5 h-5 flex items-center justify-center
-            rounded-full
-            bg-white/10 hover:bg-white/20
-            text-ui-title
-            text-[10px]
-            transition
-          "
+          className="footer-info-button"
         >
           ?
         </button>
@@ -48,19 +41,17 @@ export function Footer() {
               absolute bottom-6 left-1/2 -translate-x-1/2
               w-52
               rounded-lg
-              bg-black/70 backdrop-blur-xl
-              border border-white/10
+              bg-card
+              border border-border
               p-3
-              text-ui-subtitle
+              text-card-foreground
               shadow-xl
               z-50
             "
           >
-            <p className="text-[11px] font-bold mb-1.5 text-ui-title tracking-wide">
-              v{VERSION_INFO.version}
-            </p>
+            <p className="text-code mb-2">v{VERSION_INFO.version}</p>
 
-            <ul className="space-y-0.5 text-[10px]">
+            <ul className="space-y-2 text-xs leading-relaxed text-muted-foreground">
               {VERSION_INFO.changes.map((change) => (
                 <li key={change}>• {change}</li>
               ))}

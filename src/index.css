@@ -2,6 +2,87 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Opt-in typography: no global heading or paragraph overrides. */
+@layer components {
+  .site-display {
+    @apply font-pixel text-lg leading-relaxed tracking-tight text-foreground sm:text-2xl;
+    text-wrap: balance;
+    overflow-wrap: anywhere;
+  }
+  .site-display::after {
+    content: '';
+    @apply mt-3 block h-1 w-10 rounded-full bg-primary;
+    box-shadow: 12px 0 0 -1px hsl(var(--primary) / 0.25);
+  }
+  .site-display--center::after {
+    @apply mx-auto;
+  }
+  .text-accent-word {
+    @apply text-primary;
+  }
+  .text-support {
+    @apply text-sm leading-7;
+    color: hsl(var(--foreground) / 0.74);
+    text-wrap: pretty;
+    overflow-wrap: anywhere;
+  }
+  .section-title {
+    @apply relative pl-3 text-base font-bold leading-snug tracking-tight text-card-foreground;
+    text-wrap: balance;
+  }
+  .section-title::before {
+    content: '';
+    @apply absolute bottom-0.5 left-0 top-0.5 w-[3px] rounded-full bg-primary;
+  }
+  .text-code {
+    @apply inline-flex items-center rounded-md border border-primary/15 bg-primary/5 px-2 py-0.5 font-mono text-[11px] font-semibold tabular-nums tracking-wide text-foreground;
+  }
+  .text-overline {
+    @apply text-[10px] font-semibold uppercase tracking-[0.12em] text-muted-foreground;
+  }
+  .text-detail-label {
+    @apply text-xs font-semibold leading-relaxed text-muted-foreground;
+  }
+  .metric-value {
+    @apply text-2xl font-bold tabular-nums tracking-tight text-card-foreground;
+  }
+  .metric-unit {
+    @apply ml-1 text-xs font-medium tracking-normal text-muted-foreground;
+  }
+  .site-text-link {
+    @apply rounded-sm text-sm font-semibold text-primary underline decoration-primary/25 underline-offset-4 hover:decoration-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2;
+  }
+  .home-card-title {
+    @apply mb-1 text-lg font-bold tracking-tight text-card-foreground;
+  }
+  .home-category-card:hover .home-card-title,
+  .home-category-card:focus-visible .home-card-title {
+    @apply text-primary;
+  }
+  .home-card-description {
+    @apply mb-3 text-sm leading-relaxed text-muted-foreground;
+  }
+  .catalog-card-name {
+    @apply mb-2 break-words font-pixel text-[10px] capitalize leading-loose text-card-foreground;
+  }
+  .group:hover .catalog-card-name,
+  .group:focus-visible .catalog-card-name {
+    @apply text-primary;
+  }
+  .ability-label {
+    @apply inline-flex items-center gap-2 rounded-lg border border-primary/20 bg-primary/5 px-3 py-1.5 text-sm font-semibold capitalize text-foreground hover:border-primary/50 hover:bg-primary/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring;
+  }
+  .ability-description {
+    @apply mt-2 max-w-md border-l-2 border-primary/20 pl-3;
+  }
+  .footer-version {
+    @apply rounded-full border border-border bg-card/95 px-3 py-1 font-mono text-[11px] font-medium tabular-nums text-muted-foreground;
+  }
+  .footer-info-button {
+    @apply flex h-6 w-6 items-center justify-center rounded-full border border-border bg-card text-[11px] font-semibold text-primary hover:border-primary/40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring;
+  }
+}
+
 /* Shared home and release styles. Evolution styles are loaded with the detail page. */
 @layer components {
   .home-category-card {
@@ -61,10 +142,27 @@
     @apply mb-8 flex items-center gap-4;
   }
   .catalog-title {
-    @apply font-pixel text-sm sm:text-lg text-ui-title leading-relaxed;
+    @apply text-sm sm:text-lg;
   }
   .catalog-subtitle {
-    @apply text-sm text-ui-subtitle mt-1;
+    @apply mt-3;
+  }
+  .catalog-heading-copy {
+    @apply min-w-0;
+  }
+  .catalog-page--illustrated .catalog-heading-copy {
+    @apply rounded-xl border border-white/10 px-4 py-3;
+    background: hsl(220 20% 8% / 0.76);
+  }
+  .catalog-page--illustrated .catalog-title {
+    @apply text-white;
+  }
+  .catalog-page--illustrated .catalog-subtitle {
+    color: hsl(0 0% 100% / 0.85);
+  }
+  .catalog-page--illustrated .catalog-back-button {
+    @apply border border-white/15 text-white;
+    background: hsl(220 20% 8% / 0.76);
   }
   .catalog-tools {
     @apply mx-auto mb-4 max-w-3xl;
@@ -82,7 +180,10 @@
     @apply flex flex-wrap items-center justify-center gap-1.5;
   }
   .catalog-search-help {
-    @apply mt-2 text-center text-xs text-ui-subtitle;
+    @apply mt-3 rounded-lg border border-border bg-card px-3 py-2 text-center text-xs leading-relaxed text-muted-foreground;
+  }
+  .catalog-search-help strong {
+    @apply font-semibold text-card-foreground;
   }
   .catalog-grid {
     @apply grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5;
@@ -226,22 +327,5 @@ All colors MUST be HSL.
 
   body {
     @apply bg-background text-foreground;
-  }
-}
-@layer components {
-  .text-ui-title {
-    @apply text-white;
-    text-shadow:
-      0 1px 0 rgba(0, 0, 0, 1),
-      0 0 2px rgba(0, 0, 0, 1),
-      0 0 8px rgba(0, 0, 0, 0.85);
-  }
-
-  .text-ui-subtitle {
-    @apply text-white;
-    text-shadow:
-      0 1px 0 rgba(0, 0, 0, 1),
-      0 0 2px rgba(0, 0, 0, 1),
-      0 0 6px rgba(0, 0, 0, 0.7);
   }
 }

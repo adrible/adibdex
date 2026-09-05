@@ -7,6 +7,15 @@ export interface ChangelogEntry {
 
 export const CHANGELOG: ChangelogEntry[] = [
   {
+    version: '0.9.3',
+    date: '2026-09-05',
+    title: 'Mais personalidade nos textos',
+    changes: [
+      'Títulos, nomes, números e descrições com estilos compartilhados na página inicial, catálogos e detalhes.',
+      'Melhor contraste dos textos sobre imagens, etiquetas para os dados e leitura completa de nomes longos.',
+    ],
+  },
+  {
     version: '0.9.2',
     date: '2026-09-05',
     title: 'Um novo visual para evoluir',

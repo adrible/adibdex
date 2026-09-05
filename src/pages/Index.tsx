@@ -81,8 +81,10 @@ export default function Index() {
 
       <main className="container py-12">
         <div className="text-center mb-12">
-          <h2 className="font-pixel text-lg sm:text-2xl text-foreground mb-4">Todas as Regiões</h2>
-          <p className="text-muted-foreground max-w-lg mx-auto mb-6">
+          <h2 className="site-display site-display--center mb-4">
+            Todas as <span className="text-accent-word">Regiões</span>
+          </h2>
+          <p className="text-support max-w-lg mx-auto mb-6">
             Explore todos os Pokémon organizados por região ou veja a Pokédex Nacional completa.
           </p>
           <Link
@@ -93,10 +95,7 @@ export default function Index() {
             <ChevronRight className="h-4 w-4" />
           </Link>
           <div className="mt-4">
-            <a
-              href="#novidades"
-              className="text-sm font-medium text-primary underline-offset-4 hover:underline"
-            >
+            <a href="#novidades" className="site-text-link">
               Ver novidades da versão
             </a>
           </div>
@@ -121,15 +120,15 @@ export default function Index() {
                 <ChevronRight className="h-5 w-5 text-muted-foreground group-hover:text-primary transition-colors" />
               </div>
 
-              <h3 className="font-bold text-lg text-card-foreground mb-1">{gen.region}</h3>
+              <h3 className="home-card-title">{gen.region}</h3>
 
-              <p className="text-sm text-muted-foreground mb-3">
+              <p className="home-card-description">
                 {gen.region === 'Desconhecida'
                   ? 'Pokémon sem região definida'
                   : `Região de ${gen.region}`}
               </p>
 
-              <p className="text-xs font-semibold text-primary">
+              <p className="text-code">
                 #{gen.pokemonRange[0]} — #{gen.pokemonRange[1]}
               </p>
 
@@ -159,13 +158,11 @@ export default function Index() {
               <ChevronRight className="h-5 w-5 text-muted-foreground group-hover:text-primary transition-colors" />
             </div>
 
-            <h3 className="font-bold text-lg text-card-foreground mb-1">Formas Regionais</h3>
+            <h3 className="home-card-title">Formas Regionais</h3>
 
-            <p className="text-sm text-muted-foreground mb-3">
-              Alolan, Galarian, Hisuian e Paldean forms
-            </p>
+            <p className="home-card-description">Alolan, Galarian, Hisuian e Paldean forms</p>
 
-            <p className="text-xs font-semibold text-primary">VARIAÇÕES POR REGIÃO</p>
+            <p className="text-code">VARIAÇÕES POR REGIÃO</p>
 
             <div className="absolute -bottom-4 -right-4 h-24 w-24 rounded-full bg-primary/5 group-hover:bg-primary/10 transition-colors" />
           </Link>
@@ -186,9 +183,9 @@ export default function Index() {
               <ChevronRight className="h-5 w-5 text-muted-foreground group-hover:text-primary transition-colors" />
             </div>
 
-            <h3 className="font-bold text-lg text-card-foreground mb-1">Mega Evoluções</h3>
-            <p className="text-sm text-muted-foreground mb-3">Todas as formas Mega</p>
-            <p className="text-xs font-semibold text-primary">MEGA PODER!</p>
+            <h3 className="home-card-title">Mega Evoluções</h3>
+            <p className="home-card-description">Todas as formas Mega</p>
+            <p className="text-code">MEGA PODER!</p>
 
             <div className="absolute -bottom-4 -right-4 h-24 w-24 rounded-full bg-primary/5 group-hover:bg-primary/10 transition-colors" />
           </Link>
@@ -210,9 +207,9 @@ export default function Index() {
               <ChevronRight className="h-5 w-5 text-muted-foreground group-hover:text-primary transition-colors" />
             </div>
 
-            <h3 className="font-bold text-lg text-card-foreground mb-1">Gigantamax</h3>
-            <p className="text-sm text-muted-foreground mb-3">Todas as formas Gigantamax</p>
-            <p className="text-xs font-semibold text-primary">POKEMONS GIGANTES!</p>
+            <h3 className="home-card-title">Gigantamax</h3>
+            <p className="home-card-description">Todas as formas Gigantamax</p>
+            <p className="text-code">POKEMONS GIGANTES!</p>
 
             <div className="absolute -bottom-4 -right-4 h-24 w-24 rounded-full bg-primary/5 group-hover:bg-primary/10 transition-colors" />
           </Link>

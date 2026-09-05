@@ -18,8 +18,8 @@ export function QueryErrorState({
       className="rounded-xl border border-destructive/30 bg-destructive/5 p-6 text-center"
     >
       <AlertTriangle className="mx-auto mb-3 h-7 w-7 text-destructive" />
-      <h3 className="font-semibold text-foreground">{title}</h3>
-      <p className="mt-1 text-sm text-muted-foreground">{message}</p>
+      <h3 className="text-base font-bold tracking-tight text-foreground">{title}</h3>
+      <p className="text-support mt-2">{message}</p>
       {onRetry && (
         <Button variant="outline" size="sm" className="mt-4 gap-2" onClick={onRetry}>
           <RefreshCw className="h-4 w-4" />

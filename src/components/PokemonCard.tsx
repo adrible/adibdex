@@ -61,15 +61,9 @@ export const PokemonCard = React.memo(function PokemonCard({
         />
       </div>
 
-      {displayId && (
-        <p className="text-xs font-bold text-muted-foreground mb-1">
-          #{String(displayId).padStart(4, '0')}
-        </p>
-      )}
+      {displayId && <p className="text-code mb-2">#{String(displayId).padStart(4, '0')}</p>}
 
-      <h3 className="font-pixel text-[10px] capitalize text-card-foreground mb-2 truncate">
-        {pokemonName}
-      </h3>
+      <h3 className="catalog-card-name">{pokemonName}</h3>
 
       <div className="flex gap-1.5 flex-wrap">
         {pokemon.types.map((t) => (

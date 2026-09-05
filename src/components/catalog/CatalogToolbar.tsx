@@ -81,7 +81,8 @@ export function CatalogToolbar({ view, children, onSuggestion, ...filterOptions 
         </div>
       </div>
       <p className="catalog-search-help">
-        Busque também por habilidade — incluindo habilidades ocultas.
+        Busque também por <strong>habilidade</strong> — incluindo{' '}
+        <strong>habilidades ocultas</strong>.
       </p>
     </div>
   );

@@ -202,7 +202,7 @@ export function PokemonMoves({ pokemonId }: { pokemonId: number }) {
       >
         <div className="flex items-center gap-2">
           <Swords className="h-5 w-5 text-primary" />
-          <h3 className="font-bold text-card-foreground">Ataques</h3>
+          <h3 className="section-title">Ataques</h3>
         </div>
         {isOpen ? (
           <ChevronUp className="h-5 w-5 text-muted-foreground" />

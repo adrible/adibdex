@@ -12,14 +12,14 @@ export function TypeEffectiveness({ types }: Props) {
 
   return (
     <div className="rounded-xl bg-card border border-border p-6 space-y-6">
-      <h3 className="font-bold text-card-foreground">Efetividade de Tipo</h3>
+      <h3 className="section-title">Efetividade de Tipo</h3>
 
       {/* Defensive */}
       <div className="space-y-4">
         <div>
           <div className="flex items-center gap-2 mb-2">
             <Shield className="h-4 w-4 text-destructive" />
-            <span className="text-sm font-semibold text-foreground">Fraquezas</span>
+            <span className="text-detail-label text-sm text-foreground">Fraquezas</span>
           </div>
           {defense.weaknesses.length > 0 ? (
             <div className="flex flex-wrap gap-1.5">
@@ -40,7 +40,7 @@ export function TypeEffectiveness({ types }: Props) {
         <div>
           <div className="flex items-center gap-2 mb-2">
             <Shield className="h-4 w-4 text-primary" />
-            <span className="text-sm font-semibold text-foreground">Resistências</span>
+            <span className="text-detail-label text-sm text-foreground">Resistências</span>
           </div>
           {defense.resistances.length > 0 ? (
             <div className="flex flex-wrap gap-1.5">
@@ -62,7 +62,7 @@ export function TypeEffectiveness({ types }: Props) {
           <div>
             <div className="flex items-center gap-2 mb-2">
               <Ban className="h-4 w-4 text-muted-foreground" />
-              <span className="text-sm font-semibold text-foreground">Imunidades</span>
+              <span className="text-detail-label text-sm text-foreground">Imunidades</span>
             </div>
             <div className="flex flex-wrap gap-1.5">
               {defense.immunities.map((t) => (
@@ -78,7 +78,7 @@ export function TypeEffectiveness({ types }: Props) {
         <div>
           <div className="flex items-center gap-2 mb-2">
             <Swords className="h-4 w-4 text-primary" />
-            <span className="text-sm font-semibold text-foreground">Super Efetivo contra</span>
+            <span className="text-detail-label text-sm text-foreground">Super Efetivo contra</span>
           </div>
           {offense.superEffective.length > 0 ? (
             <div className="flex flex-wrap gap-1.5">
@@ -95,7 +95,7 @@ export function TypeEffectiveness({ types }: Props) {
           <div>
             <div className="flex items-center gap-2 mb-2">
               <Ban className="h-4 w-4 text-muted-foreground" />
-              <span className="text-sm font-semibold text-foreground">Sem efeito contra</span>
+              <span className="text-detail-label text-sm text-foreground">Sem efeito contra</span>
             </div>
             <div className="flex flex-wrap gap-1.5">
               {offense.noEffect.map((t) => (

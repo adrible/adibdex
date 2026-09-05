@@ -21,7 +21,9 @@ export function CatalogPageShell({
   backToTop = false,
 }: Props) {
   return (
-    <div className={`catalog-page ${background === undefined ? 'bg-background' : ''}`}>
+    <div
+      className={`catalog-page ${background === undefined ? 'bg-background' : 'catalog-page--illustrated'}`}
+    >
       {background !== undefined && (
         <div
           className="catalog-background"
@@ -38,14 +40,14 @@ export function CatalogPageShell({
       <Header />
       <main className="catalog-main">
         <div className="catalog-heading">
-          <Button variant="ghost" size="icon" asChild>
+          <Button variant="ghost" size="icon" className="catalog-back-button" asChild>
             <Link to="/" aria-label="Voltar ao início">
-              <ArrowLeft className="h-5 w-5 text-ui-title" />
+              <ArrowLeft className="h-5 w-5" />
             </Link>
           </Button>
-          <div className="min-w-0">
-            <h2 className="catalog-title">{title}</h2>
-            <p className="catalog-subtitle">{subtitle}</p>
+          <div className="catalog-heading-copy">
+            <h2 className="site-display catalog-title">{title}</h2>
+            <p className="text-support catalog-subtitle">{subtitle}</p>
           </div>
         </div>
         {children}

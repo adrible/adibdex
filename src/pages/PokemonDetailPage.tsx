@@ -35,8 +35,8 @@ function StatBar({ name, value }: { name: string; value: number }) {
 
   return (
     <div className="flex items-center gap-3">
-      <span className="text-xs font-semibold text-muted-foreground w-24 text-right">{label}</span>
-      <span className="text-sm font-bold w-8 text-foreground">{value}</span>
+      <span className="text-detail-label w-24 text-right">{label}</span>
+      <span className="text-sm font-bold tabular-nums w-8 text-foreground">{value}</span>
       <div className="flex-1 h-2.5 rounded-full bg-muted overflow-hidden">
         <div
           className="h-full rounded-full bg-primary transition-all duration-500"
@@ -66,13 +66,13 @@ function AbilityChip({ ability }: { ability: string }) {
       <button
         onClick={() => setExpanded(!expanded)}
         aria-expanded={expanded}
-        className="rounded-full bg-secondary px-3 py-1 text-sm font-medium capitalize text-secondary-foreground hover:bg-secondary/80 transition-colors inline-flex items-center gap-1"
+        className="ability-label"
       >
         {ability.replace(/-/g, ' ')}
         {expanded ? <ChevronUp className="h-3 w-3" /> : <ChevronDown className="h-3 w-3" />}
       </button>
       {expanded && (
-        <p className="text-xs text-muted-foreground mt-1.5 ml-1 max-w-md">
+        <p className="text-support ability-description">
           {isLoading
             ? 'Carregando...'
             : isError
@@ -286,10 +286,8 @@ export default function PokemonDetailPage() {
         </div>
 
         <div className="text-center mb-8">
-          <p className="text-sm font-bold text-muted-foreground mb-1">
-            #{String(displayId).padStart(4, '0')}
-          </p>
-          <h2 className="font-pixel text-lg sm:text-xl text-foreground capitalize mb-4">
+          <p className="text-code mb-3">#{String(displayId).padStart(4, '0')}</p>
+          <h2 className="site-display site-display--center capitalize mb-4">
             {pokemon.name.replace(/-/g, ' ')}
           </h2>
           <div className="flex justify-center gap-2 mb-6">
@@ -312,21 +310,21 @@ export default function PokemonDetailPage() {
 
         <div className="grid grid-cols-2 gap-4 mb-10">
           <div className="rounded-xl bg-card border border-border p-5 text-center">
-            <p className="text-xs text-muted-foreground mb-1">Altura</p>
-            <p className="text-lg font-bold text-card-foreground">
-              {(pokemon.height / 10).toFixed(1)} m
+            <p className="text-overline mb-2">Altura</p>
+            <p className="metric-value">
+              {(pokemon.height / 10).toFixed(1)} <span className="metric-unit">m</span>
             </p>
           </div>
           <div className="rounded-xl bg-card border border-border p-5 text-center">
-            <p className="text-xs text-muted-foreground mb-1">Peso</p>
-            <p className="text-lg font-bold text-card-foreground">
-              {(pokemon.weight / 10).toFixed(1)} kg
+            <p className="text-overline mb-2">Peso</p>
+            <p className="metric-value">
+              {(pokemon.weight / 10).toFixed(1)} <span className="metric-unit">kg</span>
             </p>
           </div>
         </div>
 
         <div className="rounded-xl bg-card border border-border p-6 mb-10">
-          <h3 className="font-bold text-card-foreground mb-3">Habilidades</h3>
+          <h3 className="section-title mb-4">Habilidades</h3>
           <div className="flex flex-wrap gap-2">
             {pokemon.abilities.map((a) => (
               <AbilityChip key={a} ability={a} />
@@ -335,9 +333,9 @@ export default function PokemonDetailPage() {
         </div>
 
         <div className="rounded-xl bg-card border border-border p-6 mb-10">
-          <div className="flex items-center justify-between mb-4">
-            <h3 className="font-bold text-card-foreground">Estatísticas Base</h3>
-            <span className="text-sm font-semibold text-primary">Total: {totalStats}</span>
+          <div className="flex flex-wrap items-center justify-between gap-3 mb-4">
+            <h3 className="section-title">Estatísticas Base</h3>
+            <span className="text-code">Total: {totalStats}</span>
           </div>
           <div className="space-y-3">
             {pokemon.stats.map((s) => (
@@ -353,7 +351,7 @@ export default function PokemonDetailPage() {
         <div className="rounded-xl bg-card border border-border p-6 mb-10">
           <div className="flex items-center gap-2 mb-4">
             <MapPin className="h-5 w-5 text-primary" />
-            <h3 className="font-bold text-card-foreground">Localizações</h3>
+            <h3 className="section-title">Localizações</h3>
           </div>
           {encountersLoading ? (
             <div className="space-y-2">
@@ -384,7 +382,7 @@ export default function PokemonDetailPage() {
               ))}
             </div>
           ) : (
-            <p className="text-sm text-muted-foreground">
+            <p className="text-support">
               Não encontrado em nenhuma rota — pode ser obtido por evento, troca ou evolução.
             </p>
           )}
