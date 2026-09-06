@@ -137,7 +137,7 @@ export const MYTHICAL_IDS = new Set([
   808, 809, 893, 894, 1025,
 ]);
 export const PSEUDO_LEGENDARY_IDS = new Set([
-  149, 248, 289, 373, 376, 445, 635, 706, 784, 887, 998,
+  149, 248, 373, 376, 445, 635, 706, 784, 887, 998,
 ]);
 export const ULTRA_BEAST_IDS = new Set([793, 794, 795, 796, 797, 798, 799, 803, 804, 805, 806]);
 export const PARADOX_IDS = new Set([
