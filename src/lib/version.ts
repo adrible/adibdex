@@ -7,30 +7,15 @@ export interface ChangelogEntry {
 
 export const CHANGELOG: ChangelogEntry[] = [
   {
-    version: '0.9.6',
-    date: '2026-10-31',
-    title: 'Paginação nacional padronizada',
-    changes: [
-      'A National Dex agora usa os mesmos controles das regiões: Paginado/Todos, paginação acima e abaixo da lista e Voltar ao topo.',
-    ],
-  },
-  {
-    version: '0.9.5',
-    date: '2026-10-31',
-    title: 'Filtre os ataques por jogo',
-    changes: [
-      'Novo seletor de jogo no painel de filtros, combinado com a busca por ataque.',
-      'Os resultados e as tags dos ataques respeitam o jogo escolhido; o filtro é preservado ao voltar dos detalhes.',
-    ],
-  },
-  {
     version: '0.9.4',
     date: '2026-10-31',
-    title: 'Encontre Pokémon pelos ataques',
+    title: 'Ataques, jogos e navegação',
     changes: [
-      'Busca por ataques aprendidos em todos os catálogos, combinada com os filtros existentes.',
+      'Busca por ataques aprendidos em todos os catálogos, combinada com os filtros existentes. Pesquise nomes como Surf e Thunderbolt.',
       'Tags abaixo do nome mostram os jogos em que cada ataque pesquisado pode ser aprendido.',
-      'Pesquise nomes como Surf e Thunderbolt; são considerados todos os jogos e métodos registrados na fonte.',
+      'Novo seletor de jogo no painel de filtros: resultados e tags respeitam o jogo escolhido, preservado ao voltar dos detalhes.',
+      'A National Dex usa os mesmos controles das regiões: Paginado/Todos, paginação acima e abaixo da lista e Voltar ao topo.',
+      'Os ataques consideram todos os jogos e métodos registrados na fonte; a disponibilidade varia conforme o jogo selecionado.',
     ],
   },
   {
