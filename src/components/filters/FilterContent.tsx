@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
-import { VERSION_GROUP_NAMES } from '@/lib/pokemon/constants';
+import { GameSelector } from './GameSelector';
 import { TypeBadge } from '@/components/TypeBadge';
 import {
   cloneFilters,
@@ -45,37 +45,11 @@ export function FilterContent({
 
   return (
     <div className="space-y-6 py-2">
-      <div>
-        <label
-          htmlFor="catalog-game-filter"
-          className="block text-sm font-semibold text-foreground mb-2"
-        >
-          Jogo
-        </label>
-        <select
-          id="catalog-game-filter"
-          value={local.game}
-          onChange={(event) => setLocal((prev) => ({ ...prev, game: event.target.value }))}
-          className="w-full min-h-11 rounded-lg border border-input bg-background px-3 py-2 text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-ring"
-          aria-describedby="catalog-game-filter-help"
-        >
-          <option value="">Todos os jogos</option>
-          {local.game && !gameOptions.some((g) => g.value === local.game) && (
-            <option value={local.game}>
-              {VERSION_GROUP_NAMES[local.game] ?? local.game} (sem registros neste catálogo)
-            </option>
-          )}
-          {gameOptions.map((game) => (
-            <option key={game.value} value={game.value}>
-              {game.label}
-            </option>
-          ))}
-        </select>
-        <p id="catalog-game-filter-help" className="mt-2 text-xs text-muted-foreground">
-          Com um ataque na busca, mostra quem o aprende no jogo escolhido. Sem ataque, usa os
-          registros de aprendizado disponíveis para esse jogo.
-        </p>
-      </div>
+      <GameSelector
+        value={local.game}
+        options={gameOptions}
+        onChange={(game) => setLocal((prev) => ({ ...prev, game }))}
+      />
       <div>
         <div className="flex items-center justify-between mb-2">
           <h4 className="text-sm font-semibold text-foreground">Tipos</h4>
