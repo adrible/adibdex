@@ -11,6 +11,7 @@ interface Entry {
   stats: Record<string, number>;
   category: 'base' | 'regional' | 'mega' | 'gmax';
   abilities: { name: string; isHidden: boolean }[];
+  moves: string[];
 }
 export const entries: Entry[] = JSON.parse(
   readFileSync('public/data/catalog.json', 'utf8'),

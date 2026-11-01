@@ -34,8 +34,8 @@ export function CatalogToolbar({ view, children, onSuggestion, ...filterOptions 
           <Input
             type="search"
             maxLength={200}
-            placeholder="Nome, número ou habilidade..."
-            aria-label="Buscar Pokémon por nome, número ou habilidade"
+            placeholder="Nome, número, habilidade ou ataque..."
+            aria-label="Buscar Pokémon por nome, número, habilidade ou ataque"
             value={view.search}
             onChange={(event) => view.setSearch(event.target.value)}
             className="pl-10"
@@ -82,7 +82,9 @@ export function CatalogToolbar({ view, children, onSuggestion, ...filterOptions 
       </div>
       <p className="catalog-search-help">
         Busque também por <strong>habilidade</strong> — incluindo{' '}
-        <strong>habilidades ocultas</strong>.
+        <strong>habilidades ocultas</strong> — ou por <strong>ataque aprendido</strong>, como Surf e
+        Thunderbolt. Ataques consideram todos os jogos e métodos de aprendizado registrados; a
+        disponibilidade varia por jogo.
       </p>
     </div>
   );

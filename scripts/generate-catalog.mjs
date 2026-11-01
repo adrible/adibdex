@@ -67,10 +67,24 @@ const tableNames = [
   'pokemon_stats',
   'abilities',
   'pokemon_abilities',
+  'moves',
+  'pokemon_moves',
+  'version_groups',
 ];
 for (let i = 0; i < tableNames.length; i += 5)
   tables.push(...(await Promise.all(tableNames.slice(i, i + 5).map(csv))));
-const [pokemon, species, types, pokemonTypes, pokemonStats, abilities, pokemonAbilities] = tables;
+const [
+  pokemon,
+  species,
+  types,
+  pokemonTypes,
+  pokemonStats,
+  abilities,
+  pokemonAbilities,
+  moves,
+  pokemonMoves,
+  versionGroups,
+] = tables;
 
 const bySpecies = new Map(species.map((s) => [Number(s.id), s]));
 const typeNames = new Map(types.map((t) => [t.id, t.identifier]));
@@ -94,6 +108,24 @@ for (const ability of pokemonAbilities) {
     .get(ability.pokemon_id)
     .push({ name, isHidden: ability.is_hidden === '1', slot: Number(ability.slot) });
 }
+// Union of explicitly recorded learnsets across games and learning methods.
+// Keep form IDs separate; never infer moves from the base species.
+const moveNames = new Map(moves.map((m) => [m.id, m.identifier]));
+const versionGroupNames = new Map(versionGroups.map((g) => [g.id, g.identifier]));
+const moveMap = new Map();
+const moveGameMap = new Map();
+for (const move of pokemonMoves) {
+  const name = moveNames.get(move.move_id);
+  if (!name) throw new Error(`Unknown move ${move.move_id}`);
+  if (!moveMap.has(move.pokemon_id)) moveMap.set(move.pokemon_id, new Set());
+  moveMap.get(move.pokemon_id).add(name);
+  const game = versionGroupNames.get(move.version_group_id);
+  if (!game) throw new Error(`Unknown version group ${move.version_group_id}`);
+  if (!moveGameMap.has(move.pokemon_id)) moveGameMap.set(move.pokemon_id, new Map());
+  const games = moveGameMap.get(move.pokemon_id);
+  if (!games.has(name)) games.set(name, new Set());
+  games.get(name).add(game);
+}
 const isMega = (name) => /-(mega|primal)(-|$)/.test(name);
 const isRegional = (name) =>
   /-(alola|galar|hisui|paldea)(-|$)/.test(name) && !name.includes('-totem');
@@ -103,6 +135,18 @@ const megaSpecies = new Set(
 const gmaxSpecies = new Set(
   pokemon.filter((p) => p.identifier.includes('-gmax')).map((p) => Number(p.species_id)),
 );
+// Many attacks share the same game list. Store it once and reference by index.
+const gameSets = [];
+const gameSetIds = new Map();
+function gameSetId(games) {
+  const sorted = [...games].sort();
+  const key = sorted.join('|');
+  if (!gameSetIds.has(key)) {
+    gameSetIds.set(key, gameSets.length);
+    gameSets.push(sorted);
+  }
+  return gameSetIds.get(key);
+}
 const entries = [];
 for (const p of pokemon) {
   const id = Number(p.id),
@@ -139,6 +183,10 @@ for (const p of pokemon) {
     abilities: (abilityMap.get(p.id) || [])
       .sort((a, b) => a.slot - b.slot)
       .map(({ name, isHidden }) => ({ name, isHidden })),
+    moves: [...(moveMap.get(p.id) || [])].sort(),
+    moveGames: [...(moveMap.get(p.id) || [])]
+      .sort()
+      .map((name) => gameSetId(moveGameMap.get(p.id).get(name))),
     hasMega: megaSpecies.has(baseId),
     hasGmax: gmaxSpecies.has(baseId),
     stats: { hp: s[1], attack: s[2], defense: s[3], spAtk: s[4], spDef: s[5], speed: s[6] },
@@ -168,6 +216,7 @@ const output = {
   generatedAt: new Date().toISOString(),
   sourceUpdatedAt,
   source: `https://github.com/PokeAPI/pokeapi/tree/${revision}`,
+  gameSets,
   entries,
 };
 const directory = fileURLToPath(new URL('../public/data/', import.meta.url));

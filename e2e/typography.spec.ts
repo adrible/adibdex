@@ -20,6 +20,7 @@ for (const dark of [false, true]) {
     await expect(page.locator('.catalog-search-help strong')).toHaveText([
       'habilidade',
       'habilidades ocultas',
+      'ataque aprendido',
     ]);
     await page
       .locator('.catalog-heading')

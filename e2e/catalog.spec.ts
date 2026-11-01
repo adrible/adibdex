@@ -11,7 +11,7 @@ test('generation search finds entries beyond the first fifty without per-Pokémo
   await page.goto('/generation/1');
   await expect(cards(page)).toHaveCount(50);
   await page
-    .getByRole('searchbox', { name: 'Buscar Pokémon por nome, número ou habilidade' })
+    .getByRole('searchbox', { name: 'Buscar Pokémon por nome, número, habilidade ou ataque' })
     .fill('mewtwo');
   await expect(cards(page)).toHaveCount(1);
   await expect(cards(page).first()).toHaveAttribute('href', '/pokemon/150');

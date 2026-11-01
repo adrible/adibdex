@@ -4,7 +4,7 @@ import { CHANGELOG } from '../src/lib/version';
 const cards = (page: import('@playwright/test').Page) =>
   page.locator('main a.group[href^="/pokemon/"]');
 const search = (page: import('@playwright/test').Page) =>
-  page.getByRole('searchbox', { name: 'Buscar Pokémon por nome, número ou habilidade' });
+  page.getByRole('searchbox', { name: 'Buscar Pokémon por nome, número, habilidade ou ataque' });
 const resource = (name: string, kind: string, id = 1) => ({
   name,
   url: `https://pokeapi.co/api/v2/${kind}/${id}/`,
@@ -72,6 +72,35 @@ for (const [path, categories] of [
     }
   });
 }
+
+test('learned attack search finds Pokémon beyond the first page and survives detail return', async ({
+  page,
+}) => {
+  const requests: string[] = [];
+  page.on('request', (request) => requests.push(request.url()));
+  await page.goto('/generation/1');
+  await expect(cards(page)).toHaveCount(50);
+  await search(page).fill('  THÚNDERBOLT  ');
+  const lapras = page.locator('main a.group[href="/pokemon/131"]');
+  await expect(lapras).toBeVisible();
+  await expect(
+    lapras
+      .getByLabel('Jogos em que aprende o ataque pesquisado')
+      .getByText('Red / Blue', { exact: true }),
+  ).toBeVisible();
+  await expect(page.locator('main a.group[href="/pokemon/129"]')).toHaveCount(0);
+  const expected = entries.filter(
+    (p) => p.category === 'base' && p.id <= 151 && p.moves.includes('thunderbolt'),
+  );
+  await expect(cards(page)).toHaveCount(expected.length);
+  expect(requests.filter((url) => url.includes('pokeapi.co/api/'))).toHaveLength(0);
+  await page.locator('main a.group[href="/pokemon/131"]').click();
+  await page.getByRole('button', { name: 'Voltar à lista' }).click();
+  await expect(search(page)).toHaveValue('  THÚNDERBOLT  ');
+  await expect(cards(page)).toHaveCount(expected.length);
+  await search(page).fill('attack-that-does-not-exist');
+  await expect(page.getByText('Nenhum Pokémon encontrado.')).toBeVisible();
+});
 
 test('home changelog shows the release, actual catalog metadata and history', async ({
   page,

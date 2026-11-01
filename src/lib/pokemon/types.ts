@@ -6,6 +6,8 @@ export interface PokemonBasic {
   spriteShiny: string;
   types: string[];
   abilities?: { name: string; isHidden: boolean }[];
+  moves?: string[];
+  moveGames?: Record<string, string[]>;
   hasMega?: boolean;
   hasGmax?: boolean;
   stats?: {

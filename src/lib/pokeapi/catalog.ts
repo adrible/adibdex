@@ -11,6 +11,8 @@ export const catalogEntrySchema = z.object({
   category: z.enum(['base', 'regional', 'mega', 'gmax']),
   types: z.array(z.string().min(1)).min(1).max(2),
   abilities: z.array(z.object({ name: z.string().min(1), isHidden: z.boolean() })).max(4),
+  moves: z.array(z.string().min(1)).default([]),
+  moveGames: z.array(z.number().int().nonnegative()).default([]),
   hasMega: z.boolean(),
   hasGmax: z.boolean(),
   stats: z.object({
@@ -32,8 +34,17 @@ export const catalogSchema = z
     sourceUpdatedAt: z.string().datetime(),
     source: z.string().url(),
     entries: z.array(catalogEntrySchema).max(3000),
+    gameSets: z.array(z.array(z.string().min(1))).default([]),
   })
-  .superRefine(({ entries }, ctx) => {
+  .superRefine(({ entries, gameSets }, ctx) => {
+    if (
+      entries.some(
+        (p) =>
+          p.moveGames.length !== p.moves.length || p.moveGames.some((id) => !gameSets[id]?.length),
+      )
+    ) {
+      ctx.addIssue({ code: 'custom', message: 'Invalid move game references.' });
+    }
     const base = entries.filter((p) => p.category === 'base').sort((a, b) => a.id - b.id);
     if (
       base.length !== NATIONAL_POKEDEX_SIZE ||
@@ -42,11 +53,18 @@ export const catalogSchema = z
     ) {
       ctx.addIssue({ code: 'custom', message: 'Incomplete or duplicate catalog.' });
     }
-  });
+  })
+  .transform(({ entries, gameSets, ...metadata }) => ({
+    ...metadata,
+    entries: entries.map(({ moveGames, ...pokemon }) => ({
+      ...pokemon,
+      moveGames: Object.fromEntries(pokemon.moves.map((move, i) => [move, gameSets[moveGames[i]]])),
+    })),
+  }));
 const catalogClient = new JsonClient(1, 60 * 60_000);
 export async function fetchCatalogSnapshot(signal?: AbortSignal) {
   return catalogClient.request(
-    `${import.meta.env.BASE_URL}data/catalog.json?v=2`,
+    `${import.meta.env.BASE_URL}data/catalog.json?v=3`,
     catalogSchema,
     signal,
   );

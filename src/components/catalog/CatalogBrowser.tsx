@@ -105,6 +105,7 @@ export function CatalogBrowser({
               <div key={p.id} style={{ contentVisibility: 'auto', containIntrinsicSize: '220px' }}>
                 <PokemonCard
                   pokemon={p}
+                  search={view.search}
                   isShiny={view.isShiny}
                   originPath={location.pathname}
                   listContext={{
