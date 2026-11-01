@@ -4,6 +4,7 @@ import { BrowserRouter, Route, Routes } from 'react-router-dom';
 import { retryQuery } from '@/lib/pokeapi/client';
 import { ThemeProvider } from '@/components/ThemeProvider';
 import { Skeleton } from '@/components/ui/skeleton';
+import { PageMetadata } from '@/components/PageMetadata';
 import { AppErrorBoundary } from '@/components/AppErrorBoundary';
 
 const Index = lazy(() => import('./pages/Index'));
@@ -41,6 +42,7 @@ const App = () => (
   <QueryClientProvider client={queryClient}>
     <ThemeProvider>
       <BrowserRouter>
+        <PageMetadata />
         <AppErrorBoundary>
           <Suspense fallback={<PageLoader />}>
             <Routes>
