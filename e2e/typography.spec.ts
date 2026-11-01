@@ -1,4 +1,5 @@
 import { test, expect, entries } from './fixtures';
+import { CHANGELOG } from '../src/lib/version';
 
 for (const dark of [false, true]) {
   test(`shared text styles preserve content and contrast (${dark ? 'dark' : 'light'})`, async ({
@@ -59,10 +60,8 @@ test('text remains readable on narrow screens and detail controls still work', a
     .locator('.ability-label')
     .locator('../..')
     .screenshot({ path: testInfo.outputPath('ability-text-mobile.png') });
-  await page.getByRole('button', { name: 'Informações da versão' }).click();
-  await expect(page.locator('footer ul')).toBeVisible();
-  await page.keyboard.press('Escape');
-  await expect(page.locator('footer ul')).toHaveCount(0);
+  await expect(page.locator('footer .footer-version')).toHaveText(`v${CHANGELOG[0].version}`);
+  await expect(page.getByRole('button', { name: 'Informações da versão' })).toHaveCount(0);
 });
 
 test('long Pokémon names wrap instead of being truncated', async ({ page }, testInfo) => {

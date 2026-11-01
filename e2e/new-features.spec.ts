@@ -152,7 +152,11 @@ test('three-stage evolution is linked, highlights the current Pokémon and separ
     'page',
   );
   await expect(panel.getByText('Nível 16', { exact: true })).toBeVisible();
-  await expect(panel.getByText('Evolui de bulbasaur', { exact: true })).toBeVisible();
+  const toIvysaur = panel.getByRole('group', { name: 'Como evoluir bulbasaur para ivysaur' });
+  const toVenusaur = panel.getByRole('group', { name: 'Como evoluir ivysaur para venusaur' });
+  await expect(toIvysaur.getByText('Nível 16', { exact: true })).toBeVisible();
+  await expect(toIvysaur.getByText('Nível 32', { exact: true })).toHaveCount(0);
+  await expect(toVenusaur.getByText('Nível 32', { exact: true })).toBeVisible();
   await expect(panel.getByRole('region', { name: 'Mega e Primal', exact: true })).toHaveCount(0);
   await panel.screenshot({
     path: testInfo.outputPath('evolution-desktop.png'),
@@ -210,13 +214,16 @@ test('branching evolutions show every alternative condition on mobile', async ({
   await page.setViewportSize({ width: 390, height: 844 });
   await page.goto('/pokemon/133');
   const panel = page.getByRole('region', { name: 'Linha Evolutiva' });
-  await expect(panel.getByText('Evolui de eevee', { exact: true })).toHaveCount(8);
+  await expect(panel.getByRole('group', { name: /^Como evoluir eevee para / })).toHaveCount(8);
   await expect(panel.getByText('8 evoluções possíveis de eevee', { exact: true })).toBeVisible();
   await expect(panel.locator('[data-layout="branched"]')).toHaveCount(1);
   await expect(panel.locator('.evolution-tree-children--many > .evolution-tree-node')).toHaveCount(
     8,
   );
-  await panel.getByText('Ver condições (2 alternativas)', { exact: true }).click();
+  const toLeafeon = panel.getByRole('group', { name: 'Como evoluir eevee para leafeon' });
+  await expect(toLeafeon.getByText('eterna forest', { exact: true })).toBeVisible();
+  await expect(toLeafeon.getByText('leaf stone', { exact: true })).toBeHidden();
+  await toLeafeon.getByText('Outras condições (1)', { exact: true }).click();
   await expect(panel.getByText('leaf stone', { exact: true })).toBeVisible();
   await expect(panel.getByText('eterna forest', { exact: true })).toBeVisible();
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
