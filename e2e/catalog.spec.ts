@@ -41,14 +41,14 @@ test('saved national pagination survives a delayed initial catalog and reload', 
     )
     .toBe(3);
   release();
-  await expect(page.getByRole('textbox', { name: 'Número da página' })).toHaveAttribute(
+  await expect(page.getByRole('textbox', { name: 'Número da página' }).first()).toHaveAttribute(
     'placeholder',
     '4',
   );
   const first = await cards(page).first().getAttribute('href');
   await page.reload();
   await expect(cards(page).first()).toHaveAttribute('href', first!);
-  await expect(page.getByRole('textbox', { name: 'Número da página' })).toHaveAttribute(
+  await expect(page.getByRole('textbox', { name: 'Número da página' }).first()).toHaveAttribute(
     'placeholder',
     '4',
   );
@@ -109,8 +109,8 @@ test('blocked browser storage does not crash the app', async ({ page }) => {
   });
   await page.goto('/national');
   await expect(cards(page)).toHaveCount(50);
-  await page.getByRole('button', { name: 'Próxima página' }).click();
-  await expect(page.getByRole('textbox', { name: 'Número da página' })).toHaveAttribute(
+  await page.getByRole('button', { name: 'Próxima página' }).first().click();
+  await expect(page.getByRole('textbox', { name: 'Número da página' }).first()).toHaveAttribute(
     'placeholder',
     '2',
   );

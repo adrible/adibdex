@@ -18,12 +18,14 @@ export default function NationalDexPage() {
     <CatalogPageShell
       title="Pokédex Nacional"
       subtitle="Pokémon da National Dex + formas regionais"
+      backToTop
     >
       <CatalogBrowser
         view={view}
         loading={query.isPending}
         error={query.isError}
         onRetry={() => void query.refetch()}
+        allowShowAll
         suggestions
       />
     </CatalogPageShell>

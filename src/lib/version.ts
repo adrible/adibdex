@@ -7,6 +7,14 @@ export interface ChangelogEntry {
 
 export const CHANGELOG: ChangelogEntry[] = [
   {
+    version: '0.9.6',
+    date: '2026-10-31',
+    title: 'Paginação nacional padronizada',
+    changes: [
+      'A National Dex agora usa os mesmos controles das regiões: Paginado/Todos, paginação acima e abaixo da lista e Voltar ao topo.',
+    ],
+  },
+  {
     version: '0.9.5',
     date: '2026-10-31',
     title: 'Filtre os ataques por jogo',
