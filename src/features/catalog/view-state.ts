@@ -12,7 +12,7 @@ export const viewStateSchema = z.object({
 });
 export type CatalogViewState = z.infer<typeof viewStateSchema>;
 export const viewStateKey = (key: string) => `pokedex-view-v3-${key}`;
-const recordSchema = z.record(z.unknown());
+const recordSchema = z.record(z.string(), z.unknown());
 function record(value: unknown) {
   return recordSchema.safeParse(value).data ?? {};
 }
