@@ -15,6 +15,7 @@ export const CHANGELOG: ChangelogEntry[] = [
       'Tags abaixo do nome mostram os jogos em que cada ataque pesquisado pode ser aprendido.',
       'Seletor de jogo com pesquisa por nome, opções adaptadas ao celular e remoção rápida do filtro: resultados e tags respeitam o jogo escolhido, preservado ao voltar dos detalhes.',
       'A National Dex usa os mesmos controles das regiões: Paginado/Todos, paginação acima e abaixo da lista e Voltar ao topo.',
+      'Metadados de busca, identificação da AdibDex e sitemap configurados para adibdex.lovable.app.',
       'Os ataques consideram todos os jogos e métodos registrados na fonte; a disponibilidade varia conforme o jogo selecionado.',
     ],
   },
