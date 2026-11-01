@@ -66,7 +66,7 @@ export function EvolutionChainDisplay({
           <GitBranch aria-hidden="true" className="h-5 w-5" />
         </div>
         <div className="min-w-0">
-          <p className="evolution-eyebrow">Registro evolutivo</p>
+          <p className="evolution-eyebrow">Caminhos de evolução</p>
           <h3 id="evolution-title" className="evolution-title">
             Linha Evolutiva
           </h3>
