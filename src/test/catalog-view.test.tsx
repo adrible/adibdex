@@ -35,6 +35,20 @@ describe('shared catalog state', () => {
     expect(restored.result.current.search).toBe('SOLAR POWER');
     expect(restored.result.current.filtered).toHaveLength(76);
   });
+  it('combines attack search with type filters and restores the query', () => {
+    const source = pokemon.map((p) => ({ ...p, moves: p.id > 50 ? ['surf'] : [] }));
+    const view = renderHook(() => useCatalogView('move-search', source, true));
+    act(() => view.result.current.setPage(2));
+    act(() => view.result.current.setSearch('SURF'));
+    act(() => view.result.current.setFilters({ ...DEFAULT_FILTERS, types: ['water'] }));
+    expect(view.result.current.page).toBe(0);
+    expect(view.result.current.visibleIds).toHaveLength(50);
+    expect(view.result.current.visibleIds.every((id) => id > 50 && id % 2 === 0)).toBe(true);
+    view.unmount();
+    const restored = renderHook(() => useCatalogView('move-search', source, true));
+    expect(restored.result.current.search).toBe('SURF');
+    expect(restored.result.current.filtered).toHaveLength(50);
+  });
   it('keeps restored pagination during loading and across unmount/reload', async () => {
     writeSessionJson(viewStateKey('national'), { page: 2, filters: DEFAULT_FILTERS });
     const initialProps: { data: PokemonBasic[] | undefined; ready: boolean } = {

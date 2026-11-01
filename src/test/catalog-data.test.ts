@@ -1,6 +1,7 @@
 import { readFileSync } from 'node:fs';
 import { describe, expect, it } from 'vitest';
 import { catalogSchema } from '@/lib/pokeapi/catalog';
+import { matchesPokemonSearch } from '@/features/catalog/search';
 import { applyFilters } from '@/features/catalog/filtering';
 import { DEFAULT_FILTERS } from '@/features/catalog/filter-state';
 
@@ -22,6 +23,35 @@ describe('checked-in compact catalog', () => {
       catalog.entries.filter((p) => p.category === 'mega' && p.baseId === 678).map((p) => p.name),
     ).toEqual(expect.arrayContaining(['meowstic-male-mega', 'meowstic-female-mega']));
     expect(catalog.entries.find((p) => p.id === 678)?.hasMega).toBe(true);
+  });
+  it('includes deduplicated learned attacks and keeps form learnsets separate', () => {
+    const { entries } = catalogSchema.parse(raw);
+    expect(entries.filter((p) => p.category === 'base').every((p) => p.moves.length > 0)).toBe(
+      true,
+    );
+    expect(entries.every((p) => new Set(p.moves).size === p.moves.length)).toBe(true);
+    const pikachu = { ...entries.find((p) => p.id === 25)!, sprite: '', spriteShiny: '' };
+    expect(pikachu.moves).toContain('thunderbolt');
+    expect(pikachu.moveGames['thunderbolt']).toContain('red-blue');
+    expect(entries.every((p) => p.moves.every((move) => p.moveGames[move]?.length > 0))).toBe(true);
+    expect(
+      entries.every((p) =>
+        Object.values(p.moveGames).every((games) => new Set(games).size === games.length),
+      ),
+    ).toBe(true);
+    expect(matchesPokemonSearch(pikachu, 'THUNDERBOLT')).toBe(true);
+    const magikarp = { ...entries.find((p) => p.id === 129)!, sprite: '', spriteShiny: '' };
+    expect(matchesPokemonSearch(magikarp, 'thunderbolt')).toBe(false);
+    expect(entries.find((p) => p.id === 6)?.moves).toContain('flamethrower');
+    expect(entries.find((p) => p.id === 10196)?.moves).toEqual([]);
+    // Old snapshots remain readable while the new deployment's cache URL is refreshed.
+    const oldSnapshot = JSON.parse(JSON.stringify(raw));
+    for (const entry of oldSnapshot.entries) {
+      delete entry.moves;
+      delete entry.moveGames;
+    }
+    delete oldSnapshot.gameSets;
+    expect(catalogSchema.parse(oldSnapshot).entries[0].moves).toEqual([]);
   });
   it('contains every national ID once and complete filter attributes', () => {
     const catalog = catalogSchema.parse(raw);
@@ -52,7 +82,7 @@ describe('checked-in compact catalog', () => {
     expect(entries.map((p) => p.id)).toEqual([1, 2, 3]);
   });
   it('rejects incomplete catalogs', () => {
-    const catalog = catalogSchema.parse(raw);
+    const catalog = JSON.parse(JSON.stringify(raw));
     expect(catalogSchema.safeParse({ ...catalog, entries: catalog.entries.slice(1) }).success).toBe(
       false,
     );

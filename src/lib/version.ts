@@ -7,6 +7,16 @@ export interface ChangelogEntry {
 
 export const CHANGELOG: ChangelogEntry[] = [
   {
+    version: '0.9.4',
+    date: '2026-10-31',
+    title: 'Encontre Pokémon pelos ataques',
+    changes: [
+      'Busca por ataques aprendidos em todos os catálogos, combinada com os filtros existentes.',
+      'Tags abaixo do nome mostram os jogos em que cada ataque pesquisado pode ser aprendido.',
+      'Pesquise nomes como Surf e Thunderbolt; são considerados todos os jogos e métodos registrados na fonte.',
+    ],
+  },
+  {
     version: '0.9.3',
     date: '2026-09-05',
     title: 'Mais personalidade nos textos',
