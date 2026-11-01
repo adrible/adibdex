@@ -1,13 +1,13 @@
-import { useMemo, type CSSProperties } from 'react';
+import { Fragment, useMemo, type CSSProperties } from 'react';
 import { useQuery } from '@tanstack/react-query';
-import { GitBranch, ArrowRight, ArrowDown, Sparkles, Maximize2 } from 'lucide-react';
+import { GitBranch, Sparkles, Maximize2 } from 'lucide-react';
 import { fetchEvolutionChain } from '@/lib/pokeapi/evolution';
 import { fetchCatalog } from '@/lib/pokeapi/catalog';
 import { Skeleton } from '@/components/ui/skeleton';
 import { QueryErrorState } from '@/components/QueryErrorState';
 import type { PokemonListContext } from '@/lib/navigation';
 import { EvolutionCard } from './evolution/EvolutionCard';
-import { EvolutionRequirements } from './evolution/EvolutionRequirements';
+import { EvolutionTransition } from './evolution/EvolutionTransition';
 import { EvolutionBranchTree } from './evolution/EvolutionBranchTree';
 import { buildEvolutionForest, hasEvolutionBranches } from '@/features/evolution/tree';
 import './evolution/evolution.css';
@@ -66,7 +66,7 @@ export function EvolutionChainDisplay({
           <GitBranch aria-hidden="true" className="h-5 w-5" />
         </div>
         <div className="min-w-0">
-          <p className="evolution-eyebrow">Registro evolutivo</p>
+          <p className="evolution-eyebrow">Caminhos de evolução</p>
           <h3 id="evolution-title" className="evolution-title">
             Linha Evolutiva
           </h3>
@@ -107,52 +107,48 @@ export function EvolutionChainDisplay({
           ) : (
             <div
               className={`evolution-stages ${members.size === 1 ? 'evolution-stages--single' : ''}`}
-              style={{ '--stage-count': steps.length } as CSSProperties}
+              style={
+                {
+                  '--evolution-columns': steps
+                    .map(() => 'minmax(0, 1fr)')
+                    .join(' minmax(100px, 0.65fr) '),
+                } as CSSProperties
+              }
             >
               {steps.map((stage, index) => (
-                <div className="evolution-stage" key={index}>
-                  <div className="evolution-stage-heading">
-                    {index > 0 && (
-                      <>
-                        <span className="evolution-connector-desktop" aria-hidden="true">
-                          <ArrowRight />
-                        </span>
-                        <span className="evolution-connector-mobile" aria-hidden="true">
-                          <ArrowDown />
-                        </span>
-                      </>
-                    )}
-                    <span className="evolution-stage-number">
-                      {String(index + 1).padStart(2, '0')}
-                    </span>
-                    <h4>{index === 0 ? 'Forma inicial' : `Evolução ${index}`}</h4>
+                <Fragment key={index}>
+                  {index > 0 && (
+                    <EvolutionTransition
+                      conditions={stage[0].conditions}
+                      from={members.get(stage[0].parentId!)?.name}
+                      to={stage[0].name}
+                      horizontal
+                    />
+                  )}
+                  <div className="evolution-stage">
+                    <div className="evolution-stage-heading">
+                      <span className="evolution-stage-number">
+                        {String(index + 1).padStart(2, '0')}
+                      </span>
+                      <h4>{index === 0 ? 'Forma inicial' : `Evolução ${index}`}</h4>
+                    </div>
+                    <div className="evolution-stage-cards">
+                      {stage.map((step) => (
+                        <div key={step.id} className="evolution-node">
+                          <EvolutionCard
+                            id={step.id}
+                            speciesId={step.speciesId}
+                            name={step.name}
+                            isShiny={isShiny}
+                            selected={step.id === pokemonId}
+                            navigation={navigation}
+                            types={byId.get(step.id)?.types}
+                          />
+                        </div>
+                      ))}
+                    </div>
                   </div>
-                  <div className="evolution-stage-cards">
-                    {stage.map((step) => (
-                      <div key={step.id} className="evolution-node">
-                        <EvolutionCard
-                          id={step.id}
-                          speciesId={step.speciesId}
-                          name={step.name}
-                          isShiny={isShiny}
-                          selected={step.id === pokemonId}
-                          navigation={navigation}
-                          types={byId.get(step.id)?.types}
-                        />
-                        {step.parentId !== null && (
-                          <p className="evolution-parent">
-                            Evolui de{' '}
-                            <span>
-                              {members.get(step.parentId)?.name.replace(/-/g, ' ') ??
-                                `#${step.parentId}`}
-                            </span>
-                          </p>
-                        )}
-                        <EvolutionRequirements conditions={step.conditions} />
-                      </div>
-                    ))}
-                  </div>
-                </div>
+                </Fragment>
               ))}
             </div>
           )}

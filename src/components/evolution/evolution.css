@@ -19,8 +19,7 @@
   );
 }
 .evolution-header {
-  @apply relative -mx-4 -mt-4 mb-7 flex items-center gap-3 border-b border-border/70 px-4 py-5 sm:-mx-6 sm:-mt-6 sm:px-6;
-  background: linear-gradient(100deg, hsl(var(--primary) / 0.05), transparent 60%);
+  @apply relative mb-6 flex items-center gap-3;
 }
 .evolution-heading-icon {
   @apply relative flex h-11 w-11 shrink-0 items-center justify-center rounded-xl border border-primary/20 text-primary;
@@ -32,7 +31,7 @@
   @apply absolute -right-1 -top-1 h-2 w-2 rounded-full border-2 border-card bg-primary;
 }
 .evolution-eyebrow {
-  @apply mb-1 font-mono text-[9px] font-semibold uppercase tracking-[0.2em] text-muted-foreground;
+  @apply mb-1 text-[10px] font-medium uppercase tracking-[0.15em] text-muted-foreground;
 }
 .evolution-title {
   @apply text-lg font-bold tracking-tight text-card-foreground sm:text-xl;
@@ -47,31 +46,69 @@
   @apply grid gap-4 sm:grid-cols-3;
 }
 .evolution-stages {
-  @apply grid gap-9 sm:gap-7;
+  @apply grid items-center gap-0;
 }
 .evolution-stage {
-  @apply relative min-w-0;
+  @apply relative mx-auto w-full min-w-0 max-w-[360px];
 }
 .evolution-stage-heading {
-  @apply mb-4 flex items-center justify-center gap-2 text-[11px] font-semibold text-muted-foreground;
+  @apply mb-1 flex items-center gap-2 pl-[140px] text-[10px] font-medium uppercase tracking-wider text-muted-foreground;
 }
 .evolution-stage-number {
-  @apply flex h-6 w-7 items-center justify-center rounded-md border border-border bg-background font-mono text-[10px] text-primary;
-  box-shadow: 0 2px 0 hsl(var(--border) / 0.6);
+  @apply text-primary/70 dark:text-red-400;
 }
-.evolution-connector-desktop,
-.evolution-connector-mobile {
-  @apply absolute z-10 h-7 w-7 items-center justify-center rounded-full border border-border bg-card text-primary shadow-sm;
+.evolution-transition {
+  @apply relative isolate mx-auto flex w-full min-w-0 flex-col items-center justify-center gap-2 py-3;
 }
-.evolution-connector-desktop {
-  @apply -left-7 top-[118px] hidden;
+.evolution-transition::before {
+  content: '';
+  @apply absolute inset-y-0 left-1/2 -z-10 w-px;
+  background: linear-gradient(hsl(var(--border)), hsl(var(--primary) / 0.45), hsl(var(--border)));
 }
-.evolution-connector-mobile {
-  @apply -top-8 left-1/2 flex -translate-x-1/2;
+.evolution-transition-method {
+  @apply min-w-0 max-w-full;
 }
-.evolution-connector-desktop svg,
-.evolution-connector-mobile svg {
-  @apply h-3.5 w-3.5;
+.evolution-transition .evolution-requirements {
+  @apply mt-0;
+}
+.evolution-transition .evolution-requirement {
+  @apply gap-1 rounded-full border-0 bg-muted px-2 py-1 text-[11px] shadow-none;
+}
+.evolution-transition-arrow {
+  @apply flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-card text-primary dark:text-red-400;
+}
+.evolution-transition-arrow svg {
+  @apply h-4 w-4;
+}
+.evolution-arrow-right {
+  display: none;
+}
+.evolution-transition-source {
+  @apply mb-1 text-center text-[10px] text-muted-foreground;
+}
+.evolution-transition-source span {
+  @apply font-semibold capitalize;
+}
+.evolution-transition-unknown {
+  @apply text-center text-xs text-muted-foreground;
+}
+.evolution-stages > .evolution-transition {
+  @apply max-w-[360px];
+}
+.evolution-transition--linear {
+  @apply grid grid-cols-[112px_minmax(0,1fr)] gap-x-4 px-3 py-3;
+}
+.evolution-transition--linear::before {
+  left: 68px;
+}
+.evolution-transition--linear .evolution-transition-method {
+  @apply col-start-2 row-start-1 justify-self-start;
+}
+.evolution-transition--linear .evolution-requirements {
+  @apply justify-start;
+}
+.evolution-transition--linear .evolution-transition-arrow {
+  @apply col-start-1 row-start-1 justify-self-center;
 }
 .evolution-stage-cards {
   @apply grid gap-4;
@@ -83,120 +120,101 @@
 .evolution-card {
   --evo-type: var(--type-normal);
   --evo-secondary: var(--evo-type);
-  @apply relative flex min-w-0 flex-col overflow-hidden rounded-2xl text-center text-card-foreground;
-  border: 1px solid hsl(var(--evo-type) / 0.4);
-  background: hsl(var(--card));
-  box-shadow:
-    0 5px 0 -3px hsl(var(--evo-type) / 0.15),
-    0 8px 24px -18px hsl(var(--foreground) / 0.3);
+  @apply relative flex min-w-0 flex-col items-center rounded-2xl px-2 py-3 text-center text-card-foreground;
+  background: transparent;
   transition:
-    transform 180ms ease,
-    box-shadow 180ms ease,
-    border-color 180ms ease;
-}
-.evolution-card::before {
-  content: '';
-  @apply absolute inset-x-5 top-0 z-10 h-[3px] rounded-b-full;
-  background: linear-gradient(90deg, hsl(var(--evo-type)), hsl(var(--evo-secondary)));
+    background 180ms ease,
+    transform 180ms ease;
 }
 .evolution-card:hover {
-  transform: translateY(-4px);
-  border-color: hsl(var(--evo-type) / 0.8);
-  box-shadow:
-    0 8px 0 -5px hsl(var(--evo-type) / 0.25),
-    0 16px 28px -16px hsl(var(--evo-type) / 0.4);
+  background: hsl(var(--evo-type) / 0.06);
+  transform: translateY(-3px);
 }
 .evolution-card:focus-visible {
   outline: 3px solid hsl(var(--ring));
   outline-offset: 3px;
 }
-.evolution-card--selected {
-  border-color: hsl(var(--evo-type));
-  box-shadow:
-    0 0 0 2px hsl(var(--evo-type) / 0.25),
-    0 12px 28px -18px hsl(var(--evo-type) / 0.6);
-}
 .evolution-card-meta {
-  @apply relative z-10 flex min-h-9 w-full items-center justify-between gap-1 px-3 pt-2 font-mono text-[10px] font-semibold text-muted-foreground;
-  background: hsl(var(--evo-type) / 0.07);
+  @apply mb-1 flex min-h-5 w-full items-center justify-center gap-2 text-[10px] font-medium text-muted-foreground;
 }
 .evolution-card-open {
-  @apply h-3.5 w-3.5 text-muted-foreground/60;
-  transition: transform 180ms ease;
-}
-.evolution-card:hover .evolution-card-open {
-  transform: translate(1px, -1px);
+  @apply h-3 w-3 opacity-50;
 }
 .evolution-current {
-  @apply inline-flex items-center gap-1 rounded-full bg-foreground px-2 py-1 font-sans text-[9px] font-semibold leading-none text-background;
+  @apply inline-flex items-center gap-1 rounded-full px-2 py-1 text-[9px] font-semibold leading-none;
+  color: hsl(var(--foreground));
+  background: hsl(var(--evo-type) / 0.15);
 }
 .evolution-current svg {
   @apply h-2.5 w-2.5;
 }
 .evolution-artwork-wrap {
-  @apply relative isolate flex h-36 w-full items-center justify-center overflow-hidden;
-  background:
-    radial-gradient(circle at 50% 46%, hsl(var(--evo-type) / 0.22), transparent 65%),
-    radial-gradient(hsl(var(--evo-type) / 0.18) 0.7px, transparent 0.7px),
-    linear-gradient(160deg, hsl(var(--evo-type) / 0.07), hsl(var(--evo-secondary) / 0.05));
-  background-size:
-    auto,
-    8px 8px,
-    auto;
+  @apply relative isolate flex h-32 w-32 max-w-full shrink-0 items-center justify-center;
 }
 .evolution-artwork-wrap::after {
   content: '';
-  @apply absolute bottom-3 left-1/2 h-3 w-20 -translate-x-1/2 rounded-[50%];
+  @apply absolute bottom-2 left-1/2 -z-10 h-3 w-20 -translate-x-1/2 rounded-[50%];
   background: hsl(var(--evo-type) / 0.2);
-  filter: blur(5px);
+  filter: blur(7px);
 }
 .evolution-orbit {
-  @apply pointer-events-none absolute left-1/2 top-1/2 h-28 w-28 -translate-x-1/2 -translate-y-1/2 rounded-full;
-  border: 1px solid hsl(var(--evo-type) / 0.25);
-  box-shadow:
-    0 0 0 7px hsl(var(--evo-type) / 0.04),
-    inset 0 0 0 7px hsl(var(--evo-type) / 0.04);
-  background: linear-gradient(
-    transparent calc(50% - 1px),
-    hsl(var(--evo-type) / 0.18) 50%,
-    transparent calc(50% + 1px)
+  @apply pointer-events-none absolute inset-2 -z-10 rounded-full;
+  background: radial-gradient(
+    circle at 35% 30%,
+    hsl(var(--evo-type) / 0.18),
+    hsl(var(--evo-secondary) / 0.07) 70%
   );
 }
-.evolution-orbit::after {
-  content: '';
-  @apply absolute left-1/2 top-1/2 h-7 w-7 -translate-x-1/2 -translate-y-1/2 rounded-full;
-  border: 1px solid hsl(var(--evo-type) / 0.25);
-  background: hsl(var(--card) / 0.5);
+.evolution-card--selected .evolution-orbit {
+  box-shadow:
+    0 0 0 2px hsl(var(--evo-type) / 0.6),
+    0 0 0 7px hsl(var(--evo-type) / 0.06);
 }
 .evolution-artwork {
-  @apply relative z-10 h-[88%] max-w-[92%] object-contain;
-  filter: drop-shadow(0 7px 4px hsl(var(--foreground) / 0.12));
+  @apply relative h-[92%] max-w-full object-contain;
+  filter: drop-shadow(0 8px 5px hsl(var(--foreground) / 0.12));
   transition: transform 220ms ease;
 }
 .evolution-card:hover .evolution-artwork {
   transform: translateY(-3px) scale(1.06);
 }
 .evolution-shiny-icon {
-  @apply absolute right-2 top-1 z-10 h-4 w-4 text-amber-500;
+  @apply absolute right-1 top-1 z-10 h-4 w-4 text-amber-500;
 }
 .evolution-card--shiny .evolution-orbit {
-  border-color: hsl(43 95% 55% / 0.65);
-  box-shadow: 0 0 0 7px hsl(43 95% 55% / 0.06);
+  box-shadow:
+    0 0 0 2px hsl(43 95% 55% / 0.65),
+    0 0 0 7px hsl(43 95% 55% / 0.06);
 }
 .evolution-card-info {
-  @apply relative flex flex-1 flex-col items-center gap-2 border-t border-border/50 px-2 py-3;
+  @apply flex min-w-0 flex-col items-center gap-2 px-1 pt-3;
 }
 .evolution-name {
-  @apply block w-full break-words text-sm font-bold capitalize leading-snug tracking-tight text-card-foreground;
+  @apply block w-full break-words text-base font-bold capitalize leading-snug tracking-tight;
 }
 .evolution-card-types {
   @apply flex flex-wrap justify-center gap-1;
 }
 .evolution-card-types > span {
-  @apply rounded-md px-2 py-0.5 text-[10px];
+  @apply rounded-full px-2 py-0.5 text-[10px];
 }
 .evolution-card-types .text-foreground {
   color: hsl(220 25% 10%);
+}
+.evolution-stage-cards .evolution-card {
+  @apply flex-row gap-4 px-3 text-left;
+}
+.evolution-stage-cards .evolution-artwork-wrap {
+  @apply h-28 w-28;
+}
+.evolution-stage-cards .evolution-card-meta {
+  @apply absolute left-[140px] right-3 top-4 mb-0 w-auto justify-start;
+}
+.evolution-stage-cards .evolution-card-info {
+  @apply items-start pt-6;
+}
+.evolution-stage-cards .evolution-card-types {
+  @apply justify-start;
 }
 .evolution-parent {
   @apply mt-3 text-center text-[10px] leading-relaxed text-muted-foreground;
@@ -213,16 +231,16 @@
   box-shadow: 0 1px 0 hsl(var(--border) / 0.5);
 }
 .evolution-requirement svg {
-  @apply text-primary/80;
+  @apply text-primary/80 dark:text-red-400;
 }
 .evolution-alternatives {
   @apply mt-2 text-[11px] text-muted-foreground;
 }
 .evolution-alternatives summary {
-  @apply cursor-pointer rounded-md border border-dashed border-primary/25 bg-primary/5 px-2 py-1.5 text-center text-primary focus-visible:outline focus-visible:outline-2 focus-visible:outline-primary;
+  @apply cursor-pointer rounded-lg px-1 py-1.5 text-center text-foreground underline decoration-border underline-offset-4 focus-visible:outline focus-visible:outline-2 focus-visible:outline-primary;
 }
 .evolution-note {
-  @apply mt-6 border-t border-dashed border-border pt-4 text-center text-[11px] leading-relaxed text-muted-foreground;
+  @apply mt-6 text-center text-[11px] leading-relaxed text-muted-foreground;
 }
 .evolution-transformations {
   @apply mt-6 border-t border-border pt-5;
@@ -260,25 +278,13 @@
   @apply min-w-0;
 }
 .evolution-tree-member {
-  @apply mx-auto w-full max-w-[200px];
-}
-.evolution-tree-member--compact {
-  @apply max-w-none;
+  @apply mx-auto w-full max-w-[240px];
 }
 .evolution-tree-member--compact .evolution-artwork-wrap {
-  @apply h-24;
-}
-.evolution-tree-member--compact .evolution-orbit {
-  @apply h-[72px] w-[72px];
-}
-.evolution-tree-member--compact .evolution-card-meta {
-  @apply min-h-8 px-2 text-[9px];
+  @apply h-24 w-24;
 }
 .evolution-tree-member--compact .evolution-name {
-  @apply text-xs;
-}
-.evolution-tree-member--compact .evolution-card-info {
-  @apply gap-1.5 py-2.5;
+  @apply text-sm;
 }
 .evolution-tree-connector {
   @apply mx-auto flex min-h-12 items-center justify-center gap-2 py-3 text-center text-[11px] font-medium text-muted-foreground;
@@ -290,31 +296,66 @@
   @apply mx-auto grid gap-4;
 }
 .evolution-tree-children--split {
-  @apply grid-cols-2 items-start gap-x-3 gap-y-5 border-t border-border pt-5;
-}
-.evolution-tree-children--split > .evolution-tree-node {
-  @apply relative;
-}
-.evolution-tree-children--split > .evolution-tree-node::before {
-  content: '';
-  @apply absolute -top-5 left-1/2 h-5 w-px bg-border;
+  @apply items-start gap-x-4 gap-y-5 min-[360px]:grid-cols-2;
 }
 .evolution-tree-children--many {
-  @apply sm:grid-cols-4;
+  @apply lg:grid-cols-4;
 }
-/* Wrapped alternatives are siblings, not evolutions of the card in the previous row. */
-.evolution-tree-children--many > .evolution-tree-node::before {
-  content: none;
-}
-@media (min-width: 640px) {
+@media (min-width: 1024px) {
   .evolution-stages {
-    grid-template-columns: repeat(var(--stage-count), minmax(0, 1fr));
+    grid-template-columns: var(--evolution-columns);
+    column-gap: 0.75rem;
   }
-  .evolution-connector-desktop {
+  .evolution-stage-heading {
+    justify-content: center;
+    padding-left: 0;
+  }
+  .evolution-stage-cards .evolution-card {
+    flex-direction: column;
+    gap: 0;
+    padding: 0.75rem 0.25rem;
+    text-align: center;
+  }
+  .evolution-stage-cards .evolution-card-meta {
+    position: static;
+    width: 100%;
+    justify-content: center;
+    margin-bottom: 0.5rem;
+  }
+  .evolution-stage-cards .evolution-card-info {
+    align-items: center;
+    padding-top: 0.75rem;
+  }
+  .evolution-stage-cards .evolution-card-types {
+    justify-content: center;
+  }
+  .evolution-transition--linear {
     display: flex;
+    gap: 0.5rem;
+    padding: 2.5rem 0 0;
   }
-  .evolution-connector-mobile {
+  .evolution-transition--linear .evolution-requirements {
+    justify-content: center;
+  }
+  .evolution-transition--linear::before {
+    top: auto;
+    bottom: 14px;
+    left: -0.75rem;
+    right: -0.75rem;
+    width: auto;
+    height: 1px;
+    background: linear-gradient(
+      90deg,
+      hsl(var(--border)),
+      hsl(var(--primary) / 0.45),
+      hsl(var(--border))
+    );
+  }
+  .evolution-transition--linear .evolution-arrow-down {
     display: none;
+  }
+  .evolution-transition--linear .evolution-arrow-right {
+    display: block;
   }
 }
 .evolution-stages--single .evolution-stage-cards,
