@@ -6,11 +6,24 @@ const snapshot = JSON.parse(readFileSync('public/data/catalog.json', 'utf8')) as
   entries: { id: number; category: string; moves: string[]; moveGames: number[] }[];
 };
 test('game filter restricts the searched attack, tags and restored results', async ({ page }) => {
+  await page.setViewportSize({ width: 390, height: 844 });
   await page.goto('/generation/1');
   const search = page.getByRole('searchbox');
   await search.fill('surf');
   await page.getByRole('button', { name: /^Filtros/ }).click();
-  await page.getByRole('combobox', { name: 'Jogo' }).selectOption('yellow');
+  await page.getByRole('button', { name: 'Jogo Todos os jogos' }).click();
+  await page.getByRole('searchbox', { name: 'Buscar jogo' }).fill('inexistente');
+  await expect(page.getByText('Nenhum jogo encontrado.')).toBeVisible();
+  await page.getByRole('searchbox', { name: 'Buscar jogo' }).press('Escape');
+  await expect(page.getByRole('dialog')).toBeVisible();
+  await expect(page.getByRole('button', { name: 'Jogo Todos os jogos' })).toHaveAttribute(
+    'aria-expanded',
+    'false',
+  );
+  await page.getByRole('button', { name: 'Jogo Todos os jogos' }).click();
+  await page.getByRole('searchbox', { name: 'Buscar jogo' }).fill('yellow');
+  expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
+  await page.getByRole('button', { name: 'Yellow', exact: true }).click();
   await page.getByRole('button', { name: 'Aplicar Filtros' }).click();
   const chip = page.getByRole('button', { name: 'Remover Jogo: Yellow' });
   await expect(chip).toBeVisible();
