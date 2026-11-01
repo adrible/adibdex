@@ -19,9 +19,14 @@ export function Header() {
             </div>
           </div>
 
-          <h1 className="font-pixel text-xs sm:text-sm text-primary-foreground tracking-wider">
-            ADIBDEX
-          </h1>
+          <div className="min-w-0">
+            <h1 className="font-pixel text-xs sm:text-sm text-primary-foreground tracking-wider">
+              ADIBDEX
+            </h1>
+            <p className="mt-1 text-[10px] font-medium leading-tight text-primary-foreground/90 sm:text-[11px]">
+              A Pokédex de Adib
+            </p>
+          </div>
         </Link>
 
         <Button
