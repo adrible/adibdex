@@ -67,11 +67,7 @@ export class JsonClient {
     private readonly timeout = 15_000,
   ) {}
 
-  request<T>(
-    url: string,
-    schema: z.ZodType<T, z.ZodTypeDef, unknown>,
-    signal?: AbortSignal,
-  ): Promise<T> {
+  request<T>(url: string, schema: z.ZodType<T, unknown>, signal?: AbortSignal): Promise<T> {
     if (signal?.aborted) return Promise.reject(abortError());
     const cached = this.cache.get(url);
     if (cached && cached.expires > Date.now()) {
@@ -156,7 +152,7 @@ export class JsonClient {
 const client = new JsonClient();
 export function apiRequest<T>(
   path: string,
-  schema: z.ZodType<T, z.ZodTypeDef, unknown>,
+  schema: z.ZodType<T, unknown>,
   signal?: AbortSignal,
 ): Promise<T> {
   const url = new URL(path.startsWith('https:') ? path : `https://pokeapi.co/api/v2/${path}`);
