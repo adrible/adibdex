@@ -1,9 +1,9 @@
-import { ArrowDown, GitBranch } from 'lucide-react';
+import { GitBranch } from 'lucide-react';
 import type { EvolutionNode } from '@/features/evolution/tree';
 import type { PokemonNavigationState } from '@/lib/navigation';
 import type { PokemonBasic } from '@/lib/pokemon/types';
 import { EvolutionCard } from './EvolutionCard';
-import { EvolutionRequirements } from './EvolutionRequirements';
+import { EvolutionTransition } from './EvolutionTransition';
 
 interface Props {
   nodes: EvolutionNode[];
@@ -32,6 +32,9 @@ function Branch({
   const split = children.length > 1;
   return (
     <div className="evolution-tree-node" data-species-id={step.speciesId}>
+      {parentName && (
+        <EvolutionTransition conditions={step.conditions} from={parentName} to={step.name} />
+      )}
       <div
         className={`evolution-tree-member ${parentName ? 'evolution-tree-member--compact' : ''}`}
       >
@@ -44,28 +47,18 @@ function Branch({
           navigation={context.navigation}
           types={context.byId.get(step.id)?.types}
         />
-        {parentName && (
-          <p className="evolution-parent">
-            Evolui de <span>{parentName.replace(/-/g, ' ')}</span>
-          </p>
-        )}
-        <EvolutionRequirements conditions={step.conditions} />
       </div>
       {children.length > 0 && (
         <>
-          <div className="evolution-tree-connector">
-            {split ? (
-              <>
-                <GitBranch className="h-4 w-4" aria-hidden="true" />
-                <p>
-                  {children.length} evoluções possíveis de{' '}
-                  <span className="capitalize">{step.name.replace(/-/g, ' ')}</span>
-                </p>
-              </>
-            ) : (
-              <ArrowDown className="h-4 w-4" aria-hidden="true" />
-            )}
-          </div>
+          {split && (
+            <div className="evolution-tree-connector">
+              <GitBranch className="h-4 w-4" aria-hidden="true" />
+              <p>
+                {children.length} evoluções possíveis de{' '}
+                <span className="capitalize">{step.name.replace(/-/g, ' ')}</span>
+              </p>
+            </div>
+          )}
           <div
             className={`evolution-tree-children ${split ? 'evolution-tree-children--split' : ''} ${children.length > 3 ? 'evolution-tree-children--many' : ''}`}
             role="group"

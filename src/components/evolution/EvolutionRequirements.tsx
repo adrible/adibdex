@@ -85,20 +85,21 @@ export function EvolutionRequirements({ conditions }: { conditions: EvolutionCon
   if (!conditions.length) return null;
   if (conditions.length === 1) return <Conditions value={conditions[0]} />;
   return (
-    <details className="evolution-alternatives">
-      <summary>Ver condições ({conditions.length} alternativas)</summary>
-      <div className="mt-3 space-y-3">
-        {conditions.map((value, i) => (
-          <div key={i}>
-            {i > 0 && (
+    <div className="evolution-method-options">
+      <Conditions value={conditions[0]} />
+      <details className="evolution-alternatives">
+        <summary>Outras condições ({conditions.length - 1})</summary>
+        <div className="mt-3 space-y-3">
+          {conditions.slice(1).map((value, i) => (
+            <div key={i}>
               <p className="mb-2 text-center text-[10px] uppercase tracking-wider text-muted-foreground">
                 ou
               </p>
-            )}
-            <Conditions value={value} />
-          </div>
-        ))}
-      </div>
-    </details>
+              <Conditions value={value} />
+            </div>
+          ))}
+        </div>
+      </details>
+    </div>
   );
 }

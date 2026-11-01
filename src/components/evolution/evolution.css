@@ -47,10 +47,10 @@
   @apply grid gap-4 sm:grid-cols-3;
 }
 .evolution-stages {
-  @apply grid gap-9 sm:gap-7;
+  @apply grid items-center gap-0;
 }
 .evolution-stage {
-  @apply relative min-w-0;
+  @apply relative mx-auto w-full min-w-0 max-w-[280px];
 }
 .evolution-stage-heading {
   @apply mb-4 flex items-center justify-center gap-2 text-[11px] font-semibold text-muted-foreground;
@@ -59,19 +59,42 @@
   @apply flex h-6 w-7 items-center justify-center rounded-md border border-border bg-background font-mono text-[10px] text-primary;
   box-shadow: 0 2px 0 hsl(var(--border) / 0.6);
 }
-.evolution-connector-desktop,
-.evolution-connector-mobile {
-  @apply absolute z-10 h-7 w-7 items-center justify-center rounded-full border border-border bg-card text-primary shadow-sm;
+.evolution-transition {
+  @apply relative isolate mx-auto flex w-full min-w-0 flex-col items-center justify-center gap-2 py-4;
 }
-.evolution-connector-desktop {
-  @apply -left-7 top-[118px] hidden;
+.evolution-transition::before {
+  content: '';
+  @apply absolute inset-y-0 left-1/2 -z-10 w-px bg-primary/25;
 }
-.evolution-connector-mobile {
-  @apply -top-8 left-1/2 flex -translate-x-1/2;
+.evolution-transition-method {
+  @apply w-full min-w-0 rounded-xl border border-border bg-card p-2 shadow-sm;
 }
-.evolution-connector-desktop svg,
-.evolution-connector-mobile svg {
-  @apply h-3.5 w-3.5;
+.evolution-transition .evolution-requirements {
+  @apply mt-0;
+}
+.evolution-transition .evolution-requirement {
+  @apply gap-1 border-transparent bg-primary/5 px-1 text-xs shadow-none;
+}
+.evolution-transition-arrow {
+  @apply flex h-7 w-7 shrink-0 items-center justify-center rounded-full border border-primary/25 bg-card text-primary dark:border-red-400/40 dark:text-red-400;
+}
+.evolution-transition-arrow svg {
+  @apply h-4 w-4;
+}
+.evolution-arrow-right {
+  display: none;
+}
+.evolution-transition-source {
+  @apply mb-1 text-center text-[11px] text-muted-foreground;
+}
+.evolution-transition-source span {
+  @apply font-semibold capitalize;
+}
+.evolution-transition-unknown {
+  @apply text-center text-xs text-muted-foreground;
+}
+.evolution-stages > .evolution-transition {
+  @apply max-w-[280px];
 }
 .evolution-stage-cards {
   @apply grid gap-4;
@@ -213,7 +236,7 @@
   box-shadow: 0 1px 0 hsl(var(--border) / 0.5);
 }
 .evolution-requirement svg {
-  @apply text-primary/80;
+  @apply text-primary/80 dark:text-red-400;
 }
 .evolution-alternatives {
   @apply mt-2 text-[11px] text-muted-foreground;
@@ -260,10 +283,10 @@
   @apply min-w-0;
 }
 .evolution-tree-member {
-  @apply mx-auto w-full max-w-[200px];
+  @apply mx-auto w-full max-w-[240px];
 }
 .evolution-tree-member--compact {
-  @apply max-w-none;
+  @apply max-w-[240px];
 }
 .evolution-tree-member--compact .evolution-artwork-wrap {
   @apply h-24;
@@ -290,31 +313,32 @@
   @apply mx-auto grid gap-4;
 }
 .evolution-tree-children--split {
-  @apply grid-cols-2 items-start gap-x-3 gap-y-5 border-t border-border pt-5;
-}
-.evolution-tree-children--split > .evolution-tree-node {
-  @apply relative;
-}
-.evolution-tree-children--split > .evolution-tree-node::before {
-  content: '';
-  @apply absolute -top-5 left-1/2 h-5 w-px bg-border;
+  @apply items-start gap-x-4 gap-y-5 border-t border-border min-[360px]:grid-cols-2;
 }
 .evolution-tree-children--many {
-  @apply sm:grid-cols-4;
+  @apply lg:grid-cols-4;
 }
-/* Wrapped alternatives are siblings, not evolutions of the card in the previous row. */
-.evolution-tree-children--many > .evolution-tree-node::before {
-  content: none;
-}
-@media (min-width: 640px) {
+@media (min-width: 1024px) {
   .evolution-stages {
-    grid-template-columns: repeat(var(--stage-count), minmax(0, 1fr));
+    grid-template-columns: var(--evolution-columns);
+    column-gap: 0.75rem;
   }
-  .evolution-connector-desktop {
-    display: flex;
+  .evolution-transition--linear {
+    padding: 2.5rem 0 0;
   }
-  .evolution-connector-mobile {
+  .evolution-transition--linear::before {
+    top: auto;
+    bottom: 14px;
+    left: -0.75rem;
+    right: -0.75rem;
+    width: auto;
+    height: 1px;
+  }
+  .evolution-transition--linear .evolution-arrow-down {
     display: none;
+  }
+  .evolution-transition--linear .evolution-arrow-right {
+    display: block;
   }
 }
 .evolution-stages--single .evolution-stage-cards,
