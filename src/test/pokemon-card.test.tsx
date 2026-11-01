@@ -17,10 +17,10 @@ const pokemon: PokemonBasic = {
     'thunder-wave': ['gold-silver'],
   },
 };
-function renderCard(search: string) {
+function renderCard(search: string, game = '') {
   return render(
     <MemoryRouter>
-      <PokemonCard pokemon={pokemon} search={search} />
+      <PokemonCard pokemon={pokemon} search={search} game={game} />
     </MemoryRouter>,
   );
 }
@@ -45,6 +45,11 @@ describe('learned attack game tags', () => {
     expect(within(first).queryByText('Gold / Silver')).toBeNull();
     const second = screen.getByText('thunder wave').parentElement!;
     expect(within(second).getByText('Gold / Silver')).toBeTruthy();
+  });
+  it('shows only the chosen game on matching attack tags', () => {
+    renderCard('surf', 'yellow');
+    expect(screen.getByText('Yellow')).toBeTruthy();
+    expect(screen.queryByText('Sword / Shield')).toBeNull();
   });
   it.each(['', 'pikachu', '25', 'overgrow'])('hides attack tags for %s', (query) => {
     renderCard(query);

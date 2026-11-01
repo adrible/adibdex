@@ -4,6 +4,7 @@ import {
   cloneFilters,
   countActiveFilters,
   hasActiveFilters,
+  filtersSchema,
   type SortOption,
   type FilterState,
 } from '@/features/catalog/filter-state';
@@ -34,6 +35,25 @@ describe('applyFilters', () => {
     const state = filters({ hasMega: true, hasGmax: false, regions: ['Kanto'], sortDir: 'desc' });
     expect(countActiveFilters(state)).toBe(4);
     expect(countActiveFilters(state, false, false)).toBe(1);
+  });
+  it('filters games by documented learnsets without inheriting from base species', () => {
+    const list = [
+      pokemon(25, { moveGames: { surf: ['yellow'] } }),
+      pokemon(10001, { baseId: 25 }),
+      pokemon(7, { moveGames: { surf: ['red-blue'] } }),
+    ];
+    expect(applyFilters(list, filters({ game: 'yellow' })).map((p) => p.id)).toEqual([25]);
+    expect(applyFilters(list, filters({ game: '' }))).toHaveLength(3);
+    expect(countActiveFilters(filters({ game: 'yellow' }))).toBe(1);
+  });
+  it('migrates old filters and rejects unknown game selections', () => {
+    expect(filtersSchema.parse({}).game).toBe('');
+    expect(filtersSchema.parse({ game: 'yellow' }).game).toBe('yellow');
+    expect(filtersSchema.parse({ game: 'constructor' }).game).toBe('');
+    expect(filtersSchema.parse({ game: 'not-a-game', types: ['water'] })).toMatchObject({
+      game: '',
+      types: ['water'],
+    });
   });
   it('combines type, weakness and offensive criteria', () => {
     const list = [

@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { GENERATIONS, TYPE_TRANSLATIONS } from '@/lib/pokemon/constants';
+import { GENERATIONS, TYPE_TRANSLATIONS, VERSION_GROUP_NAMES } from '@/lib/pokemon/constants';
 import {
   STARTER_IDS,
   LEGENDARY_IDS,
@@ -99,6 +99,7 @@ export const SORT_OPTIONS: { value: SortOption; label: string }[] = [
 ];
 
 export interface FilterState {
+  game: string;
   types: string[];
   typeMatchMode: TypeMatchMode;
   weakTo: string[];
@@ -114,6 +115,7 @@ export interface FilterState {
 
 export function createDefaultFilters(): FilterState {
   return {
+    game: '',
     types: [],
     typeMatchMode: 'any',
     weakTo: [],
@@ -155,6 +157,7 @@ export function countActiveFilters(
   showSpecialFormFilters = true,
 ): number {
   return (
+    (filters.game ? 1 : 0) +
     filters.types.length +
     filters.weakTo.length +
     filters.strongAgainst.length +
@@ -178,6 +181,10 @@ const stringOptions = <T extends string>(values: readonly T[]) =>
     .max(values.length)
     .transform((v) => [...new Set(v)]);
 export const filtersSchema = z.object({
+  game: z
+    .string()
+    .refine((value) => value === '' || Object.hasOwn(VERSION_GROUP_NAMES, value))
+    .catch(''),
   types: stringOptions(ALL_TYPES).catch([]),
   weakTo: stringOptions(WEAKNESS_FILTER_TYPES).catch([]),
   strongAgainst: stringOptions(ALL_TYPES).catch([]),
@@ -207,6 +214,7 @@ export const filtersSchema = z.object({
   sortDir: z.enum(['asc', 'desc']).catch('asc'),
 });
 export interface FilterProps {
+  gameOptions?: { value: string; label: string }[];
   filters: FilterState;
   onChange: (filters: FilterState) => void;
   showRegionFilter?: boolean;

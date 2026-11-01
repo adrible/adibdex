@@ -222,6 +222,8 @@ export const STAT_TRANSLATIONS: Record<string, string> = {
 };
 
 export const VERSION_GROUP_NAMES: Record<string, string> = {
+  'red-green-japan': 'Red / Green (Japão)',
+  'blue-japan': 'Blue (Japão)',
   'red-blue': 'Red / Blue',
   yellow: 'Yellow',
   'gold-silver': 'Gold / Silver',
@@ -229,6 +231,8 @@ export const VERSION_GROUP_NAMES: Record<string, string> = {
   'ruby-sapphire': 'Ruby / Sapphire',
   emerald: 'Emerald',
   'firered-leafgreen': 'FireRed / LeafGreen',
+  colosseum: 'Colosseum',
+  xd: 'XD: Gale of Darkness',
   'diamond-pearl': 'Diamond / Pearl',
   platinum: 'Platinum',
   'heartgold-soulsilver': 'HeartGold / SoulSilver',
@@ -240,11 +244,12 @@ export const VERSION_GROUP_NAMES: Record<string, string> = {
   'ultra-sun-ultra-moon': 'Ultra Sun / Ultra Moon',
   'lets-go-pikachu-lets-go-eevee': "Let's Go Pikachu / Eevee",
   'sword-shield': 'Sword / Shield',
-  'brilliant-diamond-and-shining-pearl': 'Brilliant Diamond / Shining Pearl',
+  'brilliant-diamond-shining-pearl': 'Brilliant Diamond / Shining Pearl',
   'legends-arceus': 'Legends: Arceus',
   'scarlet-violet': 'Scarlet / Violet',
   'the-teal-mask': 'The Teal Mask',
   'the-indigo-disk': 'The Indigo Disk',
+  champions: 'Champions',
 };
 
 export const METHOD_LABELS: Record<string, string> = {
