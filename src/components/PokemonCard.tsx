@@ -9,6 +9,7 @@ interface Props {
   pokemon: PokemonBasic & { baseId?: number };
   isShiny?: boolean;
   search?: string;
+  game?: string;
   originPath?: string;
   listContext?: {
     ids: number[];
@@ -20,10 +21,14 @@ export const PokemonCard = React.memo(function PokemonCard({
   pokemon,
   isShiny = false,
   search = '',
+  game = '',
   originPath,
   listContext,
 }: Props) {
-  const matchingMoves = useMemo(() => getMatchingMoveGames(pokemon, search), [pokemon, search]);
+  const matchingMoves = useMemo(
+    () => getMatchingMoveGames(pokemon, search, game),
+    [pokemon, search, game],
+  );
   const displayId = pokemon.baseId ?? (pokemon.id <= 1025 ? pokemon.id : null);
 
   const isSpecialFormsPage = originPath?.includes('/mega') || originPath?.includes('/gmax');

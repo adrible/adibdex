@@ -16,6 +16,7 @@ export { ActiveFilterChips } from './filters/ActiveFilterChips';
 export function PokemonFilterButton({
   filters,
   onChange,
+  gameOptions,
   showRegionFilter = true,
   showSpecialFormFilters = true,
 }: FilterProps) {
@@ -53,6 +54,7 @@ export function PokemonFilterButton({
         </SheetHeader>
 
         <FilterContent
+          gameOptions={gameOptions}
           filters={filters}
           onChange={onChange}
           onClose={() => setOpen(false)}

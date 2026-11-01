@@ -106,6 +106,7 @@ export function CatalogBrowser({
                 <PokemonCard
                   pokemon={p}
                   search={view.search}
+                  game={view.filters.game}
                   isShiny={view.isShiny}
                   originPath={location.pathname}
                   listContext={{

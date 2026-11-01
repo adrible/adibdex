@@ -63,6 +63,7 @@ export function CatalogToolbar({ view, children, onSuggestion, ...filterOptions 
         </div>
         <div className="catalog-actions">
           <PokemonFilterButton
+            gameOptions={view.gameOptions}
             filters={view.filters}
             onChange={view.setFilters}
             {...filterOptions}

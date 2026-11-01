@@ -52,6 +52,12 @@ export function compareNationalOrder(a: PokemonBasic, b: PokemonBasic, direction
 export function applyFilters(pokemons: PokemonBasic[], filters: FilterState): PokemonBasic[] {
   let result = [...pokemons];
 
+  if (filters.game) {
+    result = result.filter((pokemon) =>
+      Object.values(pokemon.moveGames ?? {}).some((games) => games.includes(filters.game)),
+    );
+  }
+
   if (filters.types.length > 0) {
     if (filters.typeMatchMode === 'all') {
       result = result.filter((pokemon) =>

@@ -7,6 +7,15 @@ export interface ChangelogEntry {
 
 export const CHANGELOG: ChangelogEntry[] = [
   {
+    version: '0.9.5',
+    date: '2026-10-31',
+    title: 'Filtre os ataques por jogo',
+    changes: [
+      'Novo seletor de jogo no painel de filtros, combinado com a busca por ataque.',
+      'Os resultados e as tags dos ataques respeitam o jogo escolhido; o filtro é preservado ao voltar dos detalhes.',
+    ],
+  },
+  {
     version: '0.9.4',
     date: '2026-10-31',
     title: 'Encontre Pokémon pelos ataques',

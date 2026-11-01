@@ -1,6 +1,6 @@
 import { useMemo } from 'react';
 import { X } from 'lucide-react';
-import { TYPE_TRANSLATIONS } from '@/lib/pokemon/constants';
+import { TYPE_TRANSLATIONS, VERSION_GROUP_NAMES } from '@/lib/pokemon/constants';
 import {
   cloneFilters,
   getFreshDefaults,
@@ -18,6 +18,13 @@ export function ActiveFilterChips({
 }: FilterProps) {
   const chips = useMemo(() => {
     const items: { label: string; onRemove: () => void }[] = [];
+
+    if (filters.game) {
+      items.push({
+        label: `Jogo: ${VERSION_GROUP_NAMES[filters.game] ?? filters.game}`,
+        onRemove: () => onChange({ ...cloneFilters(filters), game: '' }),
+      });
+    }
 
     filters.types.forEach((type) => {
       items.push({

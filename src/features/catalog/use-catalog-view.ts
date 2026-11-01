@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useMemo, useRef, useState, type SetStateAction } from 'react';
+import { VERSION_GROUP_NAMES } from '@/lib/pokemon/constants';
 import type { PokemonBasic } from '@/lib/pokemon/types';
 import { writeSessionJson } from '@/lib/session-storage';
 import { applyFilters } from './filtering';
@@ -55,13 +56,23 @@ export function useCatalogView(
   }, [state, storageKey]);
 
   const filtered = useMemo(() => {
-    const source = (data ?? EMPTY).filter((p) => matchesPokemonSearch(p, state.search));
+    const source = (data ?? EMPTY).filter((p) =>
+      matchesPokemonSearch(p, state.search, state.filters.game),
+    );
     return applyFilters(source, {
       ...state.filters,
       ...(!showSpecial ? { hasMega: null, hasGmax: null } : {}),
       ...(!showRegion ? { regions: [] } : {}),
     });
   }, [data, state.filters, state.search, showSpecial, showRegion]);
+  const gameOptions = useMemo(() => {
+    const available = new Set(
+      (data ?? EMPTY).flatMap((p) => Object.values(p.moveGames ?? {}).flat()),
+    );
+    return Object.entries(VERSION_GROUP_NAMES)
+      .filter(([value]) => available.has(value))
+      .map(([value, label]) => ({ value, label }));
+  }, [data]);
   const totalPages = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE));
   // Never clamp restored pagination against the temporary empty loading state.
   useEffect(() => {
@@ -105,6 +116,7 @@ export function useCatalogView(
   const visibleIds = useMemo(() => filtered.map((p) => p.id), [filtered]);
   return {
     ...state,
+    gameOptions,
     page,
     setPage,
     setFilters,

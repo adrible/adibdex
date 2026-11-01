@@ -49,6 +49,32 @@ describe('shared catalog state', () => {
     expect(restored.result.current.search).toBe('SURF');
     expect(restored.result.current.filtered).toHaveLength(50);
   });
+  it('combines attack and game before pagination and preserves the game on return', () => {
+    const source = pokemon.map((p) => ({
+      ...p,
+      moves: ['surf', 'tackle'],
+      moveGames: { surf: p.id > 50 ? ['yellow'] : ['red-blue'], tackle: ['yellow'] },
+    }));
+    const view = renderHook(() => useCatalogView('game-search', source, true));
+    act(() => view.result.current.setPage(2));
+    act(() => view.result.current.setSearch('surf'));
+    act(() =>
+      view.result.current.setFilters({ ...DEFAULT_FILTERS, game: 'yellow', types: ['water'] }),
+    );
+    expect(view.result.current.visibleIds).toHaveLength(50);
+    expect(view.result.current.visibleIds.every((id) => id > 50 && id % 2 === 0)).toBe(true);
+    expect(view.result.current.page).toBe(0);
+    expect(view.result.current.gameOptions.map((game) => game.value)).toEqual([
+      'red-blue',
+      'yellow',
+    ]);
+    view.unmount();
+    const restored = renderHook(() => useCatalogView('game-search', source, true));
+    expect(restored.result.current.filters.game).toBe('yellow');
+    expect(restored.result.current.filtered).toHaveLength(50);
+    act(() => restored.result.current.setFilters({ ...restored.result.current.filters, game: '' }));
+    expect(restored.result.current.filtered).toHaveLength(75);
+  });
   it('keeps restored pagination during loading and across unmount/reload', async () => {
     writeSessionJson(viewStateKey('national'), { page: 2, filters: DEFAULT_FILTERS });
     const initialProps: { data: PokemonBasic[] | undefined; ready: boolean } = {
