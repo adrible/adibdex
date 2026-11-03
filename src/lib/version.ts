@@ -7,6 +7,17 @@ export interface ChangelogEntry {
 
 export const CHANGELOG: ChangelogEntry[] = [
   {
+    version: '0.9.5',
+    date: '2026-11-03',
+    title: 'Detalhes mais claros em qualquer tela',
+    changes: [
+      'Página do Pokémon reorganizada com atalhos para habilidades, atributos, fraquezas, evoluções, formas, ataques e localizações.',
+      'Ataques com seletor de jogo, filtros por método, busca e cartões compactos no celular.',
+      'Cada ramificação evolutiva mostra origem, destino e condição, mantendo os caminhos seguintes agrupados.',
+      'Cartões mais compactos e com contornos mais visíveis em telas pequenas.',
+    ],
+  },
+  {
     version: '0.9.4',
     date: '2026-10-31',
     title: 'Ataques, jogos, evoluções e navegação',
