@@ -42,6 +42,19 @@ export const speciesSchema = z.object({
   evolves_from_species: resource.nullable(),
   evolution_chain: z.object({ url: z.string().url() }).nullable(),
   varieties: z.array(z.object({ is_default: z.boolean(), pokemon: resource })),
+  flavor_text_entries: z
+    .array(z.object({ flavor_text: z.string(), language: resource }))
+    .optional(),
+  genera: z.array(z.object({ genus: z.string(), language: resource })).optional(),
+  capture_rate: z.number().int().nonnegative().optional(),
+  gender_rate: z.number().int().min(-1).max(8).optional(),
+  is_baby: z.boolean().optional(),
+  is_legendary: z.boolean().optional(),
+  is_mythical: z.boolean().optional(),
+  egg_groups: z.array(resource).optional(),
+  hatch_counter: z.number().int().nonnegative().nullable().optional(),
+  growth_rate: resource.nullable().optional(),
+  habitat: resource.nullable().optional(),
 });
 const descriptions = {
   flavor_text_entries: z.array(z.object({ language: resource, flavor_text: z.string() })),
@@ -57,6 +70,15 @@ export const moveSchema = z.object({
   accuracy: z.number().nullable(),
   pp: z.number().nullable(),
   effect_chance: z.number().nullable(),
+  priority: z.number().int().optional(),
+  target: resource.optional(),
+  meta: z
+    .object({
+      ailment: resource.nullable().optional(),
+      ailment_chance: z.number().nonnegative().optional(),
+    })
+    .nullable()
+    .optional(),
 });
 export const abilitySchema = z.object(descriptions);
 const evolutionDetailsSchema = z.object({
@@ -97,7 +119,19 @@ export const encountersSchema = z.array(
   z.object({
     location_area: resource,
     version_details: z.array(
-      z.object({ version: resource, encounter_details: z.array(z.object({ method: resource })) }),
+      z.object({
+        version: resource,
+        max_chance: z.number().nonnegative().optional(),
+        encounter_details: z.array(
+          z.object({
+            method: resource,
+            min_level: z.number().int().nonnegative().optional(),
+            max_level: z.number().int().nonnegative().optional(),
+            chance: z.number().nonnegative().optional(),
+            condition_values: z.array(resource).default([]),
+          }),
+        ),
+      }),
     ),
   }),
 );
