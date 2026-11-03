@@ -283,15 +283,20 @@
   @apply mt-2 border-t border-border pt-2;
 }
 .evolution-outcome .evolution-transition {
-  @apply min-h-[5rem] gap-1 py-1.5;
+  @apply gap-1 py-1.5;
   display: grid;
-  grid-template-rows: minmax(3rem, 1fr) auto;
+  grid-template-rows: minmax(0, 1fr) 1.5rem;
   justify-items: center;
-  align-content: start;
+  align-content: stretch;
+  height: 9rem;
+  min-height: 9rem;
+  flex: 0 0 9rem;
 }
 .evolution-outcome .evolution-transition-method {
-  @apply flex w-full min-w-0 flex-col items-center justify-center;
-  min-height: 3rem;
+  @apply flex w-full min-w-0 flex-col items-center justify-start;
+  min-height: 0;
+  overflow-y: auto;
+  scrollbar-width: thin;
 }
 .evolution-outcome .evolution-tree-member {
   @apply flex w-full flex-1 items-start;
