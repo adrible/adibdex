@@ -632,3 +632,41 @@ All colors MUST be HSL.
     row-gap: 0.625rem;
   }
 }
+
+@media (max-width: 639px) {
+  .detail-move-table .detail-move-row {
+    gap: 0.25rem 0.4rem;
+    margin-top: 0.35rem;
+    padding: 0.5rem 0.625rem;
+    border-radius: 0.625rem;
+  }
+  .detail-move-table .detail-move-row td {
+    min-width: 0;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.25rem;
+    font-size: 0.6875rem;
+    line-height: 1.2;
+  }
+  .detail-move-row td::before {
+    flex: 0 1 auto;
+    font-size: 0.5rem;
+    line-height: 1.1;
+    white-space: nowrap;
+  }
+  .detail-move-table .detail-move-name {
+    font-size: 0.75rem;
+  }
+  .detail-move-table .detail-move-name button {
+    font-size: inherit;
+  }
+  .detail-move-table .detail-move-row td[data-label='Nível'] > span {
+    min-width: 1.5rem;
+    padding: 0.125rem 0.375rem;
+  }
+  .detail-move-table .detail-move-row td[data-label='Tipo'] > span {
+    padding: 0.125rem 0.5rem;
+    font-size: 0.625rem;
+  }
+}
