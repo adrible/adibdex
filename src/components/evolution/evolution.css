@@ -264,7 +264,7 @@
   @apply grid grid-cols-2 gap-3 sm:grid-cols-3;
 }
 .evolution-tree-node {
-  @apply flex min-w-0 flex-col;
+  @apply flex h-full min-w-0 flex-col;
 }
 .evolution-outcome {
   @apply flex h-full min-w-0 flex-col rounded-xl border border-border bg-card p-2;
@@ -283,8 +283,37 @@
   @apply mt-2 border-t border-border pt-2;
 }
 .evolution-outcome .evolution-transition {
-  @apply min-h-[4.5rem] gap-1 py-1.5;
-  justify-content: flex-start;
+  @apply min-h-[5rem] gap-1 py-1.5;
+  display: grid;
+  grid-template-rows: minmax(3rem, 1fr) auto;
+  justify-items: center;
+  align-content: start;
+}
+.evolution-outcome .evolution-transition-method {
+  @apply flex w-full min-w-0 flex-col items-center justify-center;
+  min-height: 3rem;
+}
+.evolution-outcome .evolution-tree-member {
+  @apply flex w-full flex-1 items-start;
+}
+.evolution-outcome .evolution-card {
+  @apply grid w-full grid-rows-[1.25rem_5rem_4rem] justify-items-center content-start;
+}
+.evolution-outcome .evolution-card-meta {
+  @apply m-0 min-h-5;
+}
+.evolution-outcome .evolution-artwork-wrap {
+  @apply h-20 w-20;
+}
+.evolution-outcome .evolution-card-info {
+  @apply grid w-full grid-rows-[2.25rem_1.5rem] justify-items-center gap-0 px-0 pt-1;
+}
+.evolution-outcome .evolution-name {
+  @apply flex min-h-0 items-center justify-center text-center text-sm;
+  overflow-wrap: anywhere;
+}
+.evolution-outcome .evolution-card-types {
+  @apply min-h-6 content-start;
 }
 .evolution-outcome .evolution-transition::before {
   display: none;
@@ -300,19 +329,6 @@
 }
 .evolution-outcome .evolution-tree-member {
   @apply max-w-none rounded-lg;
-}
-.evolution-outcome .evolution-card {
-  @apply py-1.5;
-}
-.evolution-outcome .evolution-artwork-wrap,
-.evolution-tree-member--compact .evolution-artwork-wrap {
-  @apply h-20 w-20;
-}
-.evolution-outcome .evolution-card-info {
-  @apply gap-1 pt-1.5;
-}
-.evolution-outcome .evolution-name {
-  @apply text-sm;
 }
 .evolution-outcome .evolution-current {
   @apply px-1.5 py-0.5 text-[8px];
@@ -350,6 +366,10 @@
   .evolution-tree-member--compact .evolution-artwork-wrap {
     height: 6rem;
     width: 6rem;
+  }
+  .evolution-outcome .evolution-artwork-wrap {
+    height: 5rem;
+    width: 5rem;
   }
 }
 @media (min-width: 1024px) {
