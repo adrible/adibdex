@@ -92,6 +92,11 @@ export async function fetchPokemonMovesByGame(
       power: number | null;
       accuracy: number | null;
       pp: number | null;
+      priority: number;
+      target: string;
+      ailment: string | null;
+      ailmentChance: number | null;
+      effectChance: number | null;
     }
   >();
 
@@ -106,6 +111,11 @@ export async function fetchPokemonMovesByGame(
           power: d.power,
           accuracy: d.accuracy,
           pp: d.pp,
+          priority: d.priority ?? 0,
+          target: d.target?.name ?? 'selected-pokemon',
+          ailment: d.meta?.ailment?.name ?? null,
+          ailmentChance: d.meta?.ailment_chance ?? null,
+          effectChance: d.effect_chance,
         });
       }
     });
@@ -133,6 +143,11 @@ export async function fetchPokemonMovesByGame(
             power: info?.power ?? null,
             accuracy: info?.accuracy ?? null,
             pp: info?.pp ?? null,
+            priority: info?.priority ?? 0,
+            target: info?.target ?? 'selected-pokemon',
+            ailment: info?.ailment ?? null,
+            ailmentChance: info?.ailmentChance ?? null,
+            effectChance: info?.effectChance ?? null,
           };
         })
         .sort((a, b) => (method === 'level-up' ? a.level - b.level : a.name.localeCompare(b.name)));
