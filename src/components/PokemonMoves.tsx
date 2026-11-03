@@ -13,6 +13,42 @@ import { Button } from '@/components/ui/button';
 import { ChevronDown, ChevronUp, Swords } from 'lucide-react';
 import { QueryErrorState } from '@/components/QueryErrorState';
 
+const MOVE_TARGETS: Record<string, string> = {
+  'selected-pokemon': 'Pokémon escolhido',
+  'all-opponents': 'Todos os adversários',
+  'all-other-pokemon': 'Todos os outros Pokémon',
+  user: 'O próprio usuário',
+  'users-field': 'Campo aliado',
+  'opponents-field': 'Campo adversário',
+  'entire-field': 'Campo inteiro',
+  'user-and-allies': 'Usuário e aliados',
+  'user-or-ally': 'Usuário ou aliado',
+  'all-pokemon': 'Todos os Pokémon',
+  'random-opponent': 'Adversário aleatório',
+  'specific-move': 'Alvo especial',
+};
+
+const MOVE_AILMENTS: Record<string, string> = {
+  burn: 'Queimadura',
+  freeze: 'Congelamento',
+  paralysis: 'Paralisia',
+  poison: 'Envenenamento',
+  sleep: 'Sono',
+  confusion: 'Confusão',
+  infatuation: 'Paixão',
+  trap: 'Aprisionamento',
+  nightmare: 'Pesadelo',
+  torment: 'Tormento',
+  disable: 'Bloqueio',
+  yawn: 'Bocejo',
+  heal: 'Cura',
+  no: 'Nenhum',
+};
+
+function titleCase(value: string) {
+  return value.replace(/-/g, ' ').replace(/^\w/, (letter) => letter.toUpperCase());
+}
+
 function MoveRow({ move, showLevel }: { move: MoveByGame; showLevel: boolean }) {
   const [expanded, setExpanded] = useState(false);
 
@@ -88,6 +124,27 @@ function MoveRow({ move, showLevel }: { move: MoveByGame; showLevel: boolean }) 
       {expanded && (
         <tr className="bg-muted/20">
           <td colSpan={showLevel ? 7 : 6} className="px-3 py-2">
+            <div className="move-extra-data">
+              {move.target && (
+                <span>Alvo: {MOVE_TARGETS[move.target] ?? titleCase(move.target)}</span>
+              )}
+              {move.priority !== 0 && (
+                <span>
+                  Prioridade: {move.priority > 0 ? `+${move.priority}` : move.priority}
+                </span>
+              )}
+              {move.ailment && move.ailment !== 'none' && (
+                <span>
+                  Efeito: {MOVE_AILMENTS[move.ailment] ?? titleCase(move.ailment)}
+                  {move.ailmentChance !== null && move.ailmentChance > 0
+                    ? ` (${move.ailmentChance}%)`
+                    : ''}
+                </span>
+              )}
+              {move.effectChance !== null && move.effectChance > 0 && (
+                <span>Chance do efeito: {move.effectChance}%</span>
+              )}
+            </div>
             <p className="text-sm leading-relaxed text-muted-foreground">
               {isLoading
                 ? 'Carregando...'
