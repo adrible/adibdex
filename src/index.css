@@ -353,6 +353,49 @@ All colors MUST be HSL.
       transparent 65%
     );
   }
+  .species-profile {
+    @apply mt-4 border-t border-border/70 pt-3;
+  }
+  .species-profile-heading {
+    @apply flex flex-wrap items-center gap-1.5;
+  }
+  .species-profile-genus {
+    @apply text-xs font-semibold text-muted-foreground;
+  }
+  .species-profile-tag {
+    @apply rounded-md border border-primary/20 bg-primary/5 px-2 py-0.5 text-[10px] font-semibold text-primary;
+  }
+  .species-profile-description {
+    @apply mt-2 max-w-prose text-xs leading-relaxed text-muted-foreground;
+  }
+  .species-profile-details {
+    @apply mt-2;
+  }
+  .species-profile-details summary {
+    @apply flex cursor-pointer items-center gap-1 text-xs font-semibold text-primary hover:underline focus-visible:outline focus-visible:outline-2 focus-visible:outline-primary;
+    list-style: none;
+  }
+  .species-profile-details summary::-webkit-details-marker {
+    display: none;
+  }
+  .species-profile-details summary svg {
+    @apply h-3.5 w-3.5 transition-transform;
+  }
+  .species-profile-details[open] summary svg {
+    transform: rotate(180deg);
+  }
+  .species-profile-facts {
+    @apply mt-2 grid grid-cols-1 gap-2 rounded-lg bg-background/70 p-3 text-xs sm:grid-cols-2;
+  }
+  .species-profile-facts > div {
+    @apply flex min-w-0 flex-col gap-0.5;
+  }
+  .species-profile-facts span {
+    @apply text-[10px] font-medium text-muted-foreground;
+  }
+  .species-profile-facts strong {
+    @apply break-words text-xs font-semibold text-card-foreground;
+  }
   .detail-identity {
     @apply min-w-0;
   }
@@ -398,6 +441,18 @@ All colors MUST be HSL.
   .detail-locations {
     @apply order-last;
   }
+  .detail-encounter-version {
+    @apply rounded-md border border-border/70 bg-background/50 p-2;
+  }
+  .detail-encounter-game {
+    @apply inline-flex rounded bg-secondary px-2 py-0.5 text-[10px] font-semibold capitalize text-secondary-foreground;
+  }
+  .detail-encounter-entry {
+    @apply mt-1.5 border-l-2 border-primary/25 pl-2 text-[11px] leading-relaxed;
+  }
+  .detail-encounter-fact {
+    @apply rounded bg-muted px-1.5 py-0.5 text-[10px] font-medium text-muted-foreground;
+  }
   .detail-game-picker {
     @apply flex flex-col gap-2 rounded-xl border border-border bg-muted/30 p-3 sm:flex-row sm:items-center sm:justify-between;
   }
@@ -412,6 +467,12 @@ All colors MUST be HSL.
   }
   .detail-move-search {
     @apply min-h-11 w-full rounded-lg border border-input bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-ring;
+  }
+  .move-extra-data {
+    @apply mb-2 flex flex-wrap gap-1.5;
+  }
+  .move-extra-data > span {
+    @apply rounded-md border border-border bg-card px-2 py-1 text-[10px] font-medium text-card-foreground;
   }
   .detail-move-table table {
     @apply sm:min-w-[500px];
