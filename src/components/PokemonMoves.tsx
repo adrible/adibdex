@@ -31,16 +31,19 @@ function MoveRow({ move, showLevel }: { move: MoveByGame; showLevel: boolean }) 
     <>
       <tr
         onClick={() => setExpanded(!expanded)}
-        className="border-b border-border/50 last:border-0 cursor-pointer hover:bg-muted/30 transition-colors"
+        className="detail-move-row border-b border-border/50 last:border-0 cursor-pointer hover:bg-muted/30 transition-colors"
       >
         {showLevel && (
-          <td className="py-1.5 pr-2">
+          <td data-label="Nível" className="py-3 pr-2">
             <span className="inline-flex items-center justify-center rounded-full bg-primary/15 px-2 py-0.5 text-xs font-bold text-primary min-w-[2rem]">
               {move.level || '—'}
             </span>
           </td>
         )}
-        <td className="py-1.5 pr-2 font-medium text-card-foreground capitalize text-xs">
+        <td
+          data-label="Ataque"
+          className="detail-move-name py-3 pr-2 font-medium text-card-foreground capitalize text-xs"
+        >
           <button
             aria-expanded={expanded}
             onClick={(event) => {
@@ -52,10 +55,10 @@ function MoveRow({ move, showLevel }: { move: MoveByGame; showLevel: boolean }) 
             {move.name.replace(/-/g, ' ')}
           </button>
         </td>
-        <td className="py-1.5 pr-2">
+        <td data-label="Tipo" className="py-3 pr-2">
           <TypeBadge type={move.type} size="sm" />
         </td>
-        <td className="py-1.5 pr-2">
+        <td data-label="Categoria" className="py-3 pr-2">
           <span
             className={`text-xs font-semibold capitalize ${
               move.damageClass === 'physical'
@@ -72,16 +75,20 @@ function MoveRow({ move, showLevel }: { move: MoveByGame; showLevel: boolean }) 
                 : 'Sta.'}
           </span>
         </td>
-        <td className="py-1.5 pr-2 text-right text-xs text-card-foreground">{move.power ?? '—'}</td>
-        <td className="py-1.5 pr-2 text-right text-xs text-card-foreground">
+        <td data-label="Poder" className="py-3 pr-2 text-right text-xs text-card-foreground">
+          {move.power ?? '—'}
+        </td>
+        <td data-label="Precisão" className="py-3 pr-2 text-right text-xs text-card-foreground">
           {move.accuracy ? `${move.accuracy}%` : '—'}
         </td>
-        <td className="py-1.5 text-right text-xs text-card-foreground">{move.pp ?? '—'}</td>
+        <td data-label="PP" className="py-3 text-right text-xs text-card-foreground">
+          {move.pp ?? '—'}
+        </td>
       </tr>
       {expanded && (
         <tr className="bg-muted/20">
           <td colSpan={showLevel ? 7 : 6} className="px-3 py-2">
-            <p className="text-xs text-muted-foreground italic">
+            <p className="text-sm leading-relaxed text-muted-foreground">
               {isLoading
                 ? 'Carregando...'
                 : isError
@@ -100,7 +107,12 @@ function MoveTable({ moves, showLevel }: { moves: MoveByGame[]; showLevel: boole
     return <p className="text-sm text-muted-foreground py-2">Nenhum ataque nesta categoria.</p>;
   }
   return (
-    <div className="overflow-x-auto">
+    <div
+      className="overflow-x-auto rounded-lg border border-border detail-move-table"
+      tabIndex={0}
+      role="region"
+      aria-label="Tabela de ataques"
+    >
       <table className="w-full text-sm">
         <thead>
           <tr className="border-b border-border">
@@ -119,10 +131,10 @@ function MoveTable({ moves, showLevel }: { moves: MoveByGame[]; showLevel: boole
               Cat.
             </th>
             <th className="text-right py-2 pr-2 text-muted-foreground font-semibold text-xs w-12">
-              Pow
+              Poder
             </th>
             <th className="text-right py-2 pr-2 text-muted-foreground font-semibold text-xs w-12">
-              Acc
+              Precisão
             </th>
             <th className="text-right py-2 text-muted-foreground font-semibold text-xs w-10">PP</th>
           </tr>
@@ -138,7 +150,8 @@ function MoveTable({ moves, showLevel }: { moves: MoveByGame[]; showLevel: boole
 }
 
 function GameMoves({ group }: { group: MovesByVersionGroup }) {
-  const [openSection, setOpenSection] = useState<string>('level-up');
+  const [selectedMethod, setSelectedMethod] = useState('level-up');
+  const [search, setSearch] = useState('');
   const sections = [
     { key: 'level-up', label: METHOD_LABELS['level-up'], moves: group.levelUp, showLevel: true },
     { key: 'machine', label: METHOD_LABELS['machine'], moves: group.machine, showLevel: false },
@@ -146,37 +159,45 @@ function GameMoves({ group }: { group: MovesByVersionGroup }) {
     { key: 'tutor', label: METHOD_LABELS['tutor'], moves: group.tutor, showLevel: false },
   ].filter((s) => s.moves.length > 0);
 
+  const activeSection = sections.find((section) => section.key === selectedMethod) || sections[0];
+  const normalizedSearch = search.trim().toLowerCase().replace(/-/g, ' ');
+  const filteredMoves =
+    activeSection?.moves.filter((move) =>
+      move.name.replace(/-/g, ' ').includes(normalizedSearch),
+    ) || [];
   return (
-    <div className="space-y-2">
-      {sections.map((section) => (
-        <div key={section.key} className="border border-border/50 rounded-lg overflow-hidden">
+    <div className="space-y-4">
+      <div className="flex flex-wrap gap-2" aria-label="Método de aprendizado">
+        {sections.map((section) => (
           <button
-            onClick={() => setOpenSection(openSection === section.key ? '' : section.key)}
-            className="w-full flex items-center justify-between px-4 py-2.5 bg-muted/30 hover:bg-muted/50 transition-colors text-left"
+            key={section.key}
+            type="button"
+            aria-pressed={activeSection?.key === section.key}
+            onClick={() => setSelectedMethod(section.key)}
+            className={`detail-method ${activeSection?.key === section.key ? 'detail-method--active' : ''}`}
           >
-            <span className="text-sm font-semibold text-card-foreground">
-              {section.label}{' '}
-              <span className="text-muted-foreground font-normal">({section.moves.length})</span>
-            </span>
-            {openSection === section.key ? (
-              <ChevronUp className="h-4 w-4 text-muted-foreground" />
-            ) : (
-              <ChevronDown className="h-4 w-4 text-muted-foreground" />
-            )}
+            {section.label} <span className="opacity-70">{section.moves.length}</span>
           </button>
-          {openSection === section.key && (
-            <div className="px-4 py-2">
-              <MoveTable moves={section.moves} showLevel={section.showLevel} />
-            </div>
-          )}
-        </div>
-      ))}
+        ))}
+      </div>
+      <label className="block">
+        <span className="sr-only">Buscar ataque neste método de aprendizado</span>
+        <input
+          type="search"
+          value={search}
+          onChange={(event) => setSearch(event.target.value)}
+          placeholder="Buscar ataque neste método..."
+          className="detail-move-search"
+        />
+      </label>
+      <p className="text-xs text-muted-foreground">Selecione um ataque para ver sua descrição.</p>
+      <MoveTable moves={filteredMoves} showLevel={activeSection?.showLevel ?? false} />
     </div>
   );
 }
 
 export function PokemonMoves({ pokemonId }: { pokemonId: number }) {
-  const [isOpen, setIsOpen] = useState(false);
+  const [isOpen, setIsOpen] = useState(true);
   const [selectedGame, setSelectedGame] = useState<string>('');
 
   const {
@@ -198,7 +219,9 @@ export function PokemonMoves({ pokemonId }: { pokemonId: number }) {
       <Button
         variant="ghost"
         onClick={() => setIsOpen(!isOpen)}
-        className="w-full flex items-center justify-between p-6 h-auto hover:bg-muted/50"
+        aria-expanded={isOpen}
+        aria-controls="pokemon-moves-content"
+        className="w-full flex items-center justify-between p-5 sm:p-6 h-auto hover:bg-muted/50"
       >
         <div className="flex items-center gap-2">
           <Swords className="h-5 w-5 text-primary" />
@@ -212,7 +235,7 @@ export function PokemonMoves({ pokemonId }: { pokemonId: number }) {
       </Button>
 
       {isOpen && (
-        <div className="px-6 pb-6">
+        <div id="pokemon-moves-content" className="px-4 pb-5 sm:px-6 sm:pb-6">
           {isError ? (
             <QueryErrorState
               title="Não foi possível carregar os ataques"
@@ -226,22 +249,21 @@ export function PokemonMoves({ pokemonId }: { pokemonId: number }) {
             </div>
           ) : movesByGame && movesByGame.length > 0 ? (
             <div className="space-y-4">
-              <div className="flex flex-wrap gap-1.5">
-                {movesByGame.map((g) => (
-                  <button
-                    key={g.versionGroup}
-                    onClick={() => setSelectedGame(g.versionGroup)}
-                    className={`text-xs px-3 py-1.5 rounded-full border transition-colors ${
-                      currentGame?.versionGroup === g.versionGroup
-                        ? 'bg-primary text-primary-foreground border-primary'
-                        : 'bg-muted/40 text-muted-foreground border-border hover:bg-muted/70'
-                    }`}
-                  >
-                    {g.versionGroupLabel}
-                  </button>
-                ))}
-              </div>
-              {currentGame && <GameMoves group={currentGame} />}
+              <label className="detail-game-picker">
+                <span className="text-overline">Jogo</span>
+                <select
+                  value={currentGame?.versionGroup || ''}
+                  onChange={(event) => setSelectedGame(event.target.value)}
+                  className="detail-game-select"
+                >
+                  {movesByGame.map((g) => (
+                    <option key={g.versionGroup} value={g.versionGroup}>
+                      {g.versionGroupLabel}
+                    </option>
+                  ))}
+                </select>
+              </label>
+              {currentGame && <GameMoves key={currentGame.versionGroup} group={currentGame} />}
             </div>
           ) : (
             <p className="text-sm text-muted-foreground">Nenhum ataque encontrado.</p>
