@@ -160,7 +160,7 @@ export default function Index() {
 
             <h3 className="home-card-title">Formas Regionais</h3>
 
-            <p className="home-card-description">Alolan, Galarian, Hisuian e Paldean forms</p>
+            <p className="home-card-description">Formas de Alola, Galar, Hisui e Paldea</p>
 
             <p className="text-code">VARIAÇÕES POR REGIÃO</p>
 
