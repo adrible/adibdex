@@ -215,7 +215,7 @@ export function PokemonMoves({ pokemonId }: { pokemonId: number }) {
   const currentGame = movesByGame?.find((g) => g.versionGroup === selectedGame) || movesByGame?.[0];
 
   return (
-    <div className="rounded-xl bg-card border border-border overflow-hidden">
+    <div className="detail-moves-card rounded-xl bg-card border border-border overflow-hidden">
       <Button
         variant="ghost"
         onClick={() => setIsOpen(!isOpen)}
