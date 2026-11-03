@@ -20,7 +20,7 @@ export const pokemonSchema = z.object({
     .array(z.object({ slot: z.number(), type: resource }))
     .min(1)
     .max(2),
-  abilities: z.array(z.object({ ability: resource })),
+  abilities: z.array(z.object({ ability: resource, is_hidden: z.boolean().optional() })),
   stats: z.array(z.object({ base_stat: z.number().nonnegative(), stat: resource })).length(6),
   moves: z.array(
     z.object({
