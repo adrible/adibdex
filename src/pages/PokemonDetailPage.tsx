@@ -28,6 +28,7 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { Footer } from '@/components/Footer';
 import { QueryErrorState } from '@/components/QueryErrorState';
 import { parsePokemonNavigationState } from '@/lib/navigation';
+import { applyPageMetadata, getPageMetadata } from '@/lib/seo';
 
 function StatBar({ name, value }: { name: string; value: number }) {
   const percentage = Math.min((value / 255) * 100, 100);
@@ -162,6 +163,13 @@ export default function PokemonDetailPage() {
   }, [prevId, nextId, queryClient]);
 
   const displayId = pokemon?.speciesId ?? pokemonId;
+
+  useEffect(() => {
+    if (!pokemon) return;
+    applyPageMetadata(
+      getPageMetadata(location.pathname, { name: pokemon.name, speciesId: displayId }),
+    );
+  }, [displayId, location.pathname, pokemon]);
 
   const handleBack = () => {
     if (stableOrigin) {
