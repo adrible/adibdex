@@ -1,22 +1,11 @@
 /* A shared, type-tinted Pokédex frame for linear chains, branches and transformations. */
 .evolution-panel {
-  @apply relative isolate overflow-hidden rounded-3xl border border-border bg-card p-4 sm:p-6;
-  background-image: radial-gradient(
-    ellipse at 100% 0%,
-    hsl(var(--primary) / 0.07),
-    transparent 55%
-  );
-  box-shadow: 0 12px 36px -24px hsl(var(--foreground) / 0.25);
+  @apply relative isolate overflow-hidden rounded-2xl border border-border bg-card p-4 sm:p-5;
+  box-shadow: 0 2px 12px hsl(var(--foreground) / 0.04);
 }
 .evolution-panel::before {
   content: '';
-  @apply absolute inset-x-0 top-0 h-1;
-  background: linear-gradient(
-    90deg,
-    hsl(var(--primary)),
-    hsl(var(--primary) / 0.15) 65%,
-    transparent
-  );
+  @apply absolute inset-x-0 top-0 h-px bg-primary/30;
 }
 .evolution-header {
   @apply relative mb-6 flex items-center gap-3;
@@ -275,44 +264,42 @@
   @apply grid grid-cols-2 gap-3 sm:grid-cols-3;
 }
 .evolution-tree-node {
-  @apply min-w-0;
+  @apply flex min-w-0 flex-col;
 }
 .evolution-outcome {
-  @apply h-full min-w-0 rounded-2xl border border-border bg-card/80 p-2 shadow-sm;
-  box-shadow:
-    inset 0 3px hsl(var(--primary) / 0.12),
-    0 2px 8px hsl(var(--foreground) / 0.04);
+  @apply flex h-full min-w-0 flex-col rounded-xl border border-border bg-card p-2;
+  box-shadow: 0 1px 5px hsl(var(--foreground) / 0.035);
 }
 .evolution-outcome-heading {
-  @apply flex min-h-8 items-center justify-center gap-1.5 rounded-lg bg-muted/60 px-2 py-1 text-center text-[11px] font-semibold text-card-foreground;
+  @apply flex min-h-8 items-center justify-center gap-1.5 rounded-md bg-muted/50 px-2 py-1 text-center text-[11px] font-semibold text-card-foreground;
 }
 .evolution-outcome-heading > svg {
   @apply h-3.5 w-3.5 shrink-0 text-primary;
 }
 .evolution-outcome--continued {
-  border-color: hsl(var(--primary) / 0.3);
-  background: linear-gradient(160deg, hsl(var(--primary) / 0.035), hsl(var(--card) / 0.9) 45%);
+  border-color: hsl(var(--primary) / 0.22);
 }
 .evolution-outcome--continued > .evolution-tree-children {
-  @apply mt-2 border-t border-dashed border-primary/20 pt-2;
+  @apply mt-2 border-t border-border pt-2;
 }
 .evolution-outcome .evolution-transition {
-  @apply gap-1 py-1.5;
+  @apply min-h-[4.5rem] gap-1 py-1.5;
+  justify-content: flex-start;
 }
 .evolution-outcome .evolution-transition::before {
   display: none;
 }
 .evolution-outcome .evolution-transition-arrow {
-  @apply h-6 w-6 border border-primary/15 bg-primary/5;
+  @apply h-6 w-6 bg-muted/60;
 }
 .evolution-outcome .evolution-transition-arrow svg {
   @apply h-3.5 w-3.5;
 }
 .evolution-outcome .evolution-requirement {
-  @apply rounded-md px-1.5 py-1 text-center text-[9px];
+  @apply rounded px-1.5 py-1 text-center text-[9px];
 }
 .evolution-outcome .evolution-tree-member {
-  @apply max-w-none rounded-xl bg-muted/20;
+  @apply max-w-none rounded-lg;
 }
 .evolution-outcome .evolution-card {
   @apply py-1.5;
@@ -346,10 +333,11 @@
   @apply h-6 w-6 shrink-0 rounded-full border border-border bg-card p-1 text-primary;
 }
 .evolution-tree-children {
-  @apply mx-auto grid gap-4;
+  @apply mx-auto grid w-full gap-3;
 }
 .evolution-tree-children--split {
-  @apply items-start gap-x-4 gap-y-5 min-[360px]:grid-cols-2;
+  @apply items-stretch gap-x-3 gap-y-4 min-[360px]:grid-cols-2;
+  grid-auto-rows: 1fr;
 }
 .evolution-tree-children--many {
   @apply lg:grid-cols-4;
