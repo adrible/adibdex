@@ -435,7 +435,16 @@ export default function PokemonDetailPage() {
                           <span className="detail-encounter-game">
                             {version.version.replace(/-/g, ' ')}
                           </span>
-                          {(version.encounters ?? []).map((encounter, encounterIndex) => (
+                          {(
+                            version.encounters ??
+                            version.methods.map((method) => ({
+                              method: method.replace(/ /g, '-'),
+                              minLevel: null,
+                              maxLevel: null,
+                              chance: null,
+                              conditions: [],
+                            }))
+                          ).map((encounter, encounterIndex) => (
                             <div
                               key={`${encounter.method}-${encounterIndex}`}
                               className="detail-encounter-entry"
