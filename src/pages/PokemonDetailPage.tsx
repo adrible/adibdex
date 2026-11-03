@@ -14,6 +14,7 @@ import { TypeEffectiveness } from '@/components/TypeEffectiveness';
 import { PokemonForms } from '@/components/PokemonForms';
 import { EvolutionChainDisplay } from '@/components/EvolutionChain';
 import { PokemonMoves } from '@/components/PokemonMoves';
+import { PokemonSpeciesProfile } from '@/components/PokemonSpeciesProfile';
 import { Button } from '@/components/ui/button';
 import { ArrowLeft, ChevronLeft, ChevronRight, MapPin, Sparkles } from 'lucide-react';
 import { Skeleton } from '@/components/ui/skeleton';
@@ -38,6 +39,52 @@ function StatBar({ name, value }: { name: string; value: number }) {
       </div>
     </div>
   );
+}
+
+const ENCOUNTER_METHODS: Record<string, string> = {
+  walk: 'Andando',
+  surf: 'Surfando',
+  'old-rod': 'Vara velha',
+  'good-rod': 'Vara boa',
+  'super-rod': 'Supervara',
+  'rock-smash': 'Quebrando rochas',
+  headbutt: 'Cabeçada',
+  'dark-grass': 'Grama escura',
+  'yellow-flowers': 'Flores amarelas',
+  'purple-flowers': 'Flores roxas',
+  'red-flowers': 'Flores vermelhas',
+  'bridge-shadow': 'Sombra de ponte',
+  'dust-cloud': 'Nuvem de poeira',
+  'rippling-water': 'Água ondulante',
+  'hidden-grotto': 'Gruta escondida',
+  'sos-call': 'Chamada SOS',
+};
+
+const ENCOUNTER_CONDITIONS: Record<string, string> = {
+  'time-morning': 'Manhã',
+  'time-day': 'Dia',
+  'time-night': 'Noite',
+  'time-evening': 'Entardecer',
+  'swarm-yes': 'Enxame',
+  'swarm-no': 'Sem enxame',
+  'radio-hoenn': 'Rádio de Hoenn',
+  'radio-sinnoh': 'Rádio de Sinnoh',
+  'season-spring': 'Primavera',
+  'season-summer': 'Verão',
+  'season-autumn': 'Outono',
+  'season-winter': 'Inverno',
+  'slot2-none': 'Sem cartucho extra',
+};
+
+function encounterLabel(value: string, labels: Record<string, string>) {
+  return labels[value] ?? value.replace(/-/g, ' ').replace(/^\w/, (letter) => letter.toUpperCase());
+}
+
+function encounterLevelRange(min: number | null, max: number | null) {
+  if (min === null && max === null) return null;
+  if (min === max || max === null) return `Nv. ${min ?? max}`;
+  if (min === null) return `Até nv. ${max}`;
+  return `Nv. ${min}–${max}`;
 }
 
 function AbilityChip({ ability, hidden }: { ability: string; hidden: boolean }) {
@@ -286,6 +333,7 @@ export default function PokemonDetailPage() {
                 <TypeBadge key={t} type={t} size="md" />
               ))}
             </div>
+            <PokemonSpeciesProfile speciesId={pokemon.speciesId} />
           </div>
 
           <div className="detail-artwork">
@@ -381,14 +429,44 @@ export default function PokemonDetailPage() {
                     <p className="text-sm font-semibold text-foreground capitalize">
                       {enc.location}
                     </p>
-                    <div className="flex flex-wrap gap-1 mt-1">
-                      {[...new Set(enc.versions.map((v) => v.version))].map((v) => (
-                        <span
-                          key={v}
-                          className="text-xs rounded-full bg-secondary px-2 py-0.5 capitalize text-secondary-foreground"
-                        >
-                          {v.replace(/-/g, ' ')}
-                        </span>
+                    <div className="mt-2 space-y-2">
+                      {enc.versions.map((version) => (
+                        <div key={version.version} className="detail-encounter-version">
+                          <span className="detail-encounter-game">
+                            {version.version.replace(/-/g, ' ')}
+                          </span>
+                          {(version.encounters ?? []).map((encounter, encounterIndex) => (
+                            <div
+                              key={`${encounter.method}-${encounterIndex}`}
+                              className="detail-encounter-entry"
+                            >
+                              <div className="flex flex-wrap items-center gap-1.5">
+                                <span className="font-semibold text-card-foreground">
+                                  {encounterLabel(encounter.method, ENCOUNTER_METHODS)}
+                                </span>
+                                {encounterLevelRange(encounter.minLevel, encounter.maxLevel) && (
+                                  <span className="detail-encounter-fact">
+                                    {encounterLevelRange(encounter.minLevel, encounter.maxLevel)}
+                                  </span>
+                                )}
+                                {encounter.chance !== null && (
+                                  <span className="detail-encounter-fact">
+                                    {encounter.chance}% de chance
+                                  </span>
+                                )}
+                              </div>
+                              {encounter.conditions.length > 0 && (
+                                <p className="mt-1 text-[10px] text-muted-foreground">
+                                  {encounter.conditions
+                                    .map((condition) =>
+                                      encounterLabel(condition, ENCOUNTER_CONDITIONS),
+                                    )
+                                    .join(' · ')}
+                                </p>
+                              )}
+                            </div>
+                          ))}
+                        </div>
                       ))}
                     </div>
                   </div>
