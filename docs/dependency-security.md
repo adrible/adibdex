@@ -1,6 +1,6 @@
 # Dependency security maintenance
 
-Reviewed on 2026-11-01, keeping the application at version 0.9.4.
+Reviewed on 2026-11-01, keeping the application at version 0.9.5.
 
 The existing lockfile reported 22 npm audit findings (16 moderate, 6 high). The updated
 lockfile reports zero findings across production and development dependencies.
