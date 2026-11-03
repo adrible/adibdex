@@ -562,4 +562,73 @@ All colors MUST be HSL.
     margin-top: 0.5rem;
     padding: 0.75rem;
   }
+  /* Tighter, clearly separated surfaces across the Pokémon detail page. */
+  .detail-content-grid {
+    gap: 0.75rem;
+  }
+  .detail-panel,
+  .detail-moves-card,
+  .detail-section .evolution-panel {
+    border-color: hsl(var(--foreground) / 0.14);
+    box-shadow: 0 2px 8px hsl(var(--foreground) / 0.08);
+  }
+  .detail-panel {
+    padding: 0.875rem;
+  }
+  .detail-moves-card {
+    border-radius: 0.875rem;
+  }
+  .detail-moves-card > button {
+    padding: 0.875rem 1rem;
+  }
+  .detail-moves-card > div[id] {
+    padding: 0 0.875rem 0.875rem;
+  }
+  .detail-move-table .detail-move-row {
+    gap: 0.35rem 0.5rem;
+    margin-top: 0.45rem;
+    padding: 0.625rem 0.75rem;
+    border-color: hsl(var(--foreground) / 0.14);
+    background: hsl(var(--card) / 0.78);
+    box-shadow: 0 2px 6px hsl(var(--foreground) / 0.06);
+  }
+  .detail-move-table .detail-move-row td {
+    gap: 0.2rem;
+    font-size: 0.75rem;
+  }
+  .detail-move-row td::before {
+    font-size: 0.55rem;
+    letter-spacing: 0.02em;
+  }
+  .detail-move-table .detail-move-name {
+    font-size: 0.8125rem;
+  }
+  .detail-move-name button {
+    font-size: inherit;
+  }
+  .detail-game-picker {
+    padding: 0.625rem;
+  }
+  .detail-method {
+    min-height: 2rem;
+  }
+  .detail-section .evolution-panel {
+    padding: 0.875rem;
+    border-radius: 1rem;
+  }
+  .detail-section .evolution-header {
+    margin-bottom: 0.875rem;
+  }
+  .detail-section .evolution-heading-icon {
+    width: 2.25rem;
+    height: 2.25rem;
+  }
+  .detail-section .evolution-outcome {
+    padding: 0.5rem;
+    border-color: hsl(var(--foreground) / 0.14);
+  }
+  .detail-section .evolution-tree-children--split {
+    column-gap: 0.5rem;
+    row-gap: 0.625rem;
+  }
 }
