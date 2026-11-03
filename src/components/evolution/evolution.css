@@ -289,6 +289,13 @@
 .evolution-outcome-heading > svg {
   @apply h-3.5 w-3.5 shrink-0 text-primary;
 }
+.evolution-outcome--continued {
+  border-color: hsl(var(--primary) / 0.3);
+  background: linear-gradient(160deg, hsl(var(--primary) / 0.035), hsl(var(--card) / 0.9) 45%);
+}
+.evolution-outcome--continued > .evolution-tree-children {
+  @apply mt-2 border-t border-dashed border-primary/20 pt-2;
+}
 .evolution-outcome .evolution-transition {
   @apply gap-1 py-1.5;
 }
