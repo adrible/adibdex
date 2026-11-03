@@ -42,7 +42,12 @@ function Branch({
             <ArrowRight aria-hidden="true" />
             <span className="capitalize">{step.name.replace(/-/g, ' ')}</span>
           </h5>
-          <EvolutionTransition conditions={step.conditions} to={step.name} />
+          <EvolutionTransition
+            conditions={step.conditions}
+            from={parentName}
+            to={step.name}
+            showSource={false}
+          />
           <div className="evolution-tree-member evolution-tree-member--compact">
             <EvolutionCard
               id={step.id}
