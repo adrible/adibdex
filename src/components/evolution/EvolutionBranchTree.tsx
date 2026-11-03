@@ -1,4 +1,4 @@
-import { GitBranch } from 'lucide-react';
+import { ArrowRight, GitBranch } from 'lucide-react';
 import type { EvolutionNode } from '@/features/evolution/tree';
 import type { PokemonNavigationState } from '@/lib/navigation';
 import type { PokemonBasic } from '@/lib/pokemon/types';
@@ -32,22 +32,42 @@ function Branch({
   const split = children.length > 1;
   return (
     <div className="evolution-tree-node" data-species-id={step.speciesId}>
-      {parentName && (
-        <EvolutionTransition conditions={step.conditions} from={parentName} to={step.name} />
+      {parentName ? (
+        <article
+          className="evolution-outcome"
+          aria-label={`Evolução de ${parentName.replace(/-/g, ' ')} para ${step.name.replace(/-/g, ' ')}`}
+        >
+          <h5 className="evolution-outcome-heading">
+            <span className="capitalize">{parentName.replace(/-/g, ' ')}</span>
+            <ArrowRight aria-hidden="true" />
+            <span className="capitalize">{step.name.replace(/-/g, ' ')}</span>
+          </h5>
+          <EvolutionTransition conditions={step.conditions} to={step.name} />
+          <div className="evolution-tree-member evolution-tree-member--compact">
+            <EvolutionCard
+              id={step.id}
+              speciesId={step.speciesId}
+              name={step.name}
+              isShiny={context.isShiny}
+              selected={step.id === context.pokemonId}
+              navigation={context.navigation}
+              types={context.byId.get(step.id)?.types}
+            />
+          </div>
+        </article>
+      ) : (
+        <div className="evolution-tree-member">
+          <EvolutionCard
+            id={step.id}
+            speciesId={step.speciesId}
+            name={step.name}
+            isShiny={context.isShiny}
+            selected={step.id === context.pokemonId}
+            navigation={context.navigation}
+            types={context.byId.get(step.id)?.types}
+          />
+        </div>
       )}
-      <div
-        className={`evolution-tree-member ${parentName ? 'evolution-tree-member--compact' : ''}`}
-      >
-        <EvolutionCard
-          id={step.id}
-          speciesId={step.speciesId}
-          name={step.name}
-          isShiny={context.isShiny}
-          selected={step.id === context.pokemonId}
-          navigation={context.navigation}
-          types={context.byId.get(step.id)?.types}
-        />
-      </div>
       {children.length > 0 && (
         <>
           {split && (
