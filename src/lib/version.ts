@@ -16,7 +16,7 @@ export const CHANGELOG: ChangelogEntry[] = [
       'Seletor de jogo com pesquisa por nome, opções adaptadas ao celular e remoção rápida do filtro: resultados e tags respeitam o jogo escolhido, preservado ao voltar dos detalhes.',
       'A National Dex usa os mesmos controles das regiões: Paginado/Todos, paginação acima e abaixo da lista e Voltar ao topo.',
       'Linha evolutiva com ilustrações em destaque, halos nas cores dos tipos e um percurso mais fluido; métodos nas setas, ramificações identificadas e alternativas expansíveis.',
-      'Metadados de busca, identificação da AdibDex e sitemap configurados para adibdex.lovable.app.',
+      'Metadados de busca, identificação da AdibDex e sitemap configurados para adibdex.netlify.app.',
       'Os ataques consideram todos os jogos e métodos registrados na fonte; a disponibilidade varia conforme o jogo selecionado.',
     ],
   },

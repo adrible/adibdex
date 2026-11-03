@@ -1,6 +1,6 @@
 import { GENERATIONS } from '@/lib/pokemon/constants';
 
-export const SITE_URL = 'https://adibdex.lovable.app';
+export const SITE_URL = 'https://adibdex.netlify.app';
 export const SITE_TITLE = 'AdibDex — A Pokédex de Adib';
 export const SITE_DESCRIPTION =
   'A Pokédex de Adib: explore 1.025 Pokémon, formas regionais, Mega e Gigantamax. Pesquise ataques, habilidades e jogos na AdibDex.';
