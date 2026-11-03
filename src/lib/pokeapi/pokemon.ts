@@ -36,6 +36,7 @@ export async function fetchPokemonDetail(id: number, signal?: AbortSignal): Prom
     height: data.height,
     weight: data.weight,
     abilities: data.abilities.map((a) => a.ability.name),
+    hiddenAbilities: data.abilities.filter((a) => a.is_hidden).map((a) => a.ability.name),
     stats: data.stats.map((s) => ({ name: s.stat.name, value: s.base_stat })),
     species: data.species.url,
   };
