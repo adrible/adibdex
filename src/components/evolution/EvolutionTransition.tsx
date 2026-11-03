@@ -7,10 +7,17 @@ interface Props {
   from?: string;
   to: string;
   horizontal?: boolean;
+  showSource?: boolean;
 }
 
 /** Requirements belong to the incoming edge, never below the destination card. */
-export function EvolutionTransition({ conditions, from, to, horizontal = false }: Props) {
+export function EvolutionTransition({
+  conditions,
+  from,
+  to,
+  horizontal = false,
+  showSource = true,
+}: Props) {
   const name = (value: string) => value.replace(/-/g, ' ');
   return (
     <div
@@ -19,7 +26,7 @@ export function EvolutionTransition({ conditions, from, to, horizontal = false }
       aria-label={`Como evoluir ${from ? `${name(from)} para ` : 'para '}${name(to)}`}
     >
       <div className="evolution-transition-method">
-        {!horizontal && from && (
+        {!horizontal && from && showSource && (
           <p className="evolution-transition-source">
             De <span>{name(from)}</span>
           </p>
