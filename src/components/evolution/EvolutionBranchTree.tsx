@@ -30,11 +30,33 @@ function Branch({
 }: Omit<Props, 'nodes'> & { node: EvolutionNode; parentName?: string }) {
   const { step, children } = node;
   const split = children.length > 1;
+  const childBranches = children.length > 0 && (
+    <>
+      {split && (
+        <div className="evolution-tree-connector">
+          <GitBranch className="h-4 w-4" aria-hidden="true" />
+          <p>
+            {children.length} evoluções possíveis de{' '}
+            <span className="capitalize">{step.name.replace(/-/g, ' ')}</span>
+          </p>
+        </div>
+      )}
+      <div
+        className={`evolution-tree-children ${split ? 'evolution-tree-children--split' : ''} ${children.length > 3 ? 'evolution-tree-children--many' : ''}`}
+        role="group"
+        aria-label={`Evoluções de ${step.name.replace(/-/g, ' ')}`}
+      >
+        {children.map((child) => (
+          <Branch key={child.step.id} node={child} parentName={step.name} {...context} />
+        ))}
+      </div>
+    </>
+  );
   return (
     <div className="evolution-tree-node" data-species-id={step.speciesId}>
       {parentName ? (
         <article
-          className="evolution-outcome"
+          className={`evolution-outcome ${children.length ? 'evolution-outcome--continued' : ''}`}
           aria-label={`Evolução de ${parentName.replace(/-/g, ' ')} para ${step.name.replace(/-/g, ' ')}`}
         >
           <h5 className="evolution-outcome-heading">
@@ -59,6 +81,7 @@ function Branch({
               types={context.byId.get(step.id)?.types}
             />
           </div>
+          {childBranches}
         </article>
       ) : (
         <div className="evolution-tree-member">
@@ -73,28 +96,7 @@ function Branch({
           />
         </div>
       )}
-      {children.length > 0 && (
-        <>
-          {split && (
-            <div className="evolution-tree-connector">
-              <GitBranch className="h-4 w-4" aria-hidden="true" />
-              <p>
-                {children.length} evoluções possíveis de{' '}
-                <span className="capitalize">{step.name.replace(/-/g, ' ')}</span>
-              </p>
-            </div>
-          )}
-          <div
-            className={`evolution-tree-children ${split ? 'evolution-tree-children--split' : ''} ${children.length > 3 ? 'evolution-tree-children--many' : ''}`}
-            role="group"
-            aria-label={`Evoluções de ${step.name.replace(/-/g, ' ')}`}
-          >
-            {children.map((child) => (
-              <Branch key={child.step.id} node={child} parentName={step.name} {...context} />
-            ))}
-          </div>
-        </>
-      )}
+      {!parentName && childBranches}
     </div>
   );
 }
