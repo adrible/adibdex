@@ -125,6 +125,7 @@ export default function PokemonDetailPage() {
   const pokemonId = Number(id);
   const isValidPokemonId = Number.isSafeInteger(pokemonId) && pokemonId > 0;
   const [isShiny, setIsShiny] = useState(false);
+  const [selectedEncounterGame, setSelectedEncounterGame] = useState('');
 
   const navigationState = useMemo(
     () => parsePokemonNavigationState(location.state),
@@ -171,6 +172,30 @@ export default function PokemonDetailPage() {
     enabled: isValidPokemonId,
     staleTime: 1000 * 60 * 30,
   });
+
+  const encounterGames = useMemo(
+    () =>
+      [
+        ...new Set(
+          encounters?.flatMap((encounter) => encounter.versions.map((v) => v.version)) ?? [],
+        ),
+      ].sort((a, b) => a.localeCompare(b)),
+    [encounters],
+  );
+  const filteredEncounters = useMemo(
+    () =>
+      encounters?.flatMap((encounter) => {
+        const versions = encounter.versions.filter(
+          (version) => !selectedEncounterGame || version.version === selectedEncounterGame,
+        );
+        return versions.length ? [{ ...encounter, versions }] : [];
+      }),
+    [encounters, selectedEncounterGame],
+  );
+
+  useEffect(() => {
+    setSelectedEncounterGame('');
+  }, [pokemonId]);
 
   useEffect(() => {
     const preload = (id: number | null) => {
@@ -408,9 +433,28 @@ export default function PokemonDetailPage() {
           </div>
 
           <div id="localizacoes" className="detail-panel detail-wide detail-locations">
-            <div className="flex items-center gap-2 mb-4">
-              <MapPin className="h-5 w-5 text-primary" />
-              <h3 className="section-title">Localizações</h3>
+            <div className="detail-location-toolbar">
+              <div className="flex items-center gap-2">
+                <MapPin className="h-5 w-5 text-primary" />
+                <h3 className="section-title">Localizações</h3>
+              </div>
+              {encounters && encounters.length > 0 && (
+                <label className="detail-location-filter">
+                  <span>Jogo</span>
+                  <select
+                    className="detail-game-select"
+                    value={selectedEncounterGame}
+                    onChange={(event) => setSelectedEncounterGame(event.target.value)}
+                  >
+                    <option value="">Todos os jogos</option>
+                    {encounterGames.map((game) => (
+                      <option key={game} value={game}>
+                        {game.replace(/-/g, ' ')}
+                      </option>
+                    ))}
+                  </select>
+                </label>
+              )}
             </div>
             {encountersLoading ? (
               <div className="space-y-2">
@@ -422,9 +466,9 @@ export default function PokemonDetailPage() {
                 title="Não foi possível carregar as localizações"
                 onRetry={() => void refetchEncounters()}
               />
-            ) : encounters && encounters.length > 0 ? (
+            ) : encounters && encounters.length > 0 && filteredEncounters?.length ? (
               <div className="grid gap-3 sm:grid-cols-2 max-h-80 overflow-y-auto pr-2">
-                {encounters.map((enc, i) => (
+                {filteredEncounters.map((enc, i) => (
                   <div key={i} className="rounded-lg bg-muted/50 p-3">
                     <p className="text-sm font-semibold text-foreground capitalize">
                       {enc.location}
@@ -481,6 +525,10 @@ export default function PokemonDetailPage() {
                   </div>
                 ))}
               </div>
+            ) : encounters && encounters.length > 0 ? (
+              <p className="text-support">
+                Nenhuma localização encontrada em {selectedEncounterGame.replace(/-/g, ' ')}.
+              </p>
             ) : (
               <p className="text-support">
                 Não encontrado em nenhuma rota — pode ser obtido por evento, troca ou evolução.
