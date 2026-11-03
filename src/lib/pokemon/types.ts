@@ -37,6 +37,7 @@ export interface PokemonDetail {
   height: number;
   weight: number;
   abilities: string[];
+  hiddenAbilities?: string[];
   stats: { name: string; value: number }[];
   species: string;
 }
