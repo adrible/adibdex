@@ -15,15 +15,7 @@ import { PokemonForms } from '@/components/PokemonForms';
 import { EvolutionChainDisplay } from '@/components/EvolutionChain';
 import { PokemonMoves } from '@/components/PokemonMoves';
 import { Button } from '@/components/ui/button';
-import {
-  ArrowLeft,
-  ChevronLeft,
-  ChevronRight,
-  MapPin,
-  Sparkles,
-  ChevronDown,
-  ChevronUp,
-} from 'lucide-react';
+import { ArrowLeft, ChevronLeft, ChevronRight, MapPin, Sparkles } from 'lucide-react';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Footer } from '@/components/Footer';
 import { QueryErrorState } from '@/components/QueryErrorState';
@@ -48,9 +40,7 @@ function StatBar({ name, value }: { name: string; value: number }) {
   );
 }
 
-function AbilityChip({ ability }: { ability: string }) {
-  const [expanded, setExpanded] = useState(false);
-
+function AbilityChip({ ability, hidden }: { ability: string; hidden: boolean }) {
   const {
     data: description,
     isLoading,
@@ -58,30 +48,24 @@ function AbilityChip({ ability }: { ability: string }) {
   } = useQuery({
     queryKey: ['ability-desc', ability],
     queryFn: ({ signal }) => fetchAbilityDescription(ability, signal),
-    enabled: expanded,
     staleTime: Infinity,
   });
-
   return (
-    <div>
-      <button
-        onClick={() => setExpanded(!expanded)}
-        aria-expanded={expanded}
-        className="ability-label"
-      >
-        {ability.replace(/-/g, ' ')}
-        {expanded ? <ChevronUp className="h-3 w-3" /> : <ChevronDown className="h-3 w-3" />}
-      </button>
-      {expanded && (
-        <p className="text-support ability-description">
-          {isLoading
-            ? 'Carregando...'
-            : isError
-              ? 'Não foi possível carregar a descrição.'
-              : description || 'Descrição indisponível.'}
-        </p>
-      )}
-    </div>
+    <article className="detail-ability">
+      <div className="flex flex-wrap items-center justify-between gap-2">
+        <h4 className="font-semibold capitalize">{ability.replace(/-/g, ' ')}</h4>
+        <span className={hidden ? 'detail-hidden-tag' : 'text-overline'}>
+          {hidden ? 'Oculta' : 'Comum'}
+        </span>
+      </div>
+      <p className="text-support mt-3">
+        {isLoading
+          ? 'Carregando descrição...'
+          : isError
+            ? 'Não foi possível carregar a descrição.'
+            : description || 'Descrição indisponível.'}
+      </p>
+    </article>
   );
 }
 
@@ -232,7 +216,7 @@ export default function PokemonDetailPage() {
   return (
     <div className="min-h-screen bg-background">
       <Header />
-      <main className="container py-8 max-w-3xl">
+      <main className="container py-6 sm:py-8 max-w-6xl detail-page">
         <div className="flex items-center justify-between mb-8">
           <Button variant="ghost" size="icon" onClick={handleBack} aria-label="Voltar à lista">
             <ArrowLeft className="h-5 w-5" />
@@ -293,130 +277,152 @@ export default function PokemonDetailPage() {
           </div>
         </div>
 
-        <div className="text-center mb-8">
-          <p className="text-code mb-3">#{String(displayId).padStart(4, '0')}</p>
-          <h2 className="site-display site-display--center capitalize mb-4">
-            {pokemon.name.replace(/-/g, ' ')}
-          </h2>
-          <div className="flex justify-center gap-2 mb-6">
-            {pokemon.types.map((t) => (
-              <TypeBadge key={t} type={t} size="md" />
-            ))}
-          </div>
-        </div>
-
-        <div className="flex justify-center mb-10">
-          <div className="relative w-56 h-56 sm:w-72 sm:h-72">
-            <div className="absolute inset-0 rounded-3xl bg-muted/60 blur-2xl scale-110" />
-            <img
-              src={artworkSrc}
-              alt={pokemon.name}
-              className="relative z-10 w-full h-full object-contain"
-            />
-          </div>
-        </div>
-
-        <div className="grid grid-cols-2 gap-4 mb-10">
-          <div className="rounded-xl bg-card border border-border p-5 text-center">
-            <p className="text-overline mb-2">Altura</p>
-            <p className="metric-value">
-              {(pokemon.height / 10).toFixed(1)} <span className="metric-unit">m</span>
-            </p>
-          </div>
-          <div className="rounded-xl bg-card border border-border p-5 text-center">
-            <p className="text-overline mb-2">Peso</p>
-            <p className="metric-value">
-              {(pokemon.weight / 10).toFixed(1)} <span className="metric-unit">kg</span>
-            </p>
-          </div>
-        </div>
-
-        <div className="rounded-xl bg-card border border-border p-6 mb-10">
-          <h3 className="section-title mb-4">Habilidades</h3>
-          <div className="flex flex-wrap gap-2">
-            {pokemon.abilities.map((a) => (
-              <AbilityChip key={a} ability={a} />
-            ))}
-          </div>
-        </div>
-
-        <div className="rounded-xl bg-card border border-border p-6 mb-10">
-          <div className="flex flex-wrap items-center justify-between gap-3 mb-4">
-            <h3 className="section-title">Estatísticas Base</h3>
-            <span className="text-code">Total: {totalStats}</span>
-          </div>
-          <div className="space-y-3">
-            {pokemon.stats.map((s) => (
-              <StatBar key={s.name} name={s.name} value={s.value} />
-            ))}
-          </div>
-        </div>
-
-        <div className="mb-10">
-          <TypeEffectiveness types={pokemon.types} />
-        </div>
-
-        <div className="rounded-xl bg-card border border-border p-6 mb-10">
-          <div className="flex items-center gap-2 mb-4">
-            <MapPin className="h-5 w-5 text-primary" />
-            <h3 className="section-title">Localizações</h3>
-          </div>
-          {encountersLoading ? (
-            <div className="space-y-2">
-              <Skeleton className="h-4 w-full" />
-              <Skeleton className="h-4 w-3/4" />
-            </div>
-          ) : encountersError ? (
-            <QueryErrorState
-              title="Não foi possível carregar as localizações"
-              onRetry={() => void refetchEncounters()}
-            />
-          ) : encounters && encounters.length > 0 ? (
-            <div className="space-y-3 max-h-64 overflow-y-auto pr-2">
-              {encounters.map((enc, i) => (
-                <div key={i} className="rounded-lg bg-muted/50 p-3">
-                  <p className="text-sm font-semibold text-foreground capitalize">{enc.location}</p>
-                  <div className="flex flex-wrap gap-1 mt-1">
-                    {[...new Set(enc.versions.map((v) => v.version))].map((v) => (
-                      <span
-                        key={v}
-                        className="text-xs rounded-full bg-secondary px-2 py-0.5 capitalize text-secondary-foreground"
-                      >
-                        {v}
-                      </span>
-                    ))}
-                  </div>
-                </div>
+        <section className="detail-hero" aria-label="Resumo do Pokémon">
+          <div className="detail-identity">
+            <p className="text-code mb-3">#{String(displayId).padStart(4, '0')}</p>
+            <h2 className="site-display capitalize mb-4">{pokemon.name.replace(/-/g, ' ')}</h2>
+            <div className="flex flex-wrap gap-2 mb-6">
+              {pokemon.types.map((t) => (
+                <TypeBadge key={t} type={t} size="md" />
               ))}
             </div>
-          ) : (
-            <p className="text-support">
-              Não encontrado em nenhuma rota — pode ser obtido por evento, troca ou evolução.
-            </p>
-          )}
-        </div>
+          </div>
 
-        <div className="mb-10">
-          <EvolutionChainDisplay
-            pokemonId={pokemonId}
-            speciesId={pokemon.speciesId}
-            isShiny={isShiny}
-            origin={stableOrigin}
-            listContext={listContext}
-          />
-        </div>
+          <div className="detail-artwork">
+            <div className="relative w-48 h-48 sm:w-64 sm:h-64">
+              <div className="absolute inset-0 rounded-3xl bg-muted/60 blur-2xl scale-110" />
+              <img
+                src={artworkSrc}
+                alt={pokemon.name}
+                className="relative z-10 w-full h-full object-contain"
+              />
+            </div>
+          </div>
 
-        <div className="mb-10">
-          <PokemonForms
-            pokemonId={pokemonId}
-            isShiny={isShiny}
-            origin={stableOrigin}
-            listContext={listContext}
-          />
-        </div>
+          <div className="detail-measurements grid grid-cols-2 gap-3">
+            <div className="rounded-xl bg-card border border-border p-5 text-center">
+              <p className="text-overline mb-2">Altura</p>
+              <p className="metric-value">
+                {(pokemon.height / 10).toFixed(1)} <span className="metric-unit">m</span>
+              </p>
+            </div>
+            <div className="rounded-xl bg-card border border-border p-5 text-center">
+              <p className="text-overline mb-2">Peso</p>
+              <p className="metric-value">
+                {(pokemon.weight / 10).toFixed(1)} <span className="metric-unit">kg</span>
+              </p>
+            </div>
+          </div>
+        </section>
+        <nav className="detail-nav" aria-label="Seções do Pokémon">
+          {[
+            ['habilidades', 'Habilidades'],
+            ['atributos', 'Atributos'],
+            ['fraquezas', 'Fraquezas'],
+            ['evolucoes', 'Evoluções'],
+            ['formas', 'Formas'],
+            ['ataques', 'Ataques'],
+            ['localizacoes', 'Localizações'],
+          ].map(([anchor, label]) => (
+            <a key={anchor} href={`#${anchor}`} className="detail-nav-link">
+              {label}
+            </a>
+          ))}
+        </nav>
+        <div className="detail-content-grid">
+          <div id="habilidades" className="detail-panel detail-wide">
+            <h3 className="section-title mb-4">Habilidades</h3>
+            <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+              {pokemon.abilities.map((a) => (
+                <AbilityChip
+                  key={a}
+                  ability={a}
+                  hidden={pokemon.hiddenAbilities?.includes(a) ?? false}
+                />
+              ))}
+            </div>
+          </div>
 
-        <div className="mb-10">
-          <PokemonMoves pokemonId={pokemonId} />
+          <div id="atributos" className="detail-panel">
+            <div className="flex flex-wrap items-center justify-between gap-3 mb-4">
+              <h3 className="section-title">Estatísticas Base</h3>
+              <span className="text-code">Total: {totalStats}</span>
+            </div>
+            <div className="space-y-3">
+              {pokemon.stats.map((s) => (
+                <StatBar key={s.name} name={s.name} value={s.value} />
+              ))}
+            </div>
+          </div>
+
+          <div id="fraquezas" className="detail-section">
+            <TypeEffectiveness types={pokemon.types} />
+          </div>
+
+          <div id="localizacoes" className="detail-panel detail-wide detail-locations">
+            <div className="flex items-center gap-2 mb-4">
+              <MapPin className="h-5 w-5 text-primary" />
+              <h3 className="section-title">Localizações</h3>
+            </div>
+            {encountersLoading ? (
+              <div className="space-y-2">
+                <Skeleton className="h-4 w-full" />
+                <Skeleton className="h-4 w-3/4" />
+              </div>
+            ) : encountersError ? (
+              <QueryErrorState
+                title="Não foi possível carregar as localizações"
+                onRetry={() => void refetchEncounters()}
+              />
+            ) : encounters && encounters.length > 0 ? (
+              <div className="grid gap-3 sm:grid-cols-2 max-h-80 overflow-y-auto pr-2">
+                {encounters.map((enc, i) => (
+                  <div key={i} className="rounded-lg bg-muted/50 p-3">
+                    <p className="text-sm font-semibold text-foreground capitalize">
+                      {enc.location}
+                    </p>
+                    <div className="flex flex-wrap gap-1 mt-1">
+                      {[...new Set(enc.versions.map((v) => v.version))].map((v) => (
+                        <span
+                          key={v}
+                          className="text-xs rounded-full bg-secondary px-2 py-0.5 capitalize text-secondary-foreground"
+                        >
+                          {v.replace(/-/g, ' ')}
+                        </span>
+                      ))}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <p className="text-support">
+                Não encontrado em nenhuma rota — pode ser obtido por evento, troca ou evolução.
+              </p>
+            )}
+          </div>
+
+          <div id="evolucoes" className="detail-section detail-wide">
+            <EvolutionChainDisplay
+              pokemonId={pokemonId}
+              speciesId={pokemon.speciesId}
+              isShiny={isShiny}
+              origin={stableOrigin}
+              listContext={listContext}
+            />
+          </div>
+
+          <div id="formas" className="detail-section detail-wide">
+            <PokemonForms
+              pokemonId={pokemonId}
+              isShiny={isShiny}
+              origin={stableOrigin}
+              listContext={listContext}
+            />
+          </div>
+
+          <div id="ataques" className="detail-section detail-wide">
+            <PokemonMoves key={pokemonId} pokemonId={pokemonId} />
+          </div>
         </div>
       </main>
 
