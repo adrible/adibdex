@@ -34,7 +34,7 @@ export function CatalogPageShell({
               : 'radial-gradient(circle at top, #26354a 0%, #0b0f14 65%)',
           }}
         >
-          <div className="absolute inset-0 bg-black/30" />
+          <div className="absolute inset-0 bg-black/45" />
         </div>
       )}
       <Header />
