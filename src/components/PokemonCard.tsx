@@ -58,7 +58,7 @@ export const PokemonCard = React.memo(function PokemonCard({
             }
           : undefined
       }
-      className="group block rounded-xl bg-card border border-border p-4 transition-all hover:shadow-lg hover:-translate-y-1 hover:border-primary/40"
+      className="catalog-pokemon-card group bg-card border border-border transition-colors hover:border-primary/40"
     >
       <div className="relative flex items-center justify-center h-36 w-full mb-3">
         <div className="absolute inset-0 rounded-lg bg-muted/50 opacity-0 group-hover:opacity-100 transition-opacity" />
@@ -100,7 +100,7 @@ export const PokemonCard = React.memo(function PokemonCard({
         </div>
       )}
 
-      <div className="flex gap-1.5 flex-wrap">
+      <div className="catalog-pokemon-types flex gap-1.5 flex-wrap">
         {pokemon.types.map((t) => (
           <TypeBadge key={t} type={t} />
         ))}
