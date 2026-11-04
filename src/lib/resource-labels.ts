@@ -53,3 +53,15 @@ export function locationLabel(value: string) {
   }
   return title(words);
 }
+
+const GAME_NAMES: Record<string, string> = {
+  firered: 'FireRed',
+  leafgreen: 'LeafGreen',
+  heartgold: 'HeartGold',
+  soulsilver: 'SoulSilver',
+  'lets-go-pikachu': "Let's Go Pikachu",
+  'lets-go-eevee': "Let's Go Eevee",
+};
+export function gameVersionLabel(version: string) {
+  return GAME_NAMES[version] ?? title(version);
+}

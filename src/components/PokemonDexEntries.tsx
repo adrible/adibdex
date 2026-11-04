@@ -1,3 +1,4 @@
+import { gameVersionLabel } from '@/lib/resource-labels';
 import { SourceText } from '@/components/SourceText';
 import { useQuery } from '@tanstack/react-query';
 import { BookOpen, ChevronDown } from 'lucide-react';
@@ -5,22 +6,6 @@ import { fetchPokemonSpeciesInfo } from '@/lib/pokeapi';
 import { localized } from '@/lib/language';
 import { QueryErrorState } from '@/components/QueryErrorState';
 import { Skeleton } from '@/components/ui/skeleton';
-
-const GAME_VERSION_LABELS: Record<string, string> = {
-  firered: 'FireRed',
-  leafgreen: 'LeafGreen',
-  heartgold: 'HeartGold',
-  soulsilver: 'SoulSilver',
-  'lets-go-pikachu': "Let's Go Pikachu",
-  'lets-go-eevee': "Let's Go Eevee",
-};
-
-function gameVersionLabel(version: string) {
-  return (
-    GAME_VERSION_LABELS[version] ??
-    version.replace(/-/g, ' ').replace(/\b\w/g, (letter) => letter.toUpperCase())
-  );
-}
 
 export function PokemonDexEntries({ speciesId }: { speciesId: number }) {
   const { data, isPending, isError, refetch } = useQuery({

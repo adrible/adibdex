@@ -162,6 +162,33 @@ test('capture data has a light surface and readable labels', async ({ page }) =>
 });
 
 test('English browsers use English interface labels', async ({ page }) => {
+  await page.route('https://pokeapi.co/api/v2/pokemon/1/encounters', (route) =>
+    route.fulfill({
+      json: [
+        {
+          location_area: {
+            name: 'pallet-town-area',
+            url: 'https://pokeapi.co/api/v2/location-area/1/',
+          },
+          version_details: [
+            {
+              version: { name: 'firered', url: 'https://pokeapi.co/api/v2/version/10/' },
+              max_chance: 100,
+              encounter_details: [
+                {
+                  chance: 100,
+                  min_level: 5,
+                  max_level: 5,
+                  method: { name: 'gift', url: 'https://pokeapi.co/api/v2/encounter-method/1/' },
+                  condition_values: [],
+                },
+              ],
+            },
+          ],
+        },
+      ],
+    }),
+  );
   await page.addInitScript(() => Object.defineProperty(navigator, 'language', { value: 'en-US' }));
   await page.goto('/pokemon/1');
   await expect(page.getByRole('heading', { name: 'Abilities', exact: true })).toBeVisible();
@@ -169,4 +196,7 @@ test('English browsers use English interface labels', async ({ page }) => {
   await expect(page.getByRole('link', { name: 'Locations', exact: true })).toBeVisible();
   await expect(page.locator('.detail-ability')).not.toContainText('Texto original em inglês');
   await expect(page.locator('.evolution-current')).toContainText('Current');
+  await expect(page.locator('#localizacoes')).toContainText('100% chance');
+  await expect(page.locator('#localizacoes')).not.toContainText('de chance');
+  await expect(page.locator('#localizacoes')).toContainText('FireRed');
 });

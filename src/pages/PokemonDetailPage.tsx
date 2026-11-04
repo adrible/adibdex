@@ -25,7 +25,7 @@ import { QueryErrorState } from '@/components/QueryErrorState';
 import { parsePokemonNavigationState } from '@/lib/navigation';
 import { applyPageMetadata, getPageMetadata } from '@/lib/seo';
 import { getSiteLanguage, localized } from '@/lib/language';
-import { locationLabel } from '@/lib/resource-labels';
+import { locationLabel, gameVersionLabel } from '@/lib/resource-labels';
 import { SourceText } from '@/components/SourceText';
 import './pokedex-detail.css';
 
@@ -49,6 +49,17 @@ function StatBar({ name, value }: { name: string; value: number }) {
 
 const ENCOUNTER_METHODS: Record<string, string> = {
   walk: localized('Andando', 'Walking'),
+  gift: localized('Presente', 'Gift'),
+  'gift-egg': localized('Ovo de presente', 'Gift Egg'),
+  'island-scan': localized('Scanner de ilhas', 'Island Scan'),
+  'overworld-special': localized('Encontro especial no mapa', 'Special overworld encounter'),
+  overworld: localized('No mapa', 'Overworld'),
+  'only-one': localized('Encontro único', 'One-time encounter'),
+  pokeflute: localized('Pokéflauta', 'Poké Flute'),
+  'squirt-bottle': localized('Regador', 'Squirt Bottle'),
+  'berry-piles': localized('Montes de frutas', 'Berry piles'),
+  'roaming-grass': localized('Encontro itinerante na grama', 'Roaming in grass'),
+  'roaming-water': localized('Encontro itinerante na água', 'Roaming on water'),
   surf: localized('Surfando', 'Surfing'),
   'old-rod': localized('Vara velha', 'Old Rod'),
   'good-rod': localized('Vara boa', 'Good Rod'),
@@ -67,6 +78,11 @@ const ENCOUNTER_METHODS: Record<string, string> = {
 };
 
 const ENCOUNTER_CONDITIONS: Record<string, string> = {
+  'story-progress-beat-red': localized('Após derrotar Red', 'After defeating Red'),
+  'story-progress-master-dojo-complete-first-trial': localized(
+    'Após o primeiro desafio do Dojô Mestre',
+    'After the first Master Dojo trial',
+  ),
   'time-morning': localized('Manhã', 'Morning'),
   'time-day': localized('Dia', 'Day'),
   'time-night': localized('Noite', 'Night'),
@@ -94,10 +110,6 @@ function encounterLevelRange(min: number | null, max: number | null) {
   if (min === max || max === null) return localized(`Nv. ${min ?? max}`, `Lv. ${min ?? max}`);
   if (min === null) return localized(`Até nv. ${max}`, `Up to Lv. ${max}`);
   return localized(`Nv. ${min}–${max}`, `Lv. ${min}–${max}`);
-}
-
-function gameName(value: string) {
-  return value.replace(/-/g, ' ').replace(/\b\w/g, (letter) => letter.toUpperCase());
 }
 
 function AbilityChip({ ability, hidden }: { ability: string; hidden: boolean }) {
@@ -511,7 +523,7 @@ export default function PokemonDetailPage() {
                         <option value="">{localized('Todos os jogos', 'All games')}</option>
                         {encounterGames.map((game) => (
                           <option key={game} value={game}>
-                            {gameName(game)}
+                            {gameVersionLabel(game)}
                           </option>
                         ))}
                       </select>
@@ -541,7 +553,7 @@ export default function PokemonDetailPage() {
                             {enc.versions.map((version) => (
                               <div key={version.version} className="detail-encounter-version">
                                 <span className="detail-encounter-game">
-                                  {gameName(version.version)}
+                                  {gameVersionLabel(version.version)}
                                 </span>
                                 {(
                                   version.encounters ??
@@ -574,7 +586,10 @@ export default function PokemonDetailPage() {
                                       )}
                                       {encounter.chance !== null && (
                                         <span className="detail-encounter-fact">
-                                          {encounter.chance}% de chance
+                                          {localized(
+                                            `${encounter.chance}% de chance`,
+                                            `${encounter.chance}% chance`,
+                                          )}
                                         </span>
                                       )}
                                     </div>
@@ -598,7 +613,7 @@ export default function PokemonDetailPage() {
                   ) : encounters && encounters.length > 0 ? (
                     <p className="text-support">
                       {localized('Nenhuma localização encontrada em', 'No locations found in')}{' '}
-                      {gameName(selectedEncounterGame)}.
+                      {gameVersionLabel(selectedEncounterGame)}.
                     </p>
                   ) : (
                     <p className="text-support">
