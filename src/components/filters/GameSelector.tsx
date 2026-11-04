@@ -3,6 +3,7 @@ import { Check, ChevronDown, Gamepad2, Search } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { normalizeSearch } from '@/features/catalog/search';
 import { VERSION_GROUP_NAMES } from '@/lib/pokemon/constants';
+import { localized } from '@/lib/language';
 
 interface Props {
   value: string;
@@ -19,7 +20,10 @@ export function GameSelector({ value, options, onChange }: Props) {
     options.find((game) => game.value === value)?.label ?? VERSION_GROUP_NAMES[value] ?? value;
   const available = [...options].reverse();
   if (value && !options.some((game) => game.value === value)) {
-    available.unshift({ value, label: `${selected} (sem registros neste catálogo)` });
+    available.unshift({
+      value,
+      label: `${selected} (${localized('sem registros neste catálogo', 'no records in this catalog')})`,
+    });
   }
   const visible = available.filter((game) =>
     normalizeSearch(game.label).includes(normalizeSearch(search)),
@@ -33,7 +37,7 @@ export function GameSelector({ value, options, onChange }: Props) {
   return (
     <div className="space-y-2">
       <p id={`${id}-label`} className="text-sm font-semibold text-foreground">
-        Jogo
+        {localized('Jogo', 'Game')}
       </p>
       <button
         ref={trigger}
@@ -52,7 +56,7 @@ export function GameSelector({ value, options, onChange }: Props) {
           id={`${id}-value`}
           className="min-w-0 flex-1 break-words text-sm font-medium text-foreground"
         >
-          {value ? selected : 'Todos os jogos'}
+          {value ? selected : localized('Todos os jogos', 'All games')}
         </span>
         <ChevronDown
           className={`h-4 w-4 shrink-0 text-muted-foreground transition-transform ${open ? 'rotate-180' : ''}`}
@@ -81,8 +85,8 @@ export function GameSelector({ value, options, onChange }: Props) {
             <Input
               autoFocus
               type="search"
-              aria-label="Buscar jogo"
-              placeholder="Buscar jogo..."
+              aria-label={localized('Buscar jogo', 'Search games')}
+              placeholder={localized('Buscar jogo...', 'Search games...')}
               maxLength={80}
               value={search}
               onChange={(event) => setSearch(event.target.value)}
@@ -92,27 +96,32 @@ export function GameSelector({ value, options, onChange }: Props) {
           <div
             className="max-h-64 overflow-y-auto overscroll-contain p-1.5"
             role="group"
-            aria-label="Jogos disponíveis"
+            aria-label={localized('Jogos disponíveis', 'Available games')}
           >
-            {[{ value: '', label: 'Todos os jogos' }, ...visible].map((game) => (
-              <button
-                key={game.value}
-                type="button"
-                aria-pressed={value === game.value}
-                onClick={() => select(game.value)}
-                className={`flex min-h-11 w-full items-center gap-2 rounded-lg px-3 py-2.5 text-left text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-ring ${value === game.value ? 'bg-primary/15 text-foreground font-semibold' : 'text-foreground hover:bg-muted'}`}
-              >
-                <span className="min-w-0 flex-1 break-words">{game.label}</span>
-                {value === game.value && (
-                  <Check className="h-4 w-4 shrink-0 text-primary" aria-hidden="true" />
-                )}
-              </button>
-            ))}
+            {[{ value: '', label: localized('Todos os jogos', 'All games') }, ...visible].map(
+              (game) => (
+                <button
+                  key={game.value}
+                  type="button"
+                  aria-pressed={value === game.value}
+                  onClick={() => select(game.value)}
+                  className={`flex min-h-11 w-full items-center gap-2 rounded-lg px-3 py-2.5 text-left text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-ring ${value === game.value ? 'bg-primary/15 text-foreground font-semibold' : 'text-foreground hover:bg-muted'}`}
+                >
+                  <span className="min-w-0 flex-1 break-words">{game.label}</span>
+                  {value === game.value && (
+                    <Check className="h-4 w-4 shrink-0 text-primary" aria-hidden="true" />
+                  )}
+                </button>
+              ),
+            )}
             {visible.length === 0 && (
               <p className="px-3 py-4 text-sm text-muted-foreground" role="status">
                 {search.trim()
-                  ? 'Nenhum jogo encontrado.'
-                  : 'Sem jogos com registros neste catálogo.'}
+                  ? localized('Nenhum jogo encontrado.', 'No games found.')
+                  : localized(
+                      'Sem jogos com registros neste catálogo.',
+                      'No games with records in this catalog.',
+                    )}
               </p>
             )}
           </div>
@@ -124,12 +133,14 @@ export function GameSelector({ value, options, onChange }: Props) {
           onClick={() => select('')}
           className="min-h-11 px-1 text-xs font-medium text-primary underline underline-offset-4 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
         >
-          Remover filtro de jogo
+          {localized('Remover filtro de jogo', 'Clear game filter')}
         </button>
       )}
       <p className="text-xs leading-relaxed text-muted-foreground">
-        Com um ataque na busca, mostra quem o aprende no jogo escolhido. Sem ataque, usa os
-        registros de aprendizado disponíveis para esse jogo.
+        {localized(
+          'Com um ataque na busca, mostra quem o aprende no jogo escolhido. Sem ataque, usa os registros de aprendizado disponíveis para esse jogo.',
+          'When searching for a move, shows which Pokémon learn it in the selected game. Without a move search, uses all learning records available for that game.',
+        )}
       </p>
     </div>
   );
