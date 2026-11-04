@@ -3,13 +3,13 @@ import { moveSchema, abilitySchema } from './schemas';
 import { fetchPokemonRaw } from './pokemon';
 import { VERSION_GROUP_NAMES } from '../pokemon/constants';
 import type { MoveByGame, MovesByVersionGroup } from '../pokemon/types';
+import { getSiteLanguage } from '@/lib/language';
 
 const fetchMoveData = (name: string, signal?: AbortSignal) =>
   apiRequest(`move/${encodeURIComponent(name)}`, moveSchema, signal);
 
 function getUserLang(): string {
-  const lang = typeof navigator === 'undefined' ? 'en' : navigator.language?.split('-')[0] || 'en';
-  return lang;
+  return getSiteLanguage();
 }
 
 export async function fetchMoveDescription(
