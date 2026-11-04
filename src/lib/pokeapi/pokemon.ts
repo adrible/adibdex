@@ -32,13 +32,34 @@ export async function fetchPokemonSpeciesInfo(
 ): Promise<PokemonSpeciesInfo> {
   const data = await fetchSpeciesRaw(id, signal);
   const language = getUserLanguage();
-  const description = localizedEntry(data.flavor_text_entries ?? [], language)?.flavor_text ?? '';
+  const flavorTextEntries = data.flavor_text_entries ?? [];
+  const description = localizedEntry(flavorTextEntries, language)?.flavor_text ?? '';
+  const localizedFlavorEntries = flavorTextEntries.filter(
+    (entry) => entry.language.name === language || entry.language.name.startsWith(`${language}-`),
+  );
+  const selectedFlavorEntries = localizedFlavorEntries.length
+    ? localizedFlavorEntries
+    : flavorTextEntries.filter((entry) => entry.language.name === 'en');
+  const pokedexEntries = [
+    ...new Map(
+      selectedFlavorEntries
+        .filter((entry) => entry.version)
+        .map((entry) => [
+          entry.version!.name,
+          entry.flavor_text
+            .replace(/[\n\f\r]+/g, ' ')
+            .replace(/\s+/g, ' ')
+            .trim(),
+        ]),
+    ),
+  ].map(([version, text]) => ({ version, text }));
   const genus = localizedEntry(data.genera ?? [], language)?.genus ?? null;
   return {
     description: description
       .replace(/[\n\f\r]+/g, ' ')
       .replace(/\s+/g, ' ')
       .trim(),
+    pokedexEntries,
     genus,
     captureRate: data.capture_rate ?? null,
     genderRate: data.gender_rate ?? null,
