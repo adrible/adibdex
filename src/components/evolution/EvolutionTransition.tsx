@@ -1,6 +1,7 @@
 import { ArrowDown, ArrowRight } from 'lucide-react';
 import type { EvolutionCondition } from '@/lib/pokemon/types';
 import { EvolutionRequirements } from './EvolutionRequirements';
+import { localized } from '@/lib/language';
 
 interface Props {
   conditions: EvolutionCondition[];
@@ -23,7 +24,7 @@ export function EvolutionTransition({
     <div
       className={`evolution-transition ${horizontal ? 'evolution-transition--linear' : ''}`}
       role="group"
-      aria-label={`Como evoluir ${from ? `${name(from)} para ` : 'para '}${name(to)}`}
+      aria-label={`${localized('Como evoluir', 'How to evolve')} ${from ? `${name(from)} ${localized('para', 'to')} ` : localized('para ', 'to ')}${name(to)}`}
     >
       <div className="evolution-transition-method">
         {!horizontal && from && showSource && (
@@ -34,7 +35,9 @@ export function EvolutionTransition({
         {conditions.length ? (
           <EvolutionRequirements conditions={conditions} />
         ) : (
-          <p className="evolution-transition-unknown">Método não informado</p>
+          <p className="evolution-transition-unknown">
+            {localized('Método não informado', 'Method not specified')}
+          </p>
         )}
       </div>
       <span className="evolution-transition-arrow" aria-hidden="true">
