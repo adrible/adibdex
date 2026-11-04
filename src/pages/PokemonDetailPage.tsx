@@ -88,6 +88,10 @@ function encounterLevelRange(min: number | null, max: number | null) {
   return localized(`Nv. ${min}–${max}`, `Lv. ${min}–${max}`);
 }
 
+function gameName(value: string) {
+  return value.replace(/-/g, ' ').replace(/\b\w/g, (letter) => letter.toUpperCase());
+}
+
 function encounterLocation(value: string) {
   const words = value.replace(/-/g, ' ');
   if (getSiteLanguage() === 'en') return words.replace(/\b\w/g, (letter) => letter.toUpperCase());
@@ -479,7 +483,7 @@ export default function PokemonDetailPage() {
                   <option value="">{localized('Todos os jogos', 'All games')}</option>
                   {encounterGames.map((game) => (
                     <option key={game} value={game}>
-                      {game.replace(/-/g, ' ')}
+                      {gameName(game)}
                     </option>
                   ))}
                 </select>
@@ -508,9 +512,7 @@ export default function PokemonDetailPage() {
                     <div className="mt-2 space-y-2">
                       {enc.versions.map((version) => (
                         <div key={version.version} className="detail-encounter-version">
-                          <span className="detail-encounter-game">
-                            {version.version.replace(/-/g, ' ')}
-                          </span>
+                          <span className="detail-encounter-game">{gameName(version.version)}</span>
                           {(
                             version.encounters ??
                             version.methods.map((method) => ({
@@ -560,7 +562,7 @@ export default function PokemonDetailPage() {
             ) : encounters && encounters.length > 0 ? (
               <p className="text-support">
                 {localized('Nenhuma localização encontrada em', 'No locations found in')}{' '}
-                {selectedEncounterGame.replace(/-/g, ' ')}.
+                {gameName(selectedEncounterGame)}.
               </p>
             ) : (
               <p className="text-support">
