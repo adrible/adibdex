@@ -4,6 +4,7 @@ import type { PokemonBasic } from '@/lib/pokeapi';
 import { getMatchingMoveGames } from '@/features/catalog/search';
 import { VERSION_GROUP_NAMES } from '@/lib/pokemon/constants';
 import { TypeBadge } from './TypeBadge';
+import { localized } from '@/lib/language';
 
 interface Props {
   pokemon: PokemonBasic & { baseId?: number };
@@ -76,7 +77,13 @@ export const PokemonCard = React.memo(function PokemonCard({
       <h3 className="catalog-card-name">{pokemonName}</h3>
 
       {matchingMoves.length > 0 && (
-        <div className="mb-3 space-y-2" aria-label="Jogos em que aprende o ataque pesquisado">
+        <div
+          className="mb-3 space-y-2"
+          aria-label={localized(
+            'Jogos em que aprende o ataque pesquisado',
+            'Games where the searched move is learned',
+          )}
+        >
           {matchingMoves.map((move) => (
             <div key={move.name}>
               <p className="text-xs font-semibold capitalize mb-1">
@@ -92,7 +99,9 @@ export const PokemonCard = React.memo(function PokemonCard({
                   </span>
                 ))}
                 {move.games.length === 0 && (
-                  <span className="text-xs text-muted-foreground">Jogos não informados.</span>
+                  <span className="text-xs text-muted-foreground">
+                    {localized('Jogos não informados.', 'Game data unavailable.')}
+                  </span>
                 )}
               </div>
             </div>
