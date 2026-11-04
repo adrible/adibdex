@@ -5,6 +5,8 @@ import { ChevronRight } from 'lucide-react';
 import { Changelog } from '@/components/Changelog';
 import { Footer } from '@/components/Footer';
 import { localized } from '@/lib/language';
+import { NationalGlobe } from '@/components/NationalGlobe';
+import './pokedex-home.css';
 
 const REGION_STARTERS: Record<string, string[]> = {
   Kanto: [
@@ -75,164 +77,92 @@ const GMAX_SPRITES = [
   'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/94.png', // Gengar
 ];
 
+const SPECIAL_CATALOGS = [
+  {
+    path: '/regional-forms',
+    label: localized('Formas regionais', 'Regional forms'),
+    sprites: [10091, 10100, 10103].map(
+      (id) => `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${id}.png`,
+    ),
+  },
+  { path: '/mega', label: localized('Mega Evoluções', 'Mega Evolution'), sprites: MEGA_SPRITES },
+  { path: '/gmax', label: 'Gigantamax', sprites: GMAX_SPRITES },
+];
+
+function StarterDisplay({ sprites, label }: { sprites: string[]; label: string }) {
+  return (
+    <div className="home-starters" aria-hidden="true">
+      {sprites.map((sprite) => (
+        <img key={sprite} src={sprite} alt="" loading="lazy" decoding="async" />
+      ))}
+      <span className="sr-only">{label}</span>
+    </div>
+  );
+}
+
 export default function Index() {
   return (
-    <div className="min-h-screen bg-background">
-      <Header />
-
-      <main className="container py-12">
-        <div className="text-center mb-12">
-          <h2 className="site-display site-display--center mb-4">
-            {localized('Todas as', 'All')}{' '}
-            <span className="text-accent-word">{localized('Regiões', 'Regions')}</span>
-          </h2>
-          <p className="text-support max-w-lg mx-auto mb-6">
-            {localized(
-              'Explore todos os Pokémon organizados por região ou veja a Pokédex Nacional completa.',
-              'Explore Pokémon by region or browse the complete National Pokédex.',
-            )}
-          </p>
-          <Link
-            to="/national"
-            className="inline-flex items-center gap-2 rounded-xl bg-primary px-6 py-3 font-bold text-primary-foreground transition-all hover:opacity-90 hover:scale-105"
-          >
-            🌍 {localized('Pokédex Nacional', 'National Pokédex')}
-            <ChevronRight className="h-4 w-4" />
-          </Link>
-          <div className="mt-4">
-            <a href="#novidades" className="site-text-link">
-              {localized('Ver novidades da versão', 'See what is new')}
+    <div className="home-pokedex-page min-h-screen">
+      <div className="home-pokedex-device">
+        <div className="home-device-cap home-device-cap--top">
+          <Header />
+          <span className="home-device-arc" aria-hidden="true" />
+        </div>
+        <main className="home-grid-screen">
+          <div className="home-screen-heading">
+            <h2>{localized('Escolha sua Pokédex', 'Choose your Pokédex')}</h2>
+            <a href="#novidades">
+              {localized('Novidades', "What's new")} <ChevronRight aria-hidden="true" />
             </a>
           </div>
-        </div>
-
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5 max-w-4xl mx-auto">
-          {GENERATIONS.map((gen) => (
-            <Link key={gen.id} to={`/generation/${gen.id}`} className="group home-category-card">
-              <div className="flex items-start justify-between mb-3">
-                <div className="flex items-center gap-2 justify-center">
-                  {REGION_STARTERS[gen.region]?.map((sprite, index) => (
-                    <img
-                      key={index}
-                      src={sprite}
-                      alt={`${gen.region} sprite ${index + 1}`}
-                      className="w-14 h-14 object-contain transition-transform group-hover:scale-110"
-                      loading="lazy"
-                    />
-                  ))}
-                </div>
-
-                <ChevronRight className="h-5 w-5 text-muted-foreground group-hover:text-primary transition-colors" />
+          <div className="home-region-grid">
+            <Link to="/national" className="home-region-button home-region-button--national">
+              <div className="home-starters">
+                <NationalGlobe />
               </div>
-
-              <h3 className="home-card-title">
-                {gen.region === 'Desconhecida' ? localized('Desconhecida', 'Unknown') : gen.region}
-              </h3>
-
-              <p className="home-card-description">
-                {gen.region === 'Desconhecida'
-                  ? localized('Pokémon sem região definida', 'Pokémon with no region assigned')
-                  : `${localized('Região de', 'Region:')} ${gen.region}`}
-              </p>
-
-              <p className="text-code">
-                #{gen.pokemonRange[0]} — #{gen.pokemonRange[1]}
-              </p>
-
-              <div className="absolute -bottom-4 -right-4 h-24 w-24 rounded-full bg-primary/5 group-hover:bg-primary/10 transition-colors" />
+              <h3>{localized('Pokédex Nacional', 'National Pokédex')}</h3>
+              <span className="home-region-code">
+                {localized('Todas as regiões', 'All regions')}
+              </span>
+              <ChevronRight className="home-region-arrow" aria-hidden="true" />
             </Link>
-          ))}
-          <Link to="/regional-forms" className="group home-category-card">
-            <div className="flex items-start justify-between mb-3">
-              <div className="flex items-center gap-2 justify-center">
-                <img
-                  src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/10091.png"
-                  alt={localized('Rattata de Alola', 'Alolan Rattata')}
-                  className="w-14 h-14 object-contain transition-transform group-hover:scale-110"
-                />
-                <img
-                  src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/10100.png"
-                  alt={localized('Raichu de Alola', 'Alolan Raichu')}
-                  className="w-14 h-14 object-contain transition-transform group-hover:scale-110"
-                />
-                <img
-                  src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/10103.png"
-                  alt={localized('Vulpix de Alola', 'Alolan Vulpix')}
-                  className="w-14 h-14 object-contain transition-transform group-hover:scale-110"
-                />
-              </div>
-
-              <ChevronRight className="h-5 w-5 text-muted-foreground group-hover:text-primary transition-colors" />
-            </div>
-
-            <h3 className="home-card-title">{localized('Formas Regionais', 'Regional Forms')}</h3>
-
-            <p className="home-card-description">
-              {localized(
-                'Formas de Alola, Galar, Hisui e Paldea',
-                'Forms from Alola, Galar, Hisui, and Paldea',
-              )}
-            </p>
-
-            <p className="text-code">{localized('VARIAÇÕES POR REGIÃO', 'REGIONAL VARIANTS')}</p>
-
-            <div className="absolute -bottom-4 -right-4 h-24 w-24 rounded-full bg-primary/5 group-hover:bg-primary/10 transition-colors" />
-          </Link>
-          <Link to="/mega" className="group home-category-card">
-            <div className="flex items-start justify-between mb-3">
-              <div className="flex items-center gap-2 justify-center">
-                {MEGA_SPRITES.map((sprite, index) => (
-                  <img
-                    key={index}
-                    src={sprite}
-                    alt={`Mega sprite ${index + 1}`}
-                    className="w-16 h-16 object-contain transition-transform group-hover:scale-110"
-                    loading="lazy"
-                  />
-                ))}
-              </div>
-
-              <ChevronRight className="h-5 w-5 text-muted-foreground group-hover:text-primary transition-colors" />
-            </div>
-
-            <h3 className="home-card-title">{localized('Mega Evoluções', 'Mega Evolution')}</h3>
-            <p className="home-card-description">
-              {localized('Todas as formas Mega', 'All Mega forms')}
-            </p>
-            <p className="text-code">{localized('MEGA PODER!', 'MEGA POWER!')}</p>
-
-            <div className="absolute -bottom-4 -right-4 h-24 w-24 rounded-full bg-primary/5 group-hover:bg-primary/10 transition-colors" />
-          </Link>
-
-          <Link to="/gmax" className="group home-category-card">
-            <div className="flex items-start justify-between mb-3">
-              <div className="flex items-center gap-2 justify-center">
-                {GMAX_SPRITES.map((sprite, index) => (
-                  <img
-                    key={index}
-                    src={sprite}
-                    alt={`Gigantamax sprite ${index + 1}`}
-                    className="w-16 h-16 object-contain"
-                    loading="lazy"
-                  />
-                ))}
-              </div>
-
-              <ChevronRight className="h-5 w-5 text-muted-foreground group-hover:text-primary transition-colors" />
-            </div>
-
-            <h3 className="home-card-title">Gigantamax</h3>
-            <p className="home-card-description">
-              {localized('Todas as formas Gigantamax', 'All Gigantamax forms')}
-            </p>
-            <p className="text-code">{localized('POKÉMONS GIGANTES!', 'GIANT POKÉMON!')}</p>
-
-            <div className="absolute -bottom-4 -right-4 h-24 w-24 rounded-full bg-primary/5 group-hover:bg-primary/10 transition-colors" />
-          </Link>
+            {GENERATIONS.map((gen) => (
+              <Link key={gen.id} to={`/generation/${gen.id}`} className="home-region-button">
+                <StarterDisplay sprites={REGION_STARTERS[gen.region] ?? []} label={gen.region} />
+                <h3>
+                  {gen.region === 'Desconhecida'
+                    ? localized('Desconhecida', 'Unknown')
+                    : gen.region}
+                </h3>
+                <span className="home-region-code">
+                  #{String(gen.pokemonRange[0]).padStart(4, '0')} — #
+                  {String(gen.pokemonRange[1]).padStart(4, '0')}
+                </span>
+                <ChevronRight className="home-region-arrow" aria-hidden="true" />
+              </Link>
+            ))}
+            {SPECIAL_CATALOGS.map(({ path, label, sprites }) => (
+              <Link key={path} to={path} className="home-region-button">
+                <StarterDisplay sprites={sprites} label={label} />
+                <h3>{label}</h3>
+                <span className="home-region-code">
+                  {localized('Formas especiais', 'Special forms')}
+                </span>
+                <ChevronRight className="home-region-arrow" aria-hidden="true" />
+              </Link>
+            ))}
+          </div>
+          <Changelog />
+        </main>
+        <div className="home-device-cap home-device-cap--bottom" aria-hidden="true">
+          <span className="home-device-arc" />
+          <span className="home-device-vents">
+            <i />
+            <i />
+            <i />
+          </span>
         </div>
-        <Changelog />
-      </main>
-
+      </div>
       <Footer />
     </div>
   );
