@@ -4,6 +4,7 @@ import { Check, ArrowUpRight, Sparkles } from 'lucide-react';
 import type { PokemonNavigationState } from '@/lib/navigation';
 import { TypeBadge } from '@/components/TypeBadge';
 import { TYPE_TRANSLATIONS } from '@/lib/pokemon/constants';
+import { localized } from '@/lib/language';
 
 interface Props {
   id: number;
@@ -26,7 +27,11 @@ function Artwork({ id, name, shiny }: { id: number; name: string; shiny: boolean
     ]),
   ];
   if (fallback >= sources.length)
-    return <span className="text-xs text-muted-foreground">Imagem indisponível</span>;
+    return (
+      <span className="text-xs text-muted-foreground">
+        {localized('Imagem indisponível', 'Image unavailable')}
+      </span>
+    );
   return (
     <img
       src={sources[fallback]}
