@@ -8,7 +8,7 @@ Execute `npm ci` e `npm run build`, e publique somente `dist/`. `npm run dev` e 
 - Vercel: `vercel.json` contém rewrites das rotas existentes, cabeçalhos e diretório de saída.
 - Outro servidor: configure fallback para `index.html` nas rotas da aplicação, sirva arquivos estáticos reais antes do fallback e replique os cabeçalhos. Em Nginx, a regra básica é `try_files $uri $uri/ /index.html;`.
 
-Arquivos em `/assets` possuem hash e podem ter cache imutável longo. HTML precisa de revalidação; catálogo e fundos sem hash usam cache curto. Ative gzip/Brotli e HTTPS no provedor. Configure HSTS somente depois de confirmar que o domínio e seus subdomínios suportam HTTPS.
+Arquivos em `/assets` possuem hash e podem ter cache imutável longo. HTML precisa de revalidação; o catálogo sem hash usa cache curto. Ative gzip/Brotli e HTTPS no provedor. Configure HSTS somente depois de confirmar que o domínio e seus subdomínios suportam HTTPS.
 
 ## Política de conteúdo
 
