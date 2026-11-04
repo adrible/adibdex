@@ -1,5 +1,6 @@
 import { Component, type ErrorInfo, type ReactNode } from 'react';
 import { QueryErrorState } from '@/components/QueryErrorState';
+import { localized } from '@/lib/language';
 
 interface Props {
   children: ReactNode;
@@ -28,8 +29,11 @@ export class AppErrorBoundary extends Component<Props, State> {
         <main className="min-h-screen bg-background px-4 py-20">
           <div className="mx-auto max-w-2xl">
             <QueryErrorState
-              title="Ocorreu um erro inesperado"
-              message="Recarregue a aplicação para tentar recuperar a tela."
+              title={localized('Ocorreu um erro inesperado', 'An unexpected error occurred')}
+              message={localized(
+                'Recarregue a aplicação para tentar recuperar a tela.',
+                'Reload the app to recover this page.',
+              )}
               onRetry={() => window.location.reload()}
             />
           </div>
