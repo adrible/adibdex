@@ -3,6 +3,7 @@ import { fetchCatalog } from '@/lib/pokeapi/catalog';
 import { useCatalogView } from '@/features/catalog/use-catalog-view';
 import { CatalogBrowser } from '@/components/catalog/CatalogBrowser';
 import { CatalogPageShell } from '@/components/catalog/CatalogPageShell';
+import { localized } from '@/lib/language';
 
 export default function NationalDexPage() {
   const query = useQuery({
@@ -16,8 +17,11 @@ export default function NationalDexPage() {
   const view = useCatalogView('national', query.data, query.isSuccess);
   return (
     <CatalogPageShell
-      title="Pokédex Nacional"
-      subtitle="Pokémon da National Dex + formas regionais"
+      title={localized('Pokédex Nacional', 'National Pokédex')}
+      subtitle={localized(
+        'Pokémon da Pokédex Nacional + formas regionais',
+        'National Pokédex Pokémon + regional forms',
+      )}
       backToTop
     >
       <CatalogBrowser
