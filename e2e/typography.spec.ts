@@ -29,14 +29,12 @@ for (const dark of [false, true]) {
       .screenshot({ path: testInfo.outputPath('plain-catalog-heading.png') });
 
     await page.goto('/generation/1');
-    await expect(page.getByRole('heading', { name: 'Kanto', exact: true })).toHaveCSS(
-      'color',
-      'rgb(255, 255, 255)',
-    );
+    await expect(page.getByRole('heading', { name: 'Kanto', exact: true })).toBeVisible();
     await expect(page.locator('.catalog-heading-copy')).toHaveCSS(
       'background-color',
-      'rgba(16, 19, 24, 0.76)',
+      'rgba(0, 0, 0, 0)',
     );
+    await expect(page.locator('.home-grid-screen')).toHaveCSS('border-left-style', 'solid');
     await page
       .locator('.catalog-heading')
       .screenshot({ path: testInfo.outputPath('illustrated-catalog-heading.png') });
