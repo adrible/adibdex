@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { localized } from '@/lib/language';
 
 export function CatalogPagination({
   page,
@@ -19,11 +20,14 @@ export function CatalogPagination({
     window.scrollTo(0, 0);
   };
   return (
-    <nav className="catalog-pagination" aria-label="Paginação do catálogo">
+    <nav
+      className="catalog-pagination"
+      aria-label={localized('Paginação do catálogo', 'Catalog pagination')}
+    >
       <Button
         variant="outline"
         size="icon"
-        aria-label="Página anterior"
+        aria-label={localized('Página anterior', 'Previous page')}
         disabled={page === 0}
         onClick={() => change(page - 1)}
       >
@@ -34,7 +38,7 @@ export function CatalogPagination({
           className="catalog-page-input"
           type="text"
           inputMode="numeric"
-          aria-label="Número da página"
+          aria-label={localized('Número da página', 'Page number')}
           value={input}
           placeholder={String(page + 1)}
           onChange={(e) => setInput(e.target.value.replace(/\D/g, ''))}
@@ -51,7 +55,7 @@ export function CatalogPagination({
       <Button
         variant="outline"
         size="icon"
-        aria-label="Próxima página"
+        aria-label={localized('Próxima página', 'Next page')}
         disabled={page >= totalPages - 1}
         onClick={() => change(page + 1)}
       >
