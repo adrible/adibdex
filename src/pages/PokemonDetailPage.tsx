@@ -467,24 +467,24 @@ export default function PokemonDetailPage() {
                 <MapPin className="h-5 w-5 text-primary" />
                 <h3 className="section-title">{localized('Localizações', 'Locations')}</h3>
               </div>
-              {encounters && encounters.length > 0 && (
-                <label className="detail-location-filter">
-                  <span>{localized('Jogo', 'Game')}</span>
-                  <select
-                    className="detail-game-select"
-                    value={selectedEncounterGame}
-                    onChange={(event) => setSelectedEncounterGame(event.target.value)}
-                  >
-                    <option value="">{localized('Todos os jogos', 'All games')}</option>
-                    {encounterGames.map((game) => (
-                      <option key={game} value={game}>
-                        {game.replace(/-/g, ' ')}
-                      </option>
-                    ))}
-                  </select>
-                </label>
-              )}
             </div>
+            {encounters && encounters.length > 0 && (
+              <label className="detail-game-picker mb-4">
+                <span className="text-overline">{localized('Jogo', 'Game')}</span>
+                <select
+                  className="detail-game-select"
+                  value={selectedEncounterGame}
+                  onChange={(event) => setSelectedEncounterGame(event.target.value)}
+                >
+                  <option value="">{localized('Todos os jogos', 'All games')}</option>
+                  {encounterGames.map((game) => (
+                    <option key={game} value={game}>
+                      {game.replace(/-/g, ' ')}
+                    </option>
+                  ))}
+                </select>
+              </label>
+            )}
             {encountersLoading ? (
               <div className="space-y-2">
                 <Skeleton className="h-4 w-full" />
