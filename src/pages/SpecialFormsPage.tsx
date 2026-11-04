@@ -3,6 +3,7 @@ import { fetchAllMegaForms, fetchAllGmaxForms } from '@/lib/pokeapi/catalog';
 import { useCatalogView } from '@/features/catalog/use-catalog-view';
 import { CatalogBrowser } from '@/components/catalog/CatalogBrowser';
 import { CatalogPageShell } from '@/components/catalog/CatalogPageShell';
+import { localized } from '@/lib/language';
 
 export default function SpecialFormsPage({ type }: { type: 'mega' | 'gmax' }) {
   const isMega = type === 'mega';
@@ -14,8 +15,8 @@ export default function SpecialFormsPage({ type }: { type: 'mega' | 'gmax' }) {
   const view = useCatalogView(`${type}-forms`, query.data, query.isSuccess, false);
   return (
     <CatalogPageShell
-      title={isMega ? 'Mega Evoluções' : 'Gigantamax'}
-      subtitle={`${isMega ? 'Todas as formas Mega e Primal' : 'Todas as formas Gigantamax'}${query.isSuccess ? ` (${view.filtered.length})` : ''}`}
+      title={isMega ? localized('Mega Evoluções', 'Mega Evolution') : 'Gigantamax'}
+      subtitle={`${isMega ? localized('Todas as formas Mega e Primal', 'All Mega and Primal forms') : localized('Todas as formas Gigantamax', 'All Gigantamax forms')}${query.isSuccess ? ` (${view.filtered.length})` : ''}`}
       background={`/backgrounds/${type}.webp`}
       backToTop
     >
