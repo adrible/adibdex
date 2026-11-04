@@ -11,6 +11,7 @@ import { EvolutionTransition } from './evolution/EvolutionTransition';
 import { EvolutionBranchTree } from './evolution/EvolutionBranchTree';
 import { buildEvolutionForest, hasEvolutionBranches } from '@/features/evolution/tree';
 import './evolution/evolution.css';
+import { localized } from '@/lib/language';
 
 interface Props {
   pokemonId: number;
@@ -66,32 +67,46 @@ export function EvolutionChainDisplay({
           <GitBranch aria-hidden="true" className="h-5 w-5" />
         </div>
         <div className="min-w-0">
-          <p className="evolution-eyebrow">Caminhos de evolução</p>
+          <p className="evolution-eyebrow">
+            {localized('Caminhos de evolução', 'Evolution paths')}
+          </p>
           <h3 id="evolution-title" className="evolution-title">
-            Linha Evolutiva
+            {localized('Linha Evolutiva', 'Evolution chain')}
           </h3>
         </div>
         {members.size > 0 && (
           <span className="evolution-count">
             <span className="evolution-count-number">{String(members.size).padStart(2, '0')}</span>
-            <span>{members.size === 1 ? 'forma' : 'formas'}</span>
+            <span>
+              {members.size === 1 ? localized('forma', 'form') : localized('formas', 'forms')}
+            </span>
           </span>
         )}
       </div>
       {query.isPending ? (
-        <div className="evolution-loading" role="status" aria-label="Carregando linha evolutiva">
+        <div
+          className="evolution-loading"
+          role="status"
+          aria-label={localized('Carregando linha evolutiva', 'Loading evolution chain')}
+        >
           {[0, 1, 2].map((i) => (
             <Skeleton key={i} className="h-52 rounded-2xl" />
           ))}
         </div>
       ) : query.isError ? (
         <QueryErrorState
-          title="Não foi possível carregar a linha evolutiva"
+          title={localized(
+            'Não foi possível carregar a linha evolutiva',
+            'Could not load the evolution chain',
+          )}
           onRetry={() => void query.refetch()}
         />
       ) : !steps?.length ? (
         <p className="evolution-note">
-          A PokeAPI não disponibilizou uma linha evolutiva para este Pokémon.
+          {localized(
+            'A PokeAPI não disponibilizou uma linha evolutiva para este Pokémon.',
+            'The PokéAPI has no evolution chain for this Pokémon.',
+          )}
         </p>
       ) : (
         <>
@@ -130,7 +145,11 @@ export function EvolutionChainDisplay({
                       <span className="evolution-stage-number">
                         {String(index + 1).padStart(2, '0')}
                       </span>
-                      <h4>{index === 0 ? 'Forma inicial' : `Evolução ${index}`}</h4>
+                      <h4>
+                        {index === 0
+                          ? localized('Forma inicial', 'Starting form')
+                          : `${localized('Evolução', 'Evolution')} ${index}`}
+                      </h4>
                     </div>
                     <div className="evolution-stage-cards">
                       {stage.map((step) => (
@@ -153,17 +172,28 @@ export function EvolutionChainDisplay({
             </div>
           )}
           {members.size === 1 && (
-            <p className="evolution-note">Não há outras evoluções registradas para esta espécie.</p>
+            <p className="evolution-note">
+              {localized(
+                'Não há outras evoluções registradas para esta espécie.',
+                'No other evolutions are recorded for this species.',
+              )}
+            </p>
           )}
           {members.size > 1 && (
             <p className="evolution-note">
-              Condições informadas pela PokeAPI; podem variar entre jogos.
+              {localized(
+                'Condições informadas pela PokeAPI; podem variar entre jogos.',
+                'Evolution conditions are provided by PokéAPI and may vary between games.',
+              )}
             </p>
           )}
           {formsQuery.isError ? (
             <div className="mt-6">
               <QueryErrorState
-                title="Não foi possível carregar as formas especiais"
+                title={localized(
+                  'Não foi possível carregar as formas especiais',
+                  'Could not load special forms',
+                )}
                 onRetry={() => void formsQuery.refetch()}
               />
             </div>
@@ -173,9 +203,14 @@ export function EvolutionChainDisplay({
             specialForms.length > 0 && (
               <div className="evolution-transformations">
                 <div className="evolution-transformations-heading">
-                  <h4 className="font-semibold text-card-foreground">Formas especiais</h4>
+                  <h4 className="font-semibold text-card-foreground">
+                    {localized('Formas especiais', 'Special forms')}
+                  </h4>
                   <p className="mt-1 text-xs text-muted-foreground">
-                    Apenas as transformações desta espécie, separadas da linha evolutiva.
+                    {localized(
+                      'Apenas as transformações desta espécie, separadas da linha evolutiva.',
+                      'Only this species’ transformations, separate from its evolution chain.',
+                    )}
                   </p>
                 </div>
                 <div className="evolution-form-groups">
@@ -187,11 +222,17 @@ export function EvolutionChainDisplay({
                       <section
                         key={category}
                         className={`evolution-form-group evolution-form-group--${category} ${forms.length > 1 ? 'sm:col-span-2' : ''}`}
-                        aria-label={category === 'mega' ? 'Mega e Primal' : 'Gigantamax'}
+                        aria-label={
+                          category === 'mega'
+                            ? localized('Mega e Primal', 'Mega and Primal')
+                            : 'Gigantamax'
+                        }
                       >
                         <h5 className="evolution-form-heading">
                           <Icon className="h-4 w-4" />
-                          {category === 'mega' ? 'Mega e Primal' : 'Gigantamax'}
+                          {category === 'mega'
+                            ? localized('Mega e Primal', 'Mega and Primal')
+                            : 'Gigantamax'}
                           <span>{forms.length}</span>
                         </h5>
                         <div
@@ -209,7 +250,7 @@ export function EvolutionChainDisplay({
                                 types={form.types}
                               />
                               <p className="evolution-parent">
-                                Forma de{' '}
+                                {localized('Forma de', 'Form of')}{' '}
                                 <span>{members.get(form.baseId)?.name.replace(/-/g, ' ')}</span>
                               </p>
                             </div>
