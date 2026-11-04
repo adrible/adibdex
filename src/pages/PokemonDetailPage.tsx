@@ -14,6 +14,7 @@ import { TypeEffectiveness } from '@/components/TypeEffectiveness';
 import { PokemonForms } from '@/components/PokemonForms';
 import { EvolutionChainDisplay } from '@/components/EvolutionChain';
 import { PokemonMoves } from '@/components/PokemonMoves';
+import { PokemonDexEntries } from '@/components/PokemonDexEntries';
 import { PokemonSpeciesProfile } from '@/components/PokemonSpeciesProfile';
 import { Button } from '@/components/ui/button';
 import { ArrowLeft, ChevronLeft, ChevronRight, MapPin, Sparkles } from 'lucide-react';
@@ -427,6 +428,7 @@ export default function PokemonDetailPage() {
             ['formas', localized('Formas', 'Forms')],
             ['ataques', localized('Ataques', 'Moves')],
             ['localizacoes', localized('Localizações', 'Locations')],
+            ['entradas-pokedex', localized('Pokédex', 'Pokédex')],
           ].map(([anchor, label]) => (
             <a key={anchor} href={`#${anchor}`} className="detail-nav-link">
               {label}
@@ -596,6 +598,8 @@ export default function PokemonDetailPage() {
           <div id="ataques" className="detail-section detail-wide">
             <PokemonMoves key={pokemonId} pokemonId={pokemonId} />
           </div>
+
+          <PokemonDexEntries speciesId={pokemon.speciesId} />
         </div>
       </main>
 
