@@ -567,3 +567,27 @@
   padding-left: 0;
   justify-content: center;
 }
+
+.pokedex-locations-disclosure > summary {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  min-height: 44px;
+  cursor: pointer;
+  list-style: none;
+}
+.pokedex-locations-disclosure > summary::-webkit-details-marker {
+  display: none;
+}
+.pokedex-disclosure-arrow {
+  color: hsl(var(--muted-foreground));
+  flex-shrink: 0;
+  transition: transform 160ms ease;
+}
+.pokedex-locations-disclosure[open] .pokedex-disclosure-arrow {
+  transform: rotate(180deg);
+}
+.pokedex-locations-body {
+  padding-top: 12px;
+}
