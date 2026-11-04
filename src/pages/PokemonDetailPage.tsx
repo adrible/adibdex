@@ -576,6 +576,8 @@ export default function PokemonDetailPage() {
             )}
           </div>
 
+          <PokemonDexEntries speciesId={pokemon.speciesId} />
+
           <div id="evolucoes" className="detail-section detail-wide">
             <EvolutionChainDisplay
               pokemonId={pokemonId}
@@ -598,8 +600,6 @@ export default function PokemonDetailPage() {
           <div id="ataques" className="detail-section detail-wide">
             <PokemonMoves key={pokemonId} pokemonId={pokemonId} />
           </div>
-
-          <PokemonDexEntries speciesId={pokemon.speciesId} />
         </div>
       </main>
 
