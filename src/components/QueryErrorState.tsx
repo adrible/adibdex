@@ -1,5 +1,6 @@
 import { AlertTriangle, RefreshCw } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { localized } from '@/lib/language';
 
 interface QueryErrorStateProps {
   title?: string;
@@ -8,8 +9,11 @@ interface QueryErrorStateProps {
 }
 
 export function QueryErrorState({
-  title = 'Não foi possível carregar os dados',
-  message = 'Verifique sua conexão e tente novamente.',
+  title = localized('Não foi possível carregar os dados', 'Could not load data'),
+  message = localized(
+    'Verifique sua conexão e tente novamente.',
+    'Check your connection and try again.',
+  ),
   onRetry,
 }: QueryErrorStateProps) {
   return (
@@ -23,7 +27,7 @@ export function QueryErrorState({
       {onRetry && (
         <Button variant="outline" size="sm" className="mt-4 gap-2" onClick={onRetry}>
           <RefreshCw className="h-4 w-4" />
-          Tentar novamente
+          {localized('Tentar novamente', 'Try again')}
         </Button>
       )}
     </div>

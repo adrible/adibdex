@@ -11,6 +11,7 @@ import {
 } from '@/components/ui/sheet';
 import { countActiveFilters, type FilterProps } from '@/features/catalog/filter-state';
 import { FilterContent } from './filters/FilterContent';
+import { localized } from '@/lib/language';
 export { ActiveFilterChips } from './filters/ActiveFilterChips';
 
 export function PokemonFilterButton({
@@ -33,7 +34,7 @@ export function PokemonFilterButton({
           className={`gap-1.5 ${active ? 'border-primary text-primary' : ''}`}
         >
           <Filter className="h-4 w-4" />
-          Filtros
+          {localized('Filtros', 'Filters')}
           {active && (
             <span className="h-4 w-4 rounded-full bg-primary text-primary-foreground text-[10px] flex items-center justify-center font-bold">
               {activeCount}
@@ -57,10 +58,13 @@ export function PokemonFilterButton({
         <SheetHeader>
           <SheetTitle className="flex items-center gap-2">
             <ArrowUpDown className="h-5 w-5" />
-            Filtros e Ordenação
+            {localized('Filtros e Ordenação', 'Filters and sorting')}
           </SheetTitle>
           <SheetDescription className="sr-only">
-            Escolha os critérios e confirme em Aplicar Filtros.
+            {localized(
+              'Escolha os critérios e confirme em Aplicar Filtros.',
+              'Choose your criteria and confirm with Apply filters.',
+            )}
           </SheetDescription>
         </SheetHeader>
 

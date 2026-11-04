@@ -14,28 +14,29 @@ import {
 } from 'lucide-react';
 import type { EvolutionCondition } from '@/lib/pokemon/types';
 import { TYPE_TRANSLATIONS } from '@/lib/pokemon/constants';
+import { localized } from '@/lib/language';
 
 const triggers: Record<string, string> = {
-  'level-up': 'Subir de nível',
+  'level-up': localized('Subir de nível', 'Level up'),
   trade: 'Troca',
   'use-item': 'Usar item',
   shed: 'Especial',
   spin: 'Girar',
-  'tower-of-darkness': 'Torre da Escuridão',
-  'tower-of-waters': 'Torre das Águas',
-  'three-critical-hits': '3 golpes críticos',
+  'tower-of-darkness': localized('Torre da Escuridão', 'Tower of Darkness'),
+  'tower-of-waters': localized('Torre das Águas', 'Tower of Waters'),
+  'three-critical-hits': localized('3 golpes críticos', '3 critical hits'),
   'take-damage': 'Receber dano',
-  other: 'Condição especial',
-  'agile-style-move': 'Golpe em estilo ágil',
-  'strong-style-move': 'Golpe em estilo forte',
-  'recoil-damage': 'Dano de recuo',
+  other: localized('Condição especial', 'Special condition'),
+  'agile-style-move': localized('Golpe em estilo ágil', 'Agile-style move'),
+  'strong-style-move': localized('Golpe em estilo forte', 'Strong-style move'),
+  'recoil-damage': localized('Dano de recuo', 'Recoil damage'),
 };
 const words = (value: string) => value.replace(/-/g, ' ');
 
 function Conditions({ value }: { value: EvolutionCondition }) {
   const tags: { text: string; Icon: LucideIcon }[] = [];
   const add = (text: string, Icon: LucideIcon = Sparkles) => tags.push({ text, Icon });
-  if (value.minLevel !== null) add(`Nível ${value.minLevel}`);
+  if (value.minLevel !== null) add(localized(`Nível ${value.minLevel}`, `Level ${value.minLevel}`));
   if (value.trigger && (value.trigger !== 'level-up' || value.minLevel === null))
     add(
       triggers[value.trigger] ?? words(value.trigger),
@@ -43,32 +44,51 @@ function Conditions({ value }: { value: EvolutionCondition }) {
     );
   if (value.item) add(words(value.item), Gem);
   if (value.heldItem) add(`Segurando ${words(value.heldItem)}`, Gem);
-  if (value.minHappiness !== null) add(`Amizade ${value.minHappiness}+`, Heart);
-  if (value.minAffection !== null) add(`Afeição ${value.minAffection}+`, Heart);
+  if (value.minHappiness !== null)
+    add(localized(`Amizade ${value.minHappiness}+`, `Friendship ${value.minHappiness}+`), Heart);
+  if (value.minAffection !== null)
+    add(localized(`Afeição ${value.minAffection}+`, `Affection ${value.minAffection}+`), Heart);
   if (value.timeOfDay)
     add(
-      { day: 'Dia', night: 'Noite', dusk: 'Entardecer' }[value.timeOfDay] ?? words(value.timeOfDay),
+      {
+        day: localized('Dia', 'Day'),
+        night: localized('Noite', 'Night'),
+        dusk: localized('Entardecer', 'Dusk'),
+      }[value.timeOfDay] ?? words(value.timeOfDay),
       value.timeOfDay === 'night' ? Moon : Sun,
     );
-  if (value.knownMove) add(`Saber ${words(value.knownMove)}`, Swords);
+  if (value.knownMove) add(`${localized('Saber', 'Know')} ${words(value.knownMove)}`, Swords);
   if (value.knownMoveType)
-    add(`Golpe ${TYPE_TRANSLATIONS[value.knownMoveType] ?? value.knownMoveType}`, Swords);
-  if (value.location) add(words(value.location), MapPin);
-  if (value.needsRain) add('Chuva', Droplets);
-  if (value.turnUpsideDown) add('Console invertido', RotateCcw);
-  if (value.gender === 1 || value.gender === 2) add(value.gender === 1 ? 'Fêmea' : 'Macho', Users);
-  if (value.minBeauty !== null) add(`Beleza ${value.minBeauty}+`);
-  if (value.relativePhysicalStats !== null)
     add(
-      { '-1': 'Ataque < Defesa', '0': 'Ataque = Defesa', '1': 'Ataque > Defesa' }[
-        String(value.relativePhysicalStats)
-      ] ?? 'Comparação de atributos',
+      `${localized('Golpe', 'Move')} ${TYPE_TRANSLATIONS[value.knownMoveType] ?? value.knownMoveType}`,
       Swords,
     );
-  if (value.partySpecies) add(`${words(value.partySpecies)} na equipe`, Users);
+  if (value.location) add(words(value.location), MapPin);
+  if (value.needsRain) add(localized('Chuva', 'Rain'), Droplets);
+  if (value.turnUpsideDown) add(localized('Console invertido', 'Console upside down'), RotateCcw);
+  if (value.gender === 1 || value.gender === 2)
+    add(value.gender === 1 ? localized('Fêmea', 'Female') : localized('Macho', 'Male'), Users);
+  if (value.minBeauty !== null)
+    add(localized(`Beleza ${value.minBeauty}+`, `Beauty ${value.minBeauty}+`));
+  if (value.relativePhysicalStats !== null)
+    add(
+      {
+        '-1': localized('Ataque < Defesa', 'Attack < Defense'),
+        '0': localized('Ataque = Defesa', 'Attack = Defense'),
+        '1': localized('Ataque > Defesa', 'Attack > Defense'),
+      }[String(value.relativePhysicalStats)] ??
+        localized('Comparação de atributos', 'Stat comparison'),
+      Swords,
+    );
+  if (value.partySpecies)
+    add(`${words(value.partySpecies)} ${localized('na equipe', 'in the party')}`, Users);
   if (value.partyType)
-    add(`Tipo ${TYPE_TRANSLATIONS[value.partyType] ?? value.partyType} na equipe`, Users);
-  if (value.tradeSpecies) add(`Trocar por ${words(value.tradeSpecies)}`, ArrowLeftRight);
+    add(
+      `${localized('Tipo', 'Type')} ${TYPE_TRANSLATIONS[value.partyType] ?? value.partyType} ${localized('na equipe', 'in the party')}`,
+      Users,
+    );
+  if (value.tradeSpecies)
+    add(`${localized('Trocar por', 'Trade for')} ${words(value.tradeSpecies)}`, ArrowLeftRight);
   return (
     <div className="evolution-requirements">
       {tags.map(({ text, Icon }, index) => (
@@ -88,12 +108,14 @@ export function EvolutionRequirements({ conditions }: { conditions: EvolutionCon
     <div className="evolution-method-options">
       <Conditions value={conditions[0]} />
       <details className="evolution-alternatives">
-        <summary>Outras condições ({conditions.length - 1})</summary>
+        <summary>
+          {localized('Outras condições', 'Other conditions')} ({conditions.length - 1})
+        </summary>
         <div className="mt-3 space-y-3">
           {conditions.slice(1).map((value, i) => (
             <div key={i}>
               <p className="mb-2 text-center text-[10px] uppercase tracking-wider text-muted-foreground">
-                ou
+                {localized('ou', 'or')}
               </p>
               <Conditions value={value} />
             </div>

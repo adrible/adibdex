@@ -37,8 +37,24 @@ export interface PokemonDetail {
   height: number;
   weight: number;
   abilities: string[];
+  hiddenAbilities?: string[];
   stats: { name: string; value: number }[];
   species: string;
+}
+
+export interface PokemonSpeciesInfo {
+  description: string;
+  pokedexEntries: { version: string; text: string }[];
+  genus: string | null;
+  captureRate: number | null;
+  genderRate: number | null;
+  isBaby: boolean;
+  isLegendary: boolean;
+  isMythical: boolean;
+  eggGroups: string[];
+  hatchCounter: number | null;
+  growthRate: string | null;
+  habitat: string | null;
 }
 
 export interface Generation {
@@ -57,6 +73,11 @@ export interface MoveByGame {
   power: number | null;
   accuracy: number | null;
   pp: number | null;
+  priority: number;
+  target: string;
+  ailment: string | null;
+  ailmentChance: number | null;
+  effectChance: number | null;
 }
 
 export interface MovesByVersionGroup {
@@ -104,7 +125,17 @@ export interface EvolutionChain {
 
 export interface PokemonEncounter {
   location: string;
-  versions: { version: string; methods: string[] }[];
+  versions: {
+    version: string;
+    methods: string[];
+    encounters?: {
+      method: string;
+      minLevel: number | null;
+      maxLevel: number | null;
+      chance: number | null;
+      conditions: string[];
+    }[];
+  }[];
 }
 
 export interface MegaEvolution {

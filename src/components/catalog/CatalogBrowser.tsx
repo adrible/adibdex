@@ -7,6 +7,7 @@ import { Button } from '@/components/ui/button';
 import type { useCatalogView } from '@/features/catalog/use-catalog-view';
 import { CatalogToolbar } from './CatalogToolbar';
 import { CatalogPagination } from './CatalogPagination';
+import { localized } from '@/lib/language';
 
 interface Props {
   view: ReturnType<typeof useCatalogView>;
@@ -64,7 +65,7 @@ export function CatalogBrowser({
               onClick={() => view.setShowAll(false)}
               className={!view.showAll ? 'catalog-view-active' : ''}
             >
-              Paginado
+              {localized('Paginado', 'Paginated')}
             </Button>
             <Button
               variant="outline"
@@ -73,7 +74,7 @@ export function CatalogBrowser({
               onClick={() => view.setShowAll(true)}
               className={view.showAll ? 'catalog-view-active' : ''}
             >
-              Todos
+              {localized('Todos', 'All')}
             </Button>
           </>
         )}
@@ -82,7 +83,11 @@ export function CatalogBrowser({
       {error ? (
         <QueryErrorState onRetry={onRetry} />
       ) : loading ? (
-        <div className="catalog-grid" role="status" aria-label="Carregando Pokémon">
+        <div
+          className="catalog-grid"
+          role="status"
+          aria-label={localized('Carregando Pokémon', 'Loading Pokémon')}
+        >
           {Array.from({ length: 24 }, (_, i) => (
             <div key={i} className="catalog-skeleton-card">
               <Skeleton className="h-36 w-full rounded-lg mb-3" />
@@ -98,7 +103,7 @@ export function CatalogBrowser({
           <div className="catalog-grid">
             {view.displayed.length === 0 && (
               <p className="catalog-empty" role="status">
-                Nenhum Pokémon encontrado.
+                {localized('Nenhum Pokémon encontrado.', 'No Pokémon found.')}
               </p>
             )}
             {view.displayed.map((p) => (

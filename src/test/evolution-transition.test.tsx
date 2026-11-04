@@ -79,7 +79,7 @@ describe('incoming evolution methods', () => {
       [step(2, 'left', 1, [16, 20]), step(3, 'right', 1, [32])],
       [step(4, 'final', 2, [40])],
     ]);
-    const left = screen.getByRole('group', { name: 'Como evoluir base para left' });
+    const left = screen.getByRole('article', { name: 'Evolução de base para left' });
     expect(within(left).getByText('Nível 16')).toBeVisible();
     expect(within(left).getByText('Outras condições (1)')).toBeVisible();
     expect(within(left).getByText('Nível 20')).not.toBeVisible();
@@ -89,6 +89,15 @@ describe('incoming evolution methods', () => {
     expect(screen.getByRole('group', { name: 'Como evoluir left para final' })).toHaveTextContent(
       'Nível 40',
     );
+    expect(
+      within(left).getByRole('article', { name: 'Evolução de left para final' }),
+    ).toBeVisible();
+    expect(
+      within(screen.getByRole('article', { name: 'Evolução de base para right' })).queryByRole(
+        'article',
+        { name: 'Evolução de left para final' },
+      ),
+    ).toBeNull();
     expect(container.querySelector('.evolution-tree-member .evolution-requirements')).toBeNull();
   });
   it('renders a single species without a transition', () => {

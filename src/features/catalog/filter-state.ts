@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import { localized } from '@/lib/language';
 import { GENERATIONS, TYPE_TRANSLATIONS, VERSION_GROUP_NAMES } from '@/lib/pokemon/constants';
 import {
   STARTER_IDS,
@@ -56,15 +57,15 @@ export type RegionOption =
 export type TypeMatchMode = 'any' | 'all';
 
 export const CLASSIFICATION_LABELS: Record<ClassificationOption, string> = {
-  starter: 'Starter',
-  legendary: 'Lendário',
-  mythical: 'Mítico',
-  pseudo: 'Pseudo-Lendário',
-  ultra_beast: 'Ultra Beast',
-  paradox: 'Paradoxo',
-  baby: 'Bebê',
-  fossil: 'Fóssil',
-  regular: 'Regular',
+  starter: localized('Inicial', 'Starter'),
+  legendary: localized('Lendário', 'Legendary'),
+  mythical: localized('Mítico', 'Mythical'),
+  pseudo: localized('Pseudo-Lendário', 'Pseudo-legendary'),
+  ultra_beast: localized('Ultra Fera', 'Ultra Beast'),
+  paradox: localized('Paradoxo', 'Paradox'),
+  baby: localized('Bebê', 'Baby'),
+  fossil: localized('Fóssil', 'Fossil'),
+  regular: localized('Comum', 'Regular'),
 };
 
 export const CLASSIFICATION_SETS: Record<Exclude<ClassificationOption, 'regular'>, Set<number>> = {
@@ -79,23 +80,23 @@ export const CLASSIFICATION_SETS: Record<Exclude<ClassificationOption, 'regular'
 };
 
 export const EVOLUTION_STAGE_LABELS: Record<EvolutionStageOption, string> = {
-  basic: 'Básico',
-  stage1: 'Estágio 1',
-  stage2: 'Estágio 2',
+  basic: localized('Básico', 'Basic'),
+  stage1: localized('Estágio 1', 'Stage 1'),
+  stage2: localized('Estágio 2', 'Stage 2'),
 };
 
 export const SORT_OPTIONS: { value: SortOption; label: string }[] = [
-  { value: 'id', label: 'Número Nacional' },
-  { value: 'name', label: 'Alfabética (A–Z)' },
+  { value: 'id', label: localized('Número Nacional', 'National number') },
+  { value: 'name', label: localized('Alfabética (A–Z)', 'Alphabetical (A–Z)') },
   { value: 'hp', label: 'HP' },
-  { value: 'attack', label: 'Ataque' },
-  { value: 'defense', label: 'Defesa' },
-  { value: 'spAtk', label: 'Atq. Esp.' },
-  { value: 'spDef', label: 'Def. Esp.' },
-  { value: 'speed', label: 'Velocidade' },
+  { value: 'attack', label: localized('Ataque', 'Attack') },
+  { value: 'defense', label: localized('Defesa', 'Defense') },
+  { value: 'spAtk', label: localized('Atq. Esp.', 'Sp. Atk.') },
+  { value: 'spDef', label: localized('Def. Esp.', 'Sp. Def.') },
+  { value: 'speed', label: localized('Velocidade', 'Speed') },
   { value: 'total', label: 'Total' },
-  { value: 'height', label: 'Altura' },
-  { value: 'weight', label: 'Peso' },
+  { value: 'height', label: localized('Altura', 'Height') },
+  { value: 'weight', label: localized('Peso', 'Weight') },
 ];
 
 export interface FilterState {

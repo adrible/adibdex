@@ -4,6 +4,7 @@ import { Header } from '@/components/Header';
 import { ChevronRight } from 'lucide-react';
 import { Changelog } from '@/components/Changelog';
 import { Footer } from '@/components/Footer';
+import { localized } from '@/lib/language';
 
 const REGION_STARTERS: Record<string, string[]> = {
   Kanto: [
@@ -82,21 +83,25 @@ export default function Index() {
       <main className="container py-12">
         <div className="text-center mb-12">
           <h2 className="site-display site-display--center mb-4">
-            Todas as <span className="text-accent-word">Regiões</span>
+            {localized('Todas as', 'All')}{' '}
+            <span className="text-accent-word">{localized('Regiões', 'Regions')}</span>
           </h2>
           <p className="text-support max-w-lg mx-auto mb-6">
-            Explore todos os Pokémon organizados por região ou veja a Pokédex Nacional completa.
+            {localized(
+              'Explore todos os Pokémon organizados por região ou veja a Pokédex Nacional completa.',
+              'Explore Pokémon by region or browse the complete National Pokédex.',
+            )}
           </p>
           <Link
             to="/national"
             className="inline-flex items-center gap-2 rounded-xl bg-primary px-6 py-3 font-bold text-primary-foreground transition-all hover:opacity-90 hover:scale-105"
           >
-            🌍 Pokédex Nacional
+            🌍 {localized('Pokédex Nacional', 'National Pokédex')}
             <ChevronRight className="h-4 w-4" />
           </Link>
           <div className="mt-4">
             <a href="#novidades" className="site-text-link">
-              Ver novidades da versão
+              {localized('Ver novidades da versão', 'See what is new')}
             </a>
           </div>
         </div>
@@ -120,12 +125,14 @@ export default function Index() {
                 <ChevronRight className="h-5 w-5 text-muted-foreground group-hover:text-primary transition-colors" />
               </div>
 
-              <h3 className="home-card-title">{gen.region}</h3>
+              <h3 className="home-card-title">
+                {gen.region === 'Desconhecida' ? localized('Desconhecida', 'Unknown') : gen.region}
+              </h3>
 
               <p className="home-card-description">
                 {gen.region === 'Desconhecida'
-                  ? 'Pokémon sem região definida'
-                  : `Região de ${gen.region}`}
+                  ? localized('Pokémon sem região definida', 'Pokémon with no region assigned')
+                  : `${localized('Região de', 'Region:')} ${gen.region}`}
               </p>
 
               <p className="text-code">
@@ -140,17 +147,17 @@ export default function Index() {
               <div className="flex items-center gap-2 justify-center">
                 <img
                   src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/10091.png"
-                  alt="Rattata de Alola"
+                  alt={localized('Rattata de Alola', 'Alolan Rattata')}
                   className="w-14 h-14 object-contain transition-transform group-hover:scale-110"
                 />
                 <img
                   src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/10100.png"
-                  alt="Raichu de Alola"
+                  alt={localized('Raichu de Alola', 'Alolan Raichu')}
                   className="w-14 h-14 object-contain transition-transform group-hover:scale-110"
                 />
                 <img
                   src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/10103.png"
-                  alt="Vulpix de Alola"
+                  alt={localized('Vulpix de Alola', 'Alolan Vulpix')}
                   className="w-14 h-14 object-contain transition-transform group-hover:scale-110"
                 />
               </div>
@@ -158,11 +165,16 @@ export default function Index() {
               <ChevronRight className="h-5 w-5 text-muted-foreground group-hover:text-primary transition-colors" />
             </div>
 
-            <h3 className="home-card-title">Formas Regionais</h3>
+            <h3 className="home-card-title">{localized('Formas Regionais', 'Regional Forms')}</h3>
 
-            <p className="home-card-description">Alolan, Galarian, Hisuian e Paldean forms</p>
+            <p className="home-card-description">
+              {localized(
+                'Formas de Alola, Galar, Hisui e Paldea',
+                'Forms from Alola, Galar, Hisui, and Paldea',
+              )}
+            </p>
 
-            <p className="text-code">VARIAÇÕES POR REGIÃO</p>
+            <p className="text-code">{localized('VARIAÇÕES POR REGIÃO', 'REGIONAL VARIANTS')}</p>
 
             <div className="absolute -bottom-4 -right-4 h-24 w-24 rounded-full bg-primary/5 group-hover:bg-primary/10 transition-colors" />
           </Link>
@@ -183,9 +195,11 @@ export default function Index() {
               <ChevronRight className="h-5 w-5 text-muted-foreground group-hover:text-primary transition-colors" />
             </div>
 
-            <h3 className="home-card-title">Mega Evoluções</h3>
-            <p className="home-card-description">Todas as formas Mega</p>
-            <p className="text-code">MEGA PODER!</p>
+            <h3 className="home-card-title">{localized('Mega Evoluções', 'Mega Evolution')}</h3>
+            <p className="home-card-description">
+              {localized('Todas as formas Mega', 'All Mega forms')}
+            </p>
+            <p className="text-code">{localized('MEGA PODER!', 'MEGA POWER!')}</p>
 
             <div className="absolute -bottom-4 -right-4 h-24 w-24 rounded-full bg-primary/5 group-hover:bg-primary/10 transition-colors" />
           </Link>
@@ -208,8 +222,10 @@ export default function Index() {
             </div>
 
             <h3 className="home-card-title">Gigantamax</h3>
-            <p className="home-card-description">Todas as formas Gigantamax</p>
-            <p className="text-code">POKEMONS GIGANTES!</p>
+            <p className="home-card-description">
+              {localized('Todas as formas Gigantamax', 'All Gigantamax forms')}
+            </p>
+            <p className="text-code">{localized('POKÉMONS GIGANTES!', 'GIANT POKÉMON!')}</p>
 
             <div className="absolute -bottom-4 -right-4 h-24 w-24 rounded-full bg-primary/5 group-hover:bg-primary/10 transition-colors" />
           </Link>

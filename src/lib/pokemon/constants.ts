@@ -1,4 +1,5 @@
 import type { Generation } from './types';
+import { localized } from '@/lib/language';
 
 export const NATIONAL_POKEDEX_SIZE = 1025;
 
@@ -193,37 +194,37 @@ export const GMAX_POKEMON_IDS = new Set([
 
 export const TYPE_TRANSLATIONS: Record<string, string> = {
   normal: 'Normal',
-  fire: 'Fogo',
-  water: 'Água',
-  grass: 'Planta',
-  electric: 'Elétrico',
-  ice: 'Gelo',
-  fighting: 'Lutador',
-  poison: 'Veneno',
-  ground: 'Terra',
-  flying: 'Voador',
-  psychic: 'Psíquico',
-  bug: 'Inseto',
-  rock: 'Pedra',
-  ghost: 'Fantasma',
-  dragon: 'Dragão',
-  dark: 'Sombrio',
-  steel: 'Aço',
-  fairy: 'Fada',
+  fire: localized('Fogo', 'Fire'),
+  water: localized('Água', 'Water'),
+  grass: localized('Planta', 'Grass'),
+  electric: localized('Elétrico', 'Electric'),
+  ice: localized('Gelo', 'Ice'),
+  fighting: localized('Lutador', 'Fighting'),
+  poison: localized('Veneno', 'Poison'),
+  ground: localized('Terra', 'Ground'),
+  flying: localized('Voador', 'Flying'),
+  psychic: localized('Psíquico', 'Psychic'),
+  bug: localized('Inseto', 'Bug'),
+  rock: localized('Pedra', 'Rock'),
+  ghost: localized('Fantasma', 'Ghost'),
+  dragon: localized('Dragão', 'Dragon'),
+  dark: localized('Sombrio', 'Dark'),
+  steel: localized('Aço', 'Steel'),
+  fairy: localized('Fada', 'Fairy'),
 };
 
 export const STAT_TRANSLATIONS: Record<string, string> = {
   hp: 'HP',
-  attack: 'Ataque',
-  defense: 'Defesa',
-  'special-attack': 'Atq. Esp.',
-  'special-defense': 'Def. Esp.',
-  speed: 'Velocidade',
+  attack: localized('Ataque', 'Attack'),
+  defense: localized('Defesa', 'Defense'),
+  'special-attack': localized('Atq. Esp.', 'Sp. Atk.'),
+  'special-defense': localized('Def. Esp.', 'Sp. Def.'),
+  speed: localized('Velocidade', 'Speed'),
 };
 
 export const VERSION_GROUP_NAMES: Record<string, string> = {
-  'red-green-japan': 'Red / Green (Japão)',
-  'blue-japan': 'Blue (Japão)',
+  'red-green-japan': `Red / Green (${localized('Japão', 'Japan')})`,
+  'blue-japan': `Blue (${localized('Japão', 'Japan')})`,
   'red-blue': 'Red / Blue',
   yellow: 'Yellow',
   'gold-silver': 'Gold / Silver',
@@ -253,8 +254,8 @@ export const VERSION_GROUP_NAMES: Record<string, string> = {
 };
 
 export const METHOD_LABELS: Record<string, string> = {
-  'level-up': 'Por Nível',
+  'level-up': localized('Por Nível', 'Level-up'),
   machine: 'TM / HM',
-  egg: 'Egg Moves',
-  tutor: 'Tutor',
+  egg: localized('Por Ovo', 'Egg moves'),
+  tutor: localized('Tutor', 'Move tutor'),
 };
