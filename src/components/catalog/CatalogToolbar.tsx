@@ -5,6 +5,7 @@ import { Button } from '@/components/ui/button';
 import { PokemonFilterButton } from '@/components/PokemonFilters';
 import type { useCatalogView } from '@/features/catalog/use-catalog-view';
 import type { FilterProps } from '@/features/catalog/filter-state';
+import { localized } from '@/lib/language';
 
 type View = ReturnType<typeof useCatalogView>;
 interface Props extends Pick<FilterProps, 'showRegionFilter' | 'showSpecialFormFilters'> {
@@ -34,14 +35,23 @@ export function CatalogToolbar({ view, children, onSuggestion, ...filterOptions 
           <Input
             type="search"
             maxLength={200}
-            placeholder="Nome, número, habilidade ou ataque..."
-            aria-label="Buscar Pokémon por nome, número, habilidade ou ataque"
+            placeholder={localized(
+              'Nome, número, habilidade ou ataque...',
+              'Name, number, ability, or move...',
+            )}
+            aria-label={localized(
+              'Buscar Pokémon por nome, número, habilidade ou ataque',
+              'Search Pokémon by name, number, ability, or move',
+            )}
             value={view.search}
             onChange={(event) => view.setSearch(event.target.value)}
             className="pl-10"
           />
           {suggestions.length > 0 && (
-            <div className="catalog-suggestions" aria-label="Sugestões de Pokémon">
+            <div
+              className="catalog-suggestions"
+              aria-label={localized('Sugestões de Pokémon', 'Pokémon suggestions')}
+            >
               {suggestions.map((p) => (
                 <button
                   key={p.id}
@@ -76,16 +86,16 @@ export function CatalogToolbar({ view, children, onSuggestion, ...filterOptions 
             className={`gap-1 ${view.isShiny ? 'catalog-shiny-active' : ''}`}
           >
             <Sparkles className="h-3.5 w-3.5" />
-            Shiny
+            {localized('Shiny', 'Shiny')}
           </Button>
           {children}
         </div>
       </div>
       <p className="catalog-search-help">
-        Busque também por <strong>habilidade</strong> — incluindo{' '}
-        <strong>habilidades ocultas</strong> — ou por <strong>ataque aprendido</strong>, como Surf e
-        Thunderbolt. Ataques consideram todos os jogos e métodos de aprendizado registrados; a
-        disponibilidade varia por jogo.
+        {localized(
+          'Busque também por habilidade — incluindo habilidades ocultas — ou por ataque aprendido, como Surf e Thunderbolt. Ataques consideram todos os jogos e métodos de aprendizado registrados; a disponibilidade varia por jogo.',
+          'Search by ability, including hidden abilities, or by a learned move such as Surf or Thunderbolt. Move results include all recorded games and learning methods; availability varies by game.',
+        )}
       </p>
     </div>
   );
