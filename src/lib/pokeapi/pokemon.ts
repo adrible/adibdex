@@ -1,6 +1,7 @@
 import { apiRequest, assertPokemonId, extractIdFromUrl } from './client';
 import { pokemonSchema, speciesSchema, encountersSchema } from './schemas';
 import type { PokemonDetail, PokemonEncounter, PokemonSpeciesInfo } from '../pokemon/types';
+import { getSiteLanguage } from '@/lib/language';
 
 export function fetchPokemonRaw(id: number, signal?: AbortSignal) {
   assertPokemonId(id);
@@ -12,16 +13,17 @@ export function fetchSpeciesRaw(id: number, signal?: AbortSignal) {
 }
 
 function getUserLanguage() {
-  return typeof navigator === 'undefined' ? 'pt' : navigator.language?.split('-')[0] || 'pt';
+  return getSiteLanguage();
 }
 
 function localizedEntry<T extends { language: { name: string } }>(entries: T[], language: string) {
-  return entries.find(
-    (entry) =>
-      entry.language.name === language || entry.language.name.startsWith(`${language}-`),
-  ) ??
+  return (
+    entries.find(
+      (entry) => entry.language.name === language || entry.language.name.startsWith(`${language}-`),
+    ) ??
     entries.find((entry) => entry.language.name === 'en') ??
-    entries.at(-1);
+    entries.at(-1)
+  );
 }
 
 export async function fetchPokemonSpeciesInfo(
@@ -33,7 +35,10 @@ export async function fetchPokemonSpeciesInfo(
   const description = localizedEntry(data.flavor_text_entries ?? [], language)?.flavor_text ?? '';
   const genus = localizedEntry(data.genera ?? [], language)?.genus ?? null;
   return {
-    description: description.replace(/[\n\f\r]+/g, ' ').replace(/\s+/g, ' ').trim(),
+    description: description
+      .replace(/[\n\f\r]+/g, ' ')
+      .replace(/\s+/g, ' ')
+      .trim(),
     genus,
     captureRate: data.capture_rate ?? null,
     genderRate: data.gender_rate ?? null,
@@ -89,7 +94,9 @@ export async function fetchPokemonEncounters(
     location: enc.location_area.name.replace(/-/g, ' '),
     versions: enc.version_details.map((v) => ({
       version: v.version.name,
-      methods: [...new Set(v.encounter_details.map((detail) => detail.method.name.replace(/-/g, ' ')))],
+      methods: [
+        ...new Set(v.encounter_details.map((detail) => detail.method.name.replace(/-/g, ' '))),
+      ],
       ...(v.encounter_details.some(
         (detail) =>
           detail.min_level !== undefined ||
