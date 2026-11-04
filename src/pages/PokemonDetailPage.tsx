@@ -17,7 +17,7 @@ import { PokemonMoves } from '@/components/PokemonMoves';
 import { PokemonDexEntries } from '@/components/PokemonDexEntries';
 import { PokemonSpeciesProfile } from '@/components/PokemonSpeciesProfile';
 import { Button } from '@/components/ui/button';
-import { ArrowLeft, ChevronLeft, ChevronRight, MapPin, Sparkles } from 'lucide-react';
+import { ArrowLeft, ChevronLeft, ChevronRight, ChevronDown, MapPin, Sparkles } from 'lucide-react';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Footer } from '@/components/Footer';
 import { QueryErrorState } from '@/components/QueryErrorState';
@@ -486,114 +486,125 @@ export default function PokemonDetailPage() {
             </div>
 
             <div id="localizacoes" className="detail-panel detail-wide detail-locations">
-              <div className="detail-location-toolbar">
-                <div className="flex items-center gap-2">
-                  <MapPin className="h-5 w-5 text-primary" />
-                  <h3 className="section-title">{localized('Localizações', 'Locations')}</h3>
-                </div>
-              </div>
-              {encounters && encounters.length > 0 && (
-                <label className="detail-game-picker mb-4">
-                  <span className="text-overline">{localized('Jogo', 'Game')}</span>
-                  <select
-                    className="detail-game-select"
-                    value={selectedEncounterGame}
-                    onChange={(event) => setSelectedEncounterGame(event.target.value)}
-                  >
-                    <option value="">{localized('Todos os jogos', 'All games')}</option>
-                    {encounterGames.map((game) => (
-                      <option key={game} value={game}>
-                        {gameName(game)}
-                      </option>
-                    ))}
-                  </select>
-                </label>
-              )}
-              {encountersLoading ? (
-                <div className="space-y-2">
-                  <Skeleton className="h-4 w-full" />
-                  <Skeleton className="h-4 w-3/4" />
-                </div>
-              ) : encountersError ? (
-                <QueryErrorState
-                  title={localized(
-                    'Não foi possível carregar as localizações',
-                    'Could not load locations',
+              <details className="pokedex-locations-disclosure" open>
+                <summary>
+                  <span className="flex items-center gap-2">
+                    <MapPin className="h-5 w-5 text-primary" aria-hidden="true" />
+                    <h3 className="section-title">{localized('Localizações', 'Locations')}</h3>
+                  </span>
+                  <ChevronDown className="pokedex-disclosure-arrow h-4 w-4" aria-hidden="true" />
+                </summary>
+                <div className="pokedex-locations-body">
+                  {encounters && encounters.length > 0 && (
+                    <label className="detail-game-picker mb-4">
+                      <span className="text-overline">{localized('Jogo', 'Game')}</span>
+                      <select
+                        className="detail-game-select"
+                        value={selectedEncounterGame}
+                        onChange={(event) => setSelectedEncounterGame(event.target.value)}
+                      >
+                        <option value="">{localized('Todos os jogos', 'All games')}</option>
+                        {encounterGames.map((game) => (
+                          <option key={game} value={game}>
+                            {gameName(game)}
+                          </option>
+                        ))}
+                      </select>
+                    </label>
                   )}
-                  onRetry={() => void refetchEncounters()}
-                />
-              ) : encounters && encounters.length > 0 && filteredEncounters?.length ? (
-                <div className="grid gap-3 sm:grid-cols-2 max-h-80 overflow-y-auto pr-2">
-                  {filteredEncounters.map((enc, i) => (
-                    <div key={i} className="rounded-lg bg-muted/50 p-3">
-                      <p className="text-sm font-semibold text-foreground capitalize">
-                        {encounterLocation(enc.location)}
-                      </p>
-                      <div className="mt-2 space-y-2">
-                        {enc.versions.map((version) => (
-                          <div key={version.version} className="detail-encounter-version">
-                            <span className="detail-encounter-game">
-                              {gameName(version.version)}
-                            </span>
-                            {(
-                              version.encounters ??
-                              version.methods.map((method) => ({
-                                method: method.replace(/ /g, '-'),
-                                minLevel: null,
-                                maxLevel: null,
-                                chance: null,
-                                conditions: [],
-                              }))
-                            ).map((encounter, encounterIndex) => (
-                              <div
-                                key={`${encounter.method}-${encounterIndex}`}
-                                className="detail-encounter-entry"
-                              >
-                                <div className="flex flex-wrap items-center gap-1.5">
-                                  <span className="font-semibold text-card-foreground">
-                                    {encounterLabel(encounter.method, ENCOUNTER_METHODS)}
-                                  </span>
-                                  {encounterLevelRange(encounter.minLevel, encounter.maxLevel) && (
-                                    <span className="detail-encounter-fact">
-                                      {encounterLevelRange(encounter.minLevel, encounter.maxLevel)}
-                                    </span>
-                                  )}
-                                  {encounter.chance !== null && (
-                                    <span className="detail-encounter-fact">
-                                      {encounter.chance}% de chance
-                                    </span>
-                                  )}
-                                </div>
-                                {encounter.conditions.length > 0 && (
-                                  <p className="mt-1 text-[10px] text-muted-foreground">
-                                    {encounter.conditions
-                                      .map((condition) =>
-                                        encounterLabel(condition, ENCOUNTER_CONDITIONS),
-                                      )
-                                      .join(' · ')}
-                                  </p>
-                                )}
+                  {encountersLoading ? (
+                    <div className="space-y-2">
+                      <Skeleton className="h-4 w-full" />
+                      <Skeleton className="h-4 w-3/4" />
+                    </div>
+                  ) : encountersError ? (
+                    <QueryErrorState
+                      title={localized(
+                        'Não foi possível carregar as localizações',
+                        'Could not load locations',
+                      )}
+                      onRetry={() => void refetchEncounters()}
+                    />
+                  ) : encounters && encounters.length > 0 && filteredEncounters?.length ? (
+                    <div className="grid gap-3 sm:grid-cols-2 max-h-80 overflow-y-auto pr-2">
+                      {filteredEncounters.map((enc, i) => (
+                        <div key={i} className="rounded-lg bg-muted/50 p-3">
+                          <p className="text-sm font-semibold text-foreground capitalize">
+                            {encounterLocation(enc.location)}
+                          </p>
+                          <div className="mt-2 space-y-2">
+                            {enc.versions.map((version) => (
+                              <div key={version.version} className="detail-encounter-version">
+                                <span className="detail-encounter-game">
+                                  {gameName(version.version)}
+                                </span>
+                                {(
+                                  version.encounters ??
+                                  version.methods.map((method) => ({
+                                    method: method.replace(/ /g, '-'),
+                                    minLevel: null,
+                                    maxLevel: null,
+                                    chance: null,
+                                    conditions: [],
+                                  }))
+                                ).map((encounter, encounterIndex) => (
+                                  <div
+                                    key={`${encounter.method}-${encounterIndex}`}
+                                    className="detail-encounter-entry"
+                                  >
+                                    <div className="flex flex-wrap items-center gap-1.5">
+                                      <span className="font-semibold text-card-foreground">
+                                        {encounterLabel(encounter.method, ENCOUNTER_METHODS)}
+                                      </span>
+                                      {encounterLevelRange(
+                                        encounter.minLevel,
+                                        encounter.maxLevel,
+                                      ) && (
+                                        <span className="detail-encounter-fact">
+                                          {encounterLevelRange(
+                                            encounter.minLevel,
+                                            encounter.maxLevel,
+                                          )}
+                                        </span>
+                                      )}
+                                      {encounter.chance !== null && (
+                                        <span className="detail-encounter-fact">
+                                          {encounter.chance}% de chance
+                                        </span>
+                                      )}
+                                    </div>
+                                    {encounter.conditions.length > 0 && (
+                                      <p className="mt-1 text-[10px] text-muted-foreground">
+                                        {encounter.conditions
+                                          .map((condition) =>
+                                            encounterLabel(condition, ENCOUNTER_CONDITIONS),
+                                          )
+                                          .join(' · ')}
+                                      </p>
+                                    )}
+                                  </div>
+                                ))}
                               </div>
                             ))}
                           </div>
-                        ))}
-                      </div>
+                        </div>
+                      ))}
                     </div>
-                  ))}
-                </div>
-              ) : encounters && encounters.length > 0 ? (
-                <p className="text-support">
-                  {localized('Nenhuma localização encontrada em', 'No locations found in')}{' '}
-                  {gameName(selectedEncounterGame)}.
-                </p>
-              ) : (
-                <p className="text-support">
-                  {localized(
-                    'Não encontrado em nenhuma rota — pode ser obtido por evento, troca ou evolução.',
-                    'Not found in any location. It may be obtained through an event, trade, or evolution.',
+                  ) : encounters && encounters.length > 0 ? (
+                    <p className="text-support">
+                      {localized('Nenhuma localização encontrada em', 'No locations found in')}{' '}
+                      {gameName(selectedEncounterGame)}.
+                    </p>
+                  ) : (
+                    <p className="text-support">
+                      {localized(
+                        'Não encontrado em nenhuma rota — pode ser obtido por evento, troca ou evolução.',
+                        'Not found in any location. It may be obtained through an event, trade, or evolution.',
+                      )}
+                    </p>
                   )}
-                </p>
-              )}
+                </div>
+              </details>
             </div>
 
             <PokemonDexEntries speciesId={pokemon.speciesId} />
