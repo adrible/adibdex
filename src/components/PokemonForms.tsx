@@ -6,6 +6,7 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { Globe } from 'lucide-react';
 import { QueryErrorState } from '@/components/QueryErrorState';
 import type { PokemonListContext } from '@/lib/navigation';
+import { localized } from '@/lib/language';
 
 interface Props {
   pokemonId: number;
@@ -29,7 +30,9 @@ export function PokemonForms({ pokemonId, isShiny = false, origin, listContext }
   if (isLoading) {
     return (
       <div className="rounded-xl bg-card border border-border p-6">
-        <h3 className="section-title mb-4">Formas Alternativas</h3>
+        <h3 className="section-title mb-4">
+          {localized('Formas Alternativas', 'Alternate forms')}
+        </h3>
         <div className="flex gap-4">
           <Skeleton className="h-20 w-20 rounded-xl" />
           <Skeleton className="h-20 w-20 rounded-xl" />
@@ -41,7 +44,10 @@ export function PokemonForms({ pokemonId, isShiny = false, origin, listContext }
   if (isError) {
     return (
       <QueryErrorState
-        title="Não foi possível carregar as formas alternativas"
+        title={localized(
+          'Não foi possível carregar as formas alternativas',
+          'Could not load alternate forms',
+        )}
         onRetry={() => void refetch()}
       />
     );
@@ -53,7 +59,7 @@ export function PokemonForms({ pokemonId, isShiny = false, origin, listContext }
     <div className="rounded-xl bg-card border border-border p-6">
       <div className="flex items-center gap-2 mb-4">
         <Globe className="h-5 w-5 text-primary" />
-        <h3 className="section-title">Formas Alternativas</h3>
+        <h3 className="section-title">{localized('Formas Alternativas', 'Alternate forms')}</h3>
       </div>
       <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
         {forms.map((form) => (
