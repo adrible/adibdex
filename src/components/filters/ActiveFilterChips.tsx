@@ -9,6 +9,7 @@ import {
   SORT_OPTIONS,
   type FilterProps,
 } from '@/features/catalog/filter-state';
+import { localized } from '@/lib/language';
 
 export function ActiveFilterChips({
   filters,
@@ -21,14 +22,14 @@ export function ActiveFilterChips({
 
     if (filters.game) {
       items.push({
-        label: `Jogo: ${VERSION_GROUP_NAMES[filters.game] ?? filters.game}`,
+        label: `${localized('Jogo', 'Game')}: ${VERSION_GROUP_NAMES[filters.game] ?? filters.game}`,
         onRemove: () => onChange({ ...cloneFilters(filters), game: '' }),
       });
     }
 
     filters.types.forEach((type) => {
       items.push({
-        label: `Tipo: ${TYPE_TRANSLATIONS[type]}`,
+        label: `${localized('Tipo', 'Type')}: ${TYPE_TRANSLATIONS[type]}`,
         onRemove: () =>
           onChange({
             ...cloneFilters(filters),
@@ -39,7 +40,7 @@ export function ActiveFilterChips({
 
     if (filters.types.length > 1 && filters.typeMatchMode !== 'any') {
       items.push({
-        label: 'Tipos: Todos',
+        label: `${localized('Tipos', 'Types')}: ${localized('Todos', 'All')}`,
         onRemove: () =>
           onChange({
             ...cloneFilters(filters),
@@ -50,7 +51,7 @@ export function ActiveFilterChips({
 
     filters.weakTo.forEach((type) => {
       items.push({
-        label: `Fraco: ${TYPE_TRANSLATIONS[type]}`,
+        label: `${localized('Fraco', 'Weak to')}: ${TYPE_TRANSLATIONS[type]}`,
         onRemove: () =>
           onChange({
             ...cloneFilters(filters),
@@ -61,7 +62,7 @@ export function ActiveFilterChips({
 
     filters.strongAgainst.forEach((type) => {
       items.push({
-        label: `Forte: ${TYPE_TRANSLATIONS[type]}`,
+        label: `${localized('Forte', 'Strong against')}: ${TYPE_TRANSLATIONS[type]}`,
         onRemove: () =>
           onChange({
             ...cloneFilters(filters),
@@ -72,7 +73,9 @@ export function ActiveFilterChips({
 
     if (showSpecialFormFilters && filters.hasMega !== null) {
       items.push({
-        label: filters.hasMega ? 'Tem Mega' : 'Sem Mega',
+        label: filters.hasMega
+          ? localized('Tem Mega', 'Has Mega')
+          : localized('Sem Mega', 'No Mega'),
         onRemove: () =>
           onChange({
             ...cloneFilters(filters),
@@ -83,7 +86,9 @@ export function ActiveFilterChips({
 
     if (showSpecialFormFilters && filters.hasGmax !== null) {
       items.push({
-        label: filters.hasGmax ? 'Tem Gmax' : 'Sem Gmax',
+        label: filters.hasGmax
+          ? localized('Tem Gmax', 'Has Gmax')
+          : localized('Sem Gmax', 'No Gmax'),
         onRemove: () =>
           onChange({
             ...cloneFilters(filters),
@@ -95,7 +100,7 @@ export function ActiveFilterChips({
     if (showRegionFilter) {
       filters.regions.forEach((region) => {
         items.push({
-          label: `Região: ${region}`,
+          label: `${localized('Região', 'Region')}: ${region}`,
           onRemove: () =>
             onChange({
               ...cloneFilters(filters),
@@ -118,7 +123,7 @@ export function ActiveFilterChips({
 
     filters.evolutionStages.forEach((stage) => {
       items.push({
-        label: `Estágio: ${EVOLUTION_STAGE_LABELS[stage]}`,
+        label: `${localized('Estágio', 'Stage')}: ${EVOLUTION_STAGE_LABELS[stage]}`,
         onRemove: () =>
           onChange({
             ...cloneFilters(filters),
@@ -132,7 +137,7 @@ export function ActiveFilterChips({
         SORT_OPTIONS.find((opt) => opt.value === filters.sortBy)?.label || filters.sortBy;
 
       items.push({
-        label: `Ordem: ${label} (${filters.sortDir === 'asc' ? 'crescente' : 'decrescente'})`,
+        label: `${localized('Ordem', 'Sort')}: ${label} (${filters.sortDir === 'asc' ? localized('crescente', 'ascending') : localized('decrescente', 'descending')})`,
         onRemove: () =>
           onChange({
             ...cloneFilters(filters),
@@ -153,7 +158,7 @@ export function ActiveFilterChips({
         <button
           key={index}
           onClick={chip.onRemove}
-          aria-label={`Remover ${chip.label}`}
+          aria-label={`${localized('Remover', 'Remove')} ${chip.label}`}
           className="inline-flex items-center gap-1 rounded-full bg-primary/10 text-primary border border-primary/20 px-2.5 py-1 text-xs font-medium hover:bg-primary/20 transition-colors"
         >
           {chip.label}
@@ -165,7 +170,7 @@ export function ActiveFilterChips({
         onClick={() => onChange(getFreshDefaults())}
         className="inline-flex items-center rounded-full bg-destructive/10 text-destructive border border-destructive/20 px-2.5 py-1 text-xs font-medium hover:bg-destructive/20 transition-colors"
       >
-        Limpar tudo
+        {localized('Limpar tudo', 'Clear all')}
       </button>
     </div>
   );
