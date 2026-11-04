@@ -1,5 +1,5 @@
 import { useQuery } from '@tanstack/react-query';
-import { BookOpen } from 'lucide-react';
+import { BookOpen, ChevronDown } from 'lucide-react';
 import { fetchPokemonSpeciesInfo } from '@/lib/pokeapi';
 import { localized } from '@/lib/language';
 import { QueryErrorState } from '@/components/QueryErrorState';
@@ -29,50 +29,60 @@ export function PokemonDexEntries({ speciesId }: { speciesId: number }) {
   });
 
   return (
-    <section id="entradas-pokedex" className="detail-panel detail-wide">
-      <div className="mb-4 flex items-center gap-2">
+    <section id="entradas-pokedex" className="detail-panel detail-wide detail-dex-entries">
+      <div className="mb-3 flex items-center gap-2">
         <BookOpen className="h-5 w-5 text-primary" aria-hidden="true" />
         <h3 className="section-title">{localized('Entradas da Pokédex', 'Pokédex entries')}</h3>
       </div>
-      <p className="mb-4 text-sm leading-relaxed text-muted-foreground">
-        {localized(
-          'Descrições oficiais registradas nos jogos, no idioma selecionado.',
-          'Official descriptions recorded in the games, in the selected language.',
-        )}
-      </p>
-
-      {isPending ? (
-        <div className="grid gap-2 sm:grid-cols-2">
-          <Skeleton className="h-24 w-full" />
-          <Skeleton className="h-24 w-full" />
-        </div>
-      ) : isError ? (
-        <QueryErrorState
-          title={localized(
-            'Não foi possível carregar as entradas',
-            'Could not load Pokédex entries',
+      <details className="species-profile-details">
+        <summary>
+          {localized('Expandir entradas por jogo', 'Expand entries by game')}
+          <ChevronDown aria-hidden="true" />
+        </summary>
+        <div className="mt-3">
+          <p className="mb-3 text-sm leading-relaxed text-muted-foreground">
+            {localized(
+              'Descrições oficiais registradas nos jogos, no idioma selecionado.',
+              'Official descriptions recorded in the games, in the selected language.',
+            )}
+          </p>
+          {isPending ? (
+            <div className="grid gap-2 sm:grid-cols-2">
+              <Skeleton className="h-24 w-full" />
+              <Skeleton className="h-24 w-full" />
+            </div>
+          ) : isError ? (
+            <QueryErrorState
+              title={localized(
+                'Não foi possível carregar as entradas',
+                'Could not load Pokédex entries',
+              )}
+              onRetry={() => void refetch()}
+            />
+          ) : data?.pokedexEntries.length ? (
+            <div className="grid gap-2 sm:grid-cols-2">
+              {data.pokedexEntries.map(({ version, text }) => (
+                <article
+                  key={version}
+                  className="rounded-lg border border-border/70 bg-muted/25 p-3"
+                >
+                  <h4 className="mb-2 text-xs font-semibold text-primary">
+                    {gameVersionLabel(version)}
+                  </h4>
+                  <p className="text-sm leading-relaxed text-card-foreground">{text}</p>
+                </article>
+              ))}
+            </div>
+          ) : (
+            <p className="text-sm text-muted-foreground">
+              {localized(
+                'Não há entradas da Pokédex disponíveis para este Pokémon.',
+                'No Pokédex entries are available for this Pokémon.',
+              )}
+            </p>
           )}
-          onRetry={() => void refetch()}
-        />
-      ) : data?.pokedexEntries.length ? (
-        <div className="grid gap-2 sm:grid-cols-2">
-          {data.pokedexEntries.map(({ version, text }) => (
-            <article key={version} className="rounded-lg border border-border/70 bg-muted/25 p-3">
-              <h4 className="mb-2 text-xs font-semibold text-primary">
-                {gameVersionLabel(version)}
-              </h4>
-              <p className="text-sm leading-relaxed text-card-foreground">{text}</p>
-            </article>
-          ))}
         </div>
-      ) : (
-        <p className="text-sm text-muted-foreground">
-          {localized(
-            'Não há entradas da Pokédex disponíveis para este Pokémon.',
-            'No Pokédex entries are available for this Pokémon.',
-          )}
-        </p>
-      )}
+      </details>
     </section>
   );
 }
