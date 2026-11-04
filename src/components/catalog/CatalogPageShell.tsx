@@ -4,6 +4,7 @@ import { ArrowLeft, ArrowUp } from 'lucide-react';
 import { Header } from '@/components/Header';
 import { Footer } from '@/components/Footer';
 import { Button } from '@/components/ui/button';
+import { localized } from '@/lib/language';
 
 interface Props {
   title: string;
@@ -41,7 +42,7 @@ export function CatalogPageShell({
       <main className="catalog-main">
         <div className="catalog-heading">
           <Button variant="ghost" size="icon" className="catalog-back-button" asChild>
-            <Link to="/" aria-label="Voltar ao início">
+            <Link to="/" aria-label={localized('Voltar ao início', 'Back to home')}>
               <ArrowLeft className="h-5 w-5" />
             </Link>
           </Button>
@@ -59,7 +60,7 @@ export function CatalogPageShell({
               onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
             >
               <ArrowUp className="h-4 w-4" />
-              Voltar ao topo
+              {localized('Voltar ao topo', 'Back to top')}
             </Button>
           </div>
         )}
