@@ -1,6 +1,7 @@
 import { getDefensiveMatchups, getOffensiveMatchups } from '@/lib/type-effectiveness';
 import { TypeBadge } from '@/components/TypeBadge';
 import { Shield, Swords, Ban } from 'lucide-react';
+import { localized } from '@/lib/language';
 
 interface Props {
   types: string[];
@@ -12,14 +13,16 @@ export function TypeEffectiveness({ types }: Props) {
 
   return (
     <div className="rounded-xl bg-card border border-border p-6 space-y-6">
-      <h3 className="section-title">Efetividade de Tipo</h3>
+      <h3 className="section-title">{localized('Efetividade de Tipo', 'Type effectiveness')}</h3>
 
       {/* Defensive */}
       <div className="space-y-4">
         <div>
           <div className="flex items-center gap-2 mb-2">
             <Shield className="h-4 w-4 text-destructive" />
-            <span className="text-detail-label text-sm text-foreground">Fraquezas</span>
+            <span className="text-detail-label text-sm text-foreground">
+              {localized('Fraquezas', 'Weaknesses')}
+            </span>
           </div>
           {defense.weaknesses.length > 0 ? (
             <div className="flex flex-wrap gap-1.5">
@@ -33,14 +36,16 @@ export function TypeEffectiveness({ types }: Props) {
               ))}
             </div>
           ) : (
-            <p className="text-xs text-muted-foreground">Nenhuma</p>
+            <p className="text-xs text-muted-foreground">{localized('Nenhuma', 'None')}</p>
           )}
         </div>
 
         <div>
           <div className="flex items-center gap-2 mb-2">
             <Shield className="h-4 w-4 text-primary" />
-            <span className="text-detail-label text-sm text-foreground">Resistências</span>
+            <span className="text-detail-label text-sm text-foreground">
+              {localized('Resistências', 'Resistances')}
+            </span>
           </div>
           {defense.resistances.length > 0 ? (
             <div className="flex flex-wrap gap-1.5">
@@ -54,7 +59,7 @@ export function TypeEffectiveness({ types }: Props) {
               ))}
             </div>
           ) : (
-            <p className="text-xs text-muted-foreground">Nenhuma</p>
+            <p className="text-xs text-muted-foreground">{localized('Nenhuma', 'None')}</p>
           )}
         </div>
 
@@ -62,7 +67,9 @@ export function TypeEffectiveness({ types }: Props) {
           <div>
             <div className="flex items-center gap-2 mb-2">
               <Ban className="h-4 w-4 text-muted-foreground" />
-              <span className="text-detail-label text-sm text-foreground">Imunidades</span>
+              <span className="text-detail-label text-sm text-foreground">
+                {localized('Imunidades', 'Immunities')}
+              </span>
             </div>
             <div className="flex flex-wrap gap-1.5">
               {defense.immunities.map((t) => (
@@ -78,7 +85,9 @@ export function TypeEffectiveness({ types }: Props) {
         <div>
           <div className="flex items-center gap-2 mb-2">
             <Swords className="h-4 w-4 text-primary" />
-            <span className="text-detail-label text-sm text-foreground">Super Efetivo contra</span>
+            <span className="text-detail-label text-sm text-foreground">
+              {localized('Super Efetivo contra', 'Super effective against')}
+            </span>
           </div>
           {offense.superEffective.length > 0 ? (
             <div className="flex flex-wrap gap-1.5">
@@ -87,7 +96,7 @@ export function TypeEffectiveness({ types }: Props) {
               ))}
             </div>
           ) : (
-            <p className="text-xs text-muted-foreground">Nenhum</p>
+            <p className="text-xs text-muted-foreground">{localized('Nenhum', 'None')}</p>
           )}
         </div>
 
@@ -95,7 +104,9 @@ export function TypeEffectiveness({ types }: Props) {
           <div>
             <div className="flex items-center gap-2 mb-2">
               <Ban className="h-4 w-4 text-muted-foreground" />
-              <span className="text-detail-label text-sm text-foreground">Sem efeito contra</span>
+              <span className="text-detail-label text-sm text-foreground">
+                {localized('Sem efeito contra', 'No effect against')}
+              </span>
             </div>
             <div className="flex flex-wrap gap-1.5">
               {offense.noEffect.map((t) => (
