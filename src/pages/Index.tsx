@@ -118,7 +118,10 @@ export default function Index() {
         </Link>
         {GENERATIONS.map((gen) => (
           <Link key={gen.id} to={`/generation/${gen.id}`} className="home-region-button">
-            <StarterDisplay sprites={REGION_STARTERS[gen.region] ?? []} label={gen.region} />
+            <StarterDisplay
+              sprites={REGION_STARTERS[gen.id === 10 ? 'Desconhecida' : gen.region] ?? []}
+              label={gen.region}
+            />
             <h3>
               {gen.region === 'Desconhecida' ? localized('Desconhecida', 'Unknown') : gen.region}
             </h3>

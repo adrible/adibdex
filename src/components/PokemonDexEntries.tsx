@@ -1,3 +1,4 @@
+import { SourceText } from '@/components/SourceText';
 import { useQuery } from '@tanstack/react-query';
 import { BookOpen, ChevronDown } from 'lucide-react';
 import { fetchPokemonSpeciesInfo } from '@/lib/pokeapi';
@@ -42,8 +43,8 @@ export function PokemonDexEntries({ speciesId }: { speciesId: number }) {
         <div className="mt-3">
           <p className="mb-3 text-sm leading-relaxed text-muted-foreground">
             {localized(
-              'Descrições oficiais registradas nos jogos, no idioma selecionado.',
-              'Official descriptions recorded in the games, in the selected language.',
+              'Descrições registradas nos jogos. Quando não houver tradução, o texto original será identificado.',
+              'Descriptions recorded in the games.',
             )}
           </p>
           {isPending ? (
@@ -69,7 +70,9 @@ export function PokemonDexEntries({ speciesId }: { speciesId: number }) {
                   <h4 className="mb-2 text-xs font-semibold text-primary">
                     {gameVersionLabel(version)}
                   </h4>
-                  <p className="text-sm leading-relaxed text-card-foreground">{text}</p>
+                  <p className="text-sm leading-relaxed text-card-foreground">
+                    <SourceText text={text} language={data.entriesLanguage} />
+                  </p>
                 </article>
               ))}
             </div>

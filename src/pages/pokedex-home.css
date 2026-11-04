@@ -1,8 +1,10 @@
+@import './pokedex-grid.css';
+
 .home-pokedex-page {
-  --home-blue: 204 65% 29%;
-  --home-line: 202 60% 94%;
+  --home-blue: var(--pokedex-display-blue);
+  --home-line: 215 65% 13%;
   padding: 22px 18px 0;
-  background: hsl(218 24% 9%);
+  background: hsl(var(--pokedex-display-blue));
   color: hsl(var(--home-line));
 }
 .home-pokedex-device {
@@ -85,26 +87,18 @@
 .home-grid-screen {
   padding: 28px;
   min-width: 0;
-  background-color: hsl(var(--home-blue));
-  background-image:
-    linear-gradient(hsl(0 0% 100% / 0.08) 1px, transparent 1px),
-    linear-gradient(90deg, hsl(0 0% 100% / 0.08) 1px, transparent 1px),
-    linear-gradient(hsl(0 0% 100% / 0.12) 1px, transparent 1px),
-    linear-gradient(90deg, hsl(0 0% 100% / 0.12) 1px, transparent 1px);
-  background-size:
-    24px 24px,
-    24px 24px,
-    120px 120px,
-    120px 120px;
-  border-inline: 2px solid hsl(202 60% 94% / 0.7);
-  --foreground: 202 60% 94%;
-  --card-foreground: 202 60% 94%;
-  --muted-foreground: 202 40% 82%;
-  --border: 202 50% 85%;
-  --primary: 196 100% 84%;
-  --card: 204 65% 29%;
-  --background: 204 65% 29%;
-  --muted: 204 45% 23%;
+  background-color: hsl(var(--pokedex-display-blue));
+  background-image: var(--pokedex-display-grid);
+  background-size: var(--pokedex-display-grid-size);
+  border-inline: 2px solid hsl(215 65% 13% / 0.7);
+  --foreground: 215 65% 13%;
+  --card-foreground: 215 65% 13%;
+  --muted-foreground: 211 31% 29%;
+  --border: 211 31% 46%;
+  --primary: 203 90% 30%;
+  --card: var(--pokedex-display-blue);
+  --background: var(--pokedex-display-blue);
+  --muted: 202 38% 67%;
 }
 .home-screen-heading {
   display: flex;
@@ -161,7 +155,7 @@
 }
 .home-region-button:hover {
   background: hsl(0 0% 100% / 0.08);
-  border-color: white;
+  border-color: hsl(var(--home-line));
 }
 .home-region-button:active {
   background: hsl(0 0% 100% / 0.14);
@@ -292,11 +286,6 @@
   }
   .home-grid-screen {
     padding: 22px 12px 16px;
-    background-size:
-      20px 20px,
-      20px 20px,
-      100px 100px,
-      100px 100px;
   }
   .home-screen-heading {
     margin-bottom: 16px;
@@ -351,11 +340,11 @@
 }
 /* Every catalog shares the same Pokédex frame and blue grid as the home screen. */
 .catalog-page .home-grid-screen {
-  --primary-foreground: 215 65% 13%;
-  --secondary: 204 48% 22%;
-  --secondary-foreground: 202 60% 94%;
-  --input: 202 50% 85%;
-  --ring: 196 100% 84%;
+  --primary-foreground: 0 0% 100%;
+  --secondary: 201 56% 82%;
+  --secondary-foreground: 215 65% 13%;
+  --input: 211 31% 46%;
+  --ring: 203 90% 30%;
 }
 .catalog-page .catalog-heading {
   gap: 12px;
@@ -413,7 +402,7 @@
   box-shadow: none;
 }
 .catalog-page .catalog-pokemon-card:hover {
-  border-color: white;
+  border-color: hsl(var(--home-line));
   background: hsl(0 0% 100% / 0.07);
 }
 .catalog-page .catalog-pokemon-card > .relative {

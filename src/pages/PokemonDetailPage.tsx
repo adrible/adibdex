@@ -3,8 +3,9 @@ import { useParams, Link, useNavigate, useLocation } from 'react-router-dom';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import {
   fetchPokemonDetail,
+  fetchPokemonForms,
   fetchPokemonEncounters,
-  fetchAbilityDescription,
+  fetchAbilityDescriptionText,
   STAT_TRANSLATIONS,
   GENERATIONS,
 } from '@/lib/pokeapi';
@@ -24,6 +25,8 @@ import { QueryErrorState } from '@/components/QueryErrorState';
 import { parsePokemonNavigationState } from '@/lib/navigation';
 import { applyPageMetadata, getPageMetadata } from '@/lib/seo';
 import { getSiteLanguage, localized } from '@/lib/language';
+import { locationLabel } from '@/lib/resource-labels';
+import { SourceText } from '@/components/SourceText';
 import './pokedex-detail.css';
 
 function StatBar({ name, value }: { name: string; value: number }) {
@@ -80,7 +83,10 @@ const ENCOUNTER_CONDITIONS: Record<string, string> = {
 };
 
 function encounterLabel(value: string, labels: Record<string, string>) {
-  return labels[value] ?? value.replace(/-/g, ' ').replace(/^\w/, (letter) => letter.toUpperCase());
+  return (
+    labels[value.replace(/ /g, '-')] ??
+    value.replace(/-/g, ' ').replace(/^\w/, (letter) => letter.toUpperCase())
+  );
 }
 
 function encounterLevelRange(min: number | null, max: number | null) {
@@ -94,18 +100,6 @@ function gameName(value: string) {
   return value.replace(/-/g, ' ').replace(/\b\w/g, (letter) => letter.toUpperCase());
 }
 
-function encounterLocation(value: string) {
-  const words = value.replace(/-/g, ' ');
-  if (getSiteLanguage() === 'en') return words.replace(/\b\w/g, (letter) => letter.toUpperCase());
-  return words
-    .replace(/\broute\b/g, 'rota')
-    .replace(/\bcave\b/g, 'caverna')
-    .replace(/\bforest\b/g, 'floresta')
-    .replace(/\bmountain\b/g, 'montanha')
-    .replace(/\broad\b/g, 'estrada')
-    .replace(/\b\w/g, (letter) => letter.toUpperCase());
-}
-
 function AbilityChip({ ability, hidden }: { ability: string; hidden: boolean }) {
   const {
     data: description,
@@ -113,7 +107,7 @@ function AbilityChip({ ability, hidden }: { ability: string; hidden: boolean }) 
     isError,
   } = useQuery({
     queryKey: ['ability-desc', ability],
-    queryFn: ({ signal }) => fetchAbilityDescription(ability, signal),
+    queryFn: ({ signal }) => fetchAbilityDescriptionText(ability, signal),
     staleTime: Infinity,
   });
   return (
@@ -125,11 +119,15 @@ function AbilityChip({ ability, hidden }: { ability: string; hidden: boolean }) 
         </span>
       </div>
       <p className="text-support mt-3">
-        {isLoading
-          ? localized('Carregando descrição...', 'Loading description...')
-          : isError
-            ? localized('Não foi possível carregar a descrição.', 'Could not load the description.')
-            : description || localized('Descrição indisponível.', 'Description unavailable.')}
+        {isLoading ? (
+          localized('Carregando descrição...', 'Loading description...')
+        ) : isError ? (
+          localized('Não foi possível carregar a descrição.', 'Could not load the description.')
+        ) : description?.text ? (
+          <SourceText text={description.text} language={description.language} />
+        ) : (
+          localized('Descrição indisponível.', 'Description unavailable.')
+        )}
       </p>
     </article>
   );
@@ -191,6 +189,14 @@ export default function PokemonDetailPage() {
     enabled: isValidPokemonId,
     staleTime: 1000 * 60 * 30,
   });
+
+  const { data: alternateForms } = useQuery({
+    queryKey: ['pokemon-forms', pokemonId],
+    queryFn: ({ signal }) => fetchPokemonForms(pokemonId, signal),
+    enabled: isValidPokemonId,
+    staleTime: 1000 * 60 * 60,
+  });
+  const hasAlternateForms = Boolean(alternateForms?.length);
 
   const encounterGames = useMemo(
     () =>
@@ -259,7 +265,7 @@ export default function PokemonDetailPage() {
 
   if (!isValidPokemonId) {
     return (
-      <div className="min-h-screen bg-background">
+      <div className="pokedex-page min-h-screen bg-background">
         <Header />
         <main className="container py-20 max-w-2xl">
           <QueryErrorState
@@ -276,7 +282,7 @@ export default function PokemonDetailPage() {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-background">
+      <div className="pokedex-page min-h-screen bg-background">
         <Header />
         <div className="container py-12 max-w-3xl">
           <Skeleton className="h-8 w-48 mb-8" />
@@ -291,7 +297,7 @@ export default function PokemonDetailPage() {
 
   if (pokemonError || !pokemon) {
     return (
-      <div className="min-h-screen bg-background">
+      <div className="pokedex-page min-h-screen bg-background">
         <Header />
         <main className="container py-20 max-w-2xl">
           <QueryErrorState
@@ -437,11 +443,10 @@ export default function PokemonDetailPage() {
               aria-label={localized('Seções do Pokémon', 'Pokémon sections')}
             >
               {[
-                ['habilidades', localized('Habilid.', 'Abilities')],
-                ['atributos', localized('Atributos', 'Stats')],
+                ['stats', 'Stats'],
                 ['fraquezas', localized('Defesa', 'Defense')],
                 ['evolucoes', localized('Evoluções', 'Evolution')],
-                ['formas', localized('Formas', 'Forms')],
+                ...(hasAlternateForms ? [['formas', localized('Formas', 'Forms')]] : []),
                 ['ataques', localized('Ataques', 'Moves')],
                 ['localizacoes', localized('Locais', 'Locations')],
                 ['entradas-pokedex', localized('Pokédex', 'Pokédex')],
@@ -451,7 +456,7 @@ export default function PokemonDetailPage() {
                 </a>
               ))}
             </nav>
-            <div className="pokedex-instruments pokedex-screen">
+            <div id="stats" className="pokedex-instruments pokedex-screen">
               <div id="atributos" className="detail-panel">
                 <div className="flex flex-wrap items-center justify-between gap-3 mb-4">
                   <h3 className="section-title">{localized('Estatísticas Base', 'Base stats')}</h3>
@@ -530,7 +535,7 @@ export default function PokemonDetailPage() {
                       {filteredEncounters.map((enc, i) => (
                         <div key={i} className="rounded-lg bg-muted/50 p-3">
                           <p className="text-sm font-semibold text-foreground capitalize">
-                            {encounterLocation(enc.location)}
+                            {locationLabel(enc.location)}
                           </p>
                           <div className="mt-2 space-y-2">
                             {enc.versions.map((version) => (
@@ -619,14 +624,16 @@ export default function PokemonDetailPage() {
               />
             </div>
 
-            <div id="formas" className="detail-section detail-wide">
-              <PokemonForms
-                pokemonId={pokemonId}
-                isShiny={isShiny}
-                origin={stableOrigin}
-                listContext={listContext}
-              />
-            </div>
+            {hasAlternateForms && (
+              <div id="formas" className="detail-section detail-wide">
+                <PokemonForms
+                  pokemonId={pokemonId}
+                  isShiny={isShiny}
+                  origin={stableOrigin}
+                  listContext={listContext}
+                />
+              </div>
+            )}
 
             <div id="ataques" className="detail-section detail-wide">
               <PokemonMoves key={pokemonId} pokemonId={pokemonId} />

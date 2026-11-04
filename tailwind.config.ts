@@ -16,8 +16,8 @@ export default {
     extend: {
       fontFamily: {
         pixel: ['"Press Start 2P"', 'ui-monospace', 'monospace'],
-        sans: ['"Pixelify Sans"', 'ui-monospace', 'monospace'],
-        mono: ['"Pixelify Sans"', 'ui-monospace', 'monospace'],
+        sans: ['"Inter"', 'sans-serif'],
+        mono: ['"Chakra Petch"', 'ui-monospace', 'monospace'],
       },
       colors: {
         border: 'hsl(var(--border))',

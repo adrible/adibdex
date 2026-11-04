@@ -20,12 +20,8 @@ export default function GenerationPage() {
     );
   return (
     <CatalogPageShell
-      title={
-        generation.region === 'Desconhecida'
-          ? localized('Desconhecida', 'Unknown')
-          : generation.region
-      }
-      subtitle={`${generation.region === 'Desconhecida' ? localized('Pokémon sem região definida', 'Pokémon with no region assigned') : `${localized('Região de', 'Region:')} ${generation.region}`} · #${generation.pokemonRange[0]}–#${generation.pokemonRange[1]}`}
+      title={generation.id === 10 ? localized('Desconhecida', 'Unknown') : generation.region}
+      subtitle={`${generation.id === 10 ? localized('Pokémon sem região definida', 'Pokémon with no region assigned') : `${localized('Região de', 'Region:')} ${generation.region}`} · #${generation.pokemonRange[0]}–#${generation.pokemonRange[1]}`}
       backToTop
     >
       <PokemonGrid key={generation.id} generation={generation} />

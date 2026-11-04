@@ -1,3 +1,4 @@
+import { SourceText } from '@/components/SourceText';
 import { useQuery } from '@tanstack/react-query';
 import { ChevronDown } from 'lucide-react';
 import { fetchPokemonSpeciesInfo } from '@/lib/pokeapi';
@@ -83,7 +84,11 @@ export function PokemonSpeciesProfile({ speciesId }: { speciesId: number }) {
     <div className="species-profile">
       {(data.genus || statusTags.length > 0) && (
         <div className="species-profile-heading">
-          {data.genus && <span className="species-profile-genus">{data.genus}</span>}
+          {data.genus && (
+            <span className="species-profile-genus">
+              <SourceText text={data.genus} language={data.genusLanguage} />
+            </span>
+          )}
           {statusTags.map((tag) => (
             <span key={tag} className="species-profile-tag">
               {tag}
@@ -91,7 +96,11 @@ export function PokemonSpeciesProfile({ speciesId }: { speciesId: number }) {
           ))}
         </div>
       )}
-      {data.description && <p className="species-profile-description">{data.description}</p>}
+      {data.description && (
+        <p className="species-profile-description">
+          <SourceText text={data.description} language={data.descriptionLanguage} />
+        </p>
+      )}
       <details className="species-profile-details">
         <summary>
           {localized('Dados de captura e reprodução', 'Capture and breeding data')}

@@ -12,37 +12,47 @@ function getUserLang(): string {
   return getSiteLanguage();
 }
 
-export async function fetchMoveDescription(
+export async function fetchMoveDescriptionText(
   moveName: string,
   signal?: AbortSignal,
-): Promise<string> {
+): Promise<{ text: string; language: string }> {
   const data = await fetchMoveData(moveName, signal);
   const lang = getUserLang();
 
   // Try user language first for flavor text
   if (lang !== 'en') {
-    const localFlavor = data.flavor_text_entries?.filter((e) => e.language.name === lang);
+    const localFlavor = data.flavor_text_entries?.filter(
+      (e) => e.language.name === lang || e.language.name.startsWith(`${lang}-`),
+    );
     if (localFlavor?.length > 0) {
-      return localFlavor[localFlavor.length - 1].flavor_text.replace(/\n/g, ' ');
+      return {
+        text: localFlavor[localFlavor.length - 1].flavor_text.replace(/\n/g, ' '),
+        language: lang,
+      };
     }
   }
 
-  const entry = data.effect_entries?.find((e) => e.language.name === 'en');
+  const entry =
+    data.effect_entries?.find(
+      (e) => e.language.name === lang || e.language.name.startsWith(`${lang}-`),
+    ) ?? data.effect_entries?.find((e) => e.language.name === 'en');
   if (entry) {
-    return (
-      entry.short_effect?.replace('$effect_chance%', `${data.effect_chance ?? '?'}%`) ||
-      entry.effect ||
-      ''
-    );
+    return {
+      text:
+        entry.short_effect?.replace('$effect_chance%', `${data.effect_chance ?? '?'}%`) ||
+        entry.effect ||
+        '',
+      language: entry.language.name,
+    };
   }
   const flavor = data.flavor_text_entries?.find((e) => e.language.name === 'en');
-  return flavor?.flavor_text || '';
+  return { text: flavor?.flavor_text || '', language: 'en' };
 }
 
-export async function fetchAbilityDescription(
+export async function fetchAbilityDescriptionText(
   abilityName: string,
   signal?: AbortSignal,
-): Promise<string> {
+): Promise<{ text: string; language: string }> {
   const data = await apiRequest(
     `ability/${encodeURIComponent(abilityName)}`,
     abilitySchema,
@@ -52,14 +62,25 @@ export async function fetchAbilityDescription(
 
   // Try user language flavor text
   if (lang !== 'en') {
-    const localFlavor = data.flavor_text_entries?.filter((e) => e.language.name === lang);
+    const localFlavor = data.flavor_text_entries?.filter(
+      (e) => e.language.name === lang || e.language.name.startsWith(`${lang}-`),
+    );
     if (localFlavor?.length > 0) {
-      return localFlavor[localFlavor.length - 1].flavor_text.replace(/\n/g, ' ');
+      return {
+        text: localFlavor[localFlavor.length - 1].flavor_text.replace(/\n/g, ' '),
+        language: lang,
+      };
     }
   }
 
-  const entry = data.effect_entries?.find((e) => e.language.name === 'en');
-  return entry?.effect || entry?.short_effect || '';
+  const entry =
+    data.effect_entries?.find(
+      (e) => e.language.name === lang || e.language.name.startsWith(`${lang}-`),
+    ) ?? data.effect_entries?.find((e) => e.language.name === 'en');
+  return {
+    text: entry?.effect || entry?.short_effect || '',
+    language: entry?.language.name ?? lang,
+  };
 }
 
 export async function fetchPokemonMovesByGame(
@@ -161,4 +182,12 @@ export async function fetchPokemonMovesByGame(
       tutor: buildMoves('tutor'),
     };
   });
+}
+
+// Preserve the public string API for consumers that only need the text.
+export async function fetchMoveDescription(name: string, signal?: AbortSignal) {
+  return (await fetchMoveDescriptionText(name, signal)).text;
+}
+export async function fetchAbilityDescription(name: string, signal?: AbortSignal) {
+  return (await fetchAbilityDescriptionText(name, signal)).text;
 }

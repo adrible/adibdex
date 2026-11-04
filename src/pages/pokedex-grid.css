@@ -1,0 +1,35 @@
+/* Shared display surface for the home and Pokémon records. */
+:root {
+  --pokedex-display-blue: 201 56% 76%;
+  --pokedex-display-grid:
+    linear-gradient(hsl(0 0% 100% / 0.08) 1px, transparent 1px),
+    linear-gradient(90deg, hsl(0 0% 100% / 0.08) 1px, transparent 1px),
+    linear-gradient(hsl(0 0% 100% / 0.12) 1px, transparent 1px),
+    linear-gradient(90deg, hsl(0 0% 100% / 0.12) 1px, transparent 1px);
+  --pokedex-display-grid-size: 24px 24px, 24px 24px, 120px 120px, 120px 120px;
+}
+@media (max-width: 639px) {
+  :root {
+    --pokedex-display-grid-size: 20px 20px, 20px 20px, 100px 100px, 100px 100px;
+  }
+}
+
+/* Navy text on the same pale blue display in every catalog and record. */
+.home-pokedex-page,
+.pokedex-page {
+  --foreground: 215 65% 13%;
+  --card-foreground: 215 65% 13%;
+  --muted-foreground: 211 31% 29%;
+  --background: var(--pokedex-display-blue);
+  --card: var(--pokedex-display-blue);
+  --muted: 202 38% 67%;
+  --border: 211 31% 46%;
+  --primary: 203 90% 30%;
+  --primary-foreground: 0 0% 100%;
+  --popover: 201 60% 87%;
+  --popover-foreground: 215 65% 13%;
+  --input: 211 31% 46%;
+  --ring: 203 90% 30%;
+  color: hsl(var(--foreground));
+  background-color: hsl(var(--pokedex-display-blue));
+}
