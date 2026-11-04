@@ -44,3 +44,16 @@ test('Pokédex keeps shiny, navigation, species details and game entries functio
   await page.getByRole('button', { name: 'Voltar à lista', exact: true }).click();
   await expect(page).toHaveURL(/\/generation\/1$/);
 });
+
+test('locations can be collapsed and reopened with keyboard navigation', async ({ page }) => {
+  await page.goto('/pokemon/1');
+  const disclosure = page.locator('#localizacoes details');
+  const summary = disclosure.locator('summary');
+  const body = page.locator('.pokedex-locations-body');
+  await expect(body).toBeVisible();
+  await summary.click();
+  await expect(body).toBeHidden();
+  await summary.focus();
+  await page.keyboard.press('Enter');
+  await expect(body).toBeVisible();
+});
