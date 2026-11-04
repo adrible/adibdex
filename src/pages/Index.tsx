@@ -1,12 +1,10 @@
 import { Link } from 'react-router-dom';
 import { GENERATIONS } from '@/lib/pokeapi';
-import { Header } from '@/components/Header';
+import { PokedexFrame } from '@/components/PokedexFrame';
 import { ChevronRight } from 'lucide-react';
 import { Changelog } from '@/components/Changelog';
-import { Footer } from '@/components/Footer';
 import { localized } from '@/lib/language';
 import { NationalGlobe } from '@/components/NationalGlobe';
-import './pokedex-home.css';
 
 const REGION_STARTERS: Record<string, string[]> = {
   Kanto: [
@@ -102,68 +100,47 @@ function StarterDisplay({ sprites, label }: { sprites: string[]; label: string }
 
 export default function Index() {
   return (
-    <div className="home-pokedex-page min-h-screen">
-      <div className="home-pokedex-device">
-        <div className="home-device-cap home-device-cap--top">
-          <Header />
-          <span className="home-device-arc" aria-hidden="true" />
-        </div>
-        <main className="home-grid-screen">
-          <div className="home-screen-heading">
-            <h2>{localized('Escolha sua Pokédex', 'Choose your Pokédex')}</h2>
-            <a href="#novidades">
-              {localized('Novidades', "What's new")} <ChevronRight aria-hidden="true" />
-            </a>
-          </div>
-          <div className="home-region-grid">
-            <Link to="/national" className="home-region-button home-region-button--national">
-              <div className="home-starters">
-                <NationalGlobe />
-              </div>
-              <h3>{localized('Pokédex Nacional', 'National Pokédex')}</h3>
-              <span className="home-region-code">
-                {localized('Todas as regiões', 'All regions')}
-              </span>
-              <ChevronRight className="home-region-arrow" aria-hidden="true" />
-            </Link>
-            {GENERATIONS.map((gen) => (
-              <Link key={gen.id} to={`/generation/${gen.id}`} className="home-region-button">
-                <StarterDisplay sprites={REGION_STARTERS[gen.region] ?? []} label={gen.region} />
-                <h3>
-                  {gen.region === 'Desconhecida'
-                    ? localized('Desconhecida', 'Unknown')
-                    : gen.region}
-                </h3>
-                <span className="home-region-code">
-                  #{String(gen.pokemonRange[0]).padStart(4, '0')} — #
-                  {String(gen.pokemonRange[1]).padStart(4, '0')}
-                </span>
-                <ChevronRight className="home-region-arrow" aria-hidden="true" />
-              </Link>
-            ))}
-            {SPECIAL_CATALOGS.map(({ path, label, sprites }) => (
-              <Link key={path} to={path} className="home-region-button">
-                <StarterDisplay sprites={sprites} label={label} />
-                <h3>{label}</h3>
-                <span className="home-region-code">
-                  {localized('Formas especiais', 'Special forms')}
-                </span>
-                <ChevronRight className="home-region-arrow" aria-hidden="true" />
-              </Link>
-            ))}
-          </div>
-          <Changelog />
-        </main>
-        <div className="home-device-cap home-device-cap--bottom" aria-hidden="true">
-          <span className="home-device-arc" />
-          <span className="home-device-vents">
-            <i />
-            <i />
-            <i />
-          </span>
-        </div>
+    <PokedexFrame>
+      <div className="home-screen-heading">
+        <h2>{localized('Escolha sua Pokédex', 'Choose your Pokédex')}</h2>
+        <a href="#novidades">
+          {localized('Novidades', "What's new")} <ChevronRight aria-hidden="true" />
+        </a>
       </div>
-      <Footer />
-    </div>
+      <div className="home-region-grid">
+        <Link to="/national" className="home-region-button home-region-button--national">
+          <div className="home-starters">
+            <NationalGlobe />
+          </div>
+          <h3>{localized('Pokédex Nacional', 'National Pokédex')}</h3>
+          <span className="home-region-code">{localized('Todas as regiões', 'All regions')}</span>
+          <ChevronRight className="home-region-arrow" aria-hidden="true" />
+        </Link>
+        {GENERATIONS.map((gen) => (
+          <Link key={gen.id} to={`/generation/${gen.id}`} className="home-region-button">
+            <StarterDisplay sprites={REGION_STARTERS[gen.region] ?? []} label={gen.region} />
+            <h3>
+              {gen.region === 'Desconhecida' ? localized('Desconhecida', 'Unknown') : gen.region}
+            </h3>
+            <span className="home-region-code">
+              #{String(gen.pokemonRange[0]).padStart(4, '0')} — #
+              {String(gen.pokemonRange[1]).padStart(4, '0')}
+            </span>
+            <ChevronRight className="home-region-arrow" aria-hidden="true" />
+          </Link>
+        ))}
+        {SPECIAL_CATALOGS.map(({ path, label, sprites }) => (
+          <Link key={path} to={path} className="home-region-button">
+            <StarterDisplay sprites={sprites} label={label} />
+            <h3>{label}</h3>
+            <span className="home-region-code">
+              {localized('Formas especiais', 'Special forms')}
+            </span>
+            <ChevronRight className="home-region-arrow" aria-hidden="true" />
+          </Link>
+        ))}
+      </div>
+      <Changelog />
+    </PokedexFrame>
   );
 }
