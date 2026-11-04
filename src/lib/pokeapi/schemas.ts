@@ -43,7 +43,7 @@ export const speciesSchema = z.object({
   evolution_chain: z.object({ url: z.string().url() }).nullable(),
   varieties: z.array(z.object({ is_default: z.boolean(), pokemon: resource })),
   flavor_text_entries: z
-    .array(z.object({ flavor_text: z.string(), language: resource }))
+    .array(z.object({ flavor_text: z.string(), language: resource, version: resource.optional() }))
     .optional(),
   genera: z.array(z.object({ genus: z.string(), language: resource })).optional(),
   capture_rate: z.number().int().nonnegative().optional(),
