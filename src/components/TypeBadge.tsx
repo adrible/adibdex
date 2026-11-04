@@ -1,4 +1,5 @@
 import { TYPE_TRANSLATIONS } from '@/lib/pokeapi';
+import { localized } from '@/lib/language';
 
 const TYPE_BG_CLASSES: Record<string, string> = {
   normal: 'bg-[hsl(var(--type-normal))]',
@@ -33,7 +34,7 @@ export function TypeBadge({ type, size = 'sm' }: { type: string; size?: 'sm' | '
         size === 'md' ? 'px-4 py-1.5 text-sm' : 'px-2.5 py-0.5 text-xs'
       }`}
     >
-      {TYPE_TRANSLATIONS[type] || type}
+      {TYPE_TRANSLATIONS[type] || localized(type, type)}
     </span>
   );
 }
