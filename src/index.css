@@ -454,6 +454,9 @@ All colors MUST be HSL.
   .detail-locations {
     @apply order-last;
   }
+  .detail-dex-entries {
+    @apply order-last;
+  }
   .detail-encounter-version {
     @apply rounded-md border border-border/70 bg-background/50 p-2;
   }
