@@ -22,6 +22,7 @@ import { Footer } from '@/components/Footer';
 import { QueryErrorState } from '@/components/QueryErrorState';
 import { parsePokemonNavigationState } from '@/lib/navigation';
 import { applyPageMetadata, getPageMetadata } from '@/lib/seo';
+import { getSiteLanguage, localized } from '@/lib/language';
 
 function StatBar({ name, value }: { name: string; value: number }) {
   const percentage = Math.min((value / 255) * 100, 100);
@@ -42,38 +43,38 @@ function StatBar({ name, value }: { name: string; value: number }) {
 }
 
 const ENCOUNTER_METHODS: Record<string, string> = {
-  walk: 'Andando',
-  surf: 'Surfando',
-  'old-rod': 'Vara velha',
-  'good-rod': 'Vara boa',
-  'super-rod': 'Supervara',
-  'rock-smash': 'Quebrando rochas',
-  headbutt: 'Cabeçada',
-  'dark-grass': 'Grama escura',
-  'yellow-flowers': 'Flores amarelas',
-  'purple-flowers': 'Flores roxas',
-  'red-flowers': 'Flores vermelhas',
-  'bridge-shadow': 'Sombra de ponte',
-  'dust-cloud': 'Nuvem de poeira',
-  'rippling-water': 'Água ondulante',
-  'hidden-grotto': 'Gruta escondida',
-  'sos-call': 'Chamada SOS',
+  walk: localized('Andando', 'Walking'),
+  surf: localized('Surfando', 'Surfing'),
+  'old-rod': localized('Vara velha', 'Old Rod'),
+  'good-rod': localized('Vara boa', 'Good Rod'),
+  'super-rod': localized('Supervara', 'Super Rod'),
+  'rock-smash': localized('Quebrando rochas', 'Rock Smash'),
+  headbutt: localized('Cabeçada', 'Headbutt'),
+  'dark-grass': localized('Grama escura', 'Dark grass'),
+  'yellow-flowers': localized('Flores amarelas', 'Yellow flowers'),
+  'purple-flowers': localized('Flores roxas', 'Purple flowers'),
+  'red-flowers': localized('Flores vermelhas', 'Red flowers'),
+  'bridge-shadow': localized('Sombra de ponte', 'Bridge shadow'),
+  'dust-cloud': localized('Nuvem de poeira', 'Dust cloud'),
+  'rippling-water': localized('Água ondulante', 'Rippling water'),
+  'hidden-grotto': localized('Gruta escondida', 'Hidden grotto'),
+  'sos-call': localized('Chamada SOS', 'SOS call'),
 };
 
 const ENCOUNTER_CONDITIONS: Record<string, string> = {
-  'time-morning': 'Manhã',
-  'time-day': 'Dia',
-  'time-night': 'Noite',
-  'time-evening': 'Entardecer',
-  'swarm-yes': 'Enxame',
-  'swarm-no': 'Sem enxame',
-  'radio-hoenn': 'Rádio de Hoenn',
-  'radio-sinnoh': 'Rádio de Sinnoh',
-  'season-spring': 'Primavera',
-  'season-summer': 'Verão',
-  'season-autumn': 'Outono',
-  'season-winter': 'Inverno',
-  'slot2-none': 'Sem cartucho extra',
+  'time-morning': localized('Manhã', 'Morning'),
+  'time-day': localized('Dia', 'Day'),
+  'time-night': localized('Noite', 'Night'),
+  'time-evening': localized('Entardecer', 'Evening'),
+  'swarm-yes': localized('Enxame', 'Swarm'),
+  'swarm-no': localized('Sem enxame', 'No swarm'),
+  'radio-hoenn': localized('Rádio de Hoenn', 'Hoenn radio'),
+  'radio-sinnoh': localized('Rádio de Sinnoh', 'Sinnoh radio'),
+  'season-spring': localized('Primavera', 'Spring'),
+  'season-summer': localized('Verão', 'Summer'),
+  'season-autumn': localized('Outono', 'Autumn'),
+  'season-winter': localized('Inverno', 'Winter'),
+  'slot2-none': localized('Sem cartucho extra', 'No extra cartridge'),
 };
 
 function encounterLabel(value: string, labels: Record<string, string>) {
@@ -82,9 +83,21 @@ function encounterLabel(value: string, labels: Record<string, string>) {
 
 function encounterLevelRange(min: number | null, max: number | null) {
   if (min === null && max === null) return null;
-  if (min === max || max === null) return `Nv. ${min ?? max}`;
-  if (min === null) return `Até nv. ${max}`;
-  return `Nv. ${min}–${max}`;
+  if (min === max || max === null) return localized(`Nv. ${min ?? max}`, `Lv. ${min ?? max}`);
+  if (min === null) return localized(`Até nv. ${max}`, `Up to Lv. ${max}`);
+  return localized(`Nv. ${min}–${max}`, `Lv. ${min}–${max}`);
+}
+
+function encounterLocation(value: string) {
+  const words = value.replace(/-/g, ' ');
+  if (getSiteLanguage() === 'en') return words.replace(/\b\w/g, (letter) => letter.toUpperCase());
+  return words
+    .replace(/\broute\b/g, 'rota')
+    .replace(/\bcave\b/g, 'caverna')
+    .replace(/\bforest\b/g, 'floresta')
+    .replace(/\bmountain\b/g, 'montanha')
+    .replace(/\broad\b/g, 'estrada')
+    .replace(/\b\w/g, (letter) => letter.toUpperCase());
 }
 
 function AbilityChip({ ability, hidden }: { ability: string; hidden: boolean }) {
@@ -107,10 +120,10 @@ function AbilityChip({ ability, hidden }: { ability: string; hidden: boolean }) 
       </div>
       <p className="text-support mt-3">
         {isLoading
-          ? 'Carregando descrição...'
+          ? localized('Carregando descrição...', 'Loading description...')
           : isError
-            ? 'Não foi possível carregar a descrição.'
-            : description || 'Descrição indisponível.'}
+            ? localized('Não foi possível carregar a descrição.', 'Could not load the description.')
+            : description || localized('Descrição indisponível.', 'Description unavailable.')}
       </p>
     </article>
   );
@@ -244,8 +257,11 @@ export default function PokemonDetailPage() {
         <Header />
         <main className="container py-20 max-w-2xl">
           <QueryErrorState
-            title="Identificador inválido"
-            message="Use um número inteiro positivo para acessar um Pokémon."
+            title={localized('Identificador inválido', 'Invalid identifier')}
+            message={localized(
+              'Use um número inteiro positivo para acessar um Pokémon.',
+              'Use a positive whole number to open a Pokémon.',
+            )}
           />
         </main>
       </div>
@@ -273,8 +289,11 @@ export default function PokemonDetailPage() {
         <Header />
         <main className="container py-20 max-w-2xl">
           <QueryErrorState
-            title="Pokémon não encontrado"
-            message="O registro não existe ou a PokeAPI está indisponível."
+            title={localized('Pokémon não encontrado', 'Pokémon not found')}
+            message={localized(
+              'O registro não existe ou a PokeAPI está indisponível.',
+              'This record does not exist or the PokéAPI is unavailable.',
+            )}
             onRetry={() => void refetchPokemon()}
           />
         </main>
@@ -290,7 +309,12 @@ export default function PokemonDetailPage() {
       <Header />
       <main className="container py-6 sm:py-8 max-w-6xl detail-page">
         <div className="flex items-center justify-between mb-8">
-          <Button variant="ghost" size="icon" onClick={handleBack} aria-label="Voltar à lista">
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={handleBack}
+            aria-label={localized('Voltar à lista', 'Back to list')}
+          >
             <ArrowLeft className="h-5 w-5" />
           </Button>
 
@@ -306,7 +330,7 @@ export default function PokemonDetailPage() {
               }`}
             >
               <Sparkles className="h-4 w-4" />
-              Shiny
+              {localized('Shiny', 'Shiny')}
             </Button>
 
             {prevId && (
@@ -314,7 +338,7 @@ export default function PokemonDetailPage() {
                 <Link
                   to={`/pokemon/${prevId}`}
                   replace
-                  aria-label="Pokémon anterior"
+                  aria-label={localized('Pokémon anterior', 'Previous Pokémon')}
                   state={{
                     origin: stableOrigin,
                     listContext: {
@@ -333,7 +357,7 @@ export default function PokemonDetailPage() {
                 <Link
                   to={`/pokemon/${nextId}`}
                   replace
-                  aria-label="Próximo Pokémon"
+                  aria-label={localized('Próximo Pokémon', 'Next Pokémon')}
                   state={{
                     origin: stableOrigin,
                     listContext: {
@@ -349,7 +373,10 @@ export default function PokemonDetailPage() {
           </div>
         </div>
 
-        <section className="detail-hero" aria-label="Resumo do Pokémon">
+        <section
+          className="detail-hero"
+          aria-label={localized('Resumo do Pokémon', 'Pokémon overview')}
+        >
           <div className="detail-identity">
             <p className="text-code mb-3">#{String(displayId).padStart(4, '0')}</p>
             <h2 className="site-display capitalize mb-4">{pokemon.name.replace(/-/g, ' ')}</h2>
@@ -387,15 +414,15 @@ export default function PokemonDetailPage() {
             </div>
           </div>
         </section>
-        <nav className="detail-nav" aria-label="Seções do Pokémon">
+        <nav className="detail-nav" aria-label={localized('Seções do Pokémon', 'Pokémon sections')}>
           {[
-            ['habilidades', 'Habilidades'],
-            ['atributos', 'Atributos'],
-            ['fraquezas', 'Fraquezas'],
-            ['evolucoes', 'Evoluções'],
-            ['formas', 'Formas'],
-            ['ataques', 'Ataques'],
-            ['localizacoes', 'Localizações'],
+            ['habilidades', localized('Habilidades', 'Abilities')],
+            ['atributos', localized('Atributos', 'Stats')],
+            ['fraquezas', localized('Fraquezas', 'Type matchups')],
+            ['evolucoes', localized('Evoluções', 'Evolution')],
+            ['formas', localized('Formas', 'Forms')],
+            ['ataques', localized('Ataques', 'Moves')],
+            ['localizacoes', localized('Localizações', 'Locations')],
           ].map(([anchor, label]) => (
             <a key={anchor} href={`#${anchor}`} className="detail-nav-link">
               {label}
@@ -404,7 +431,7 @@ export default function PokemonDetailPage() {
         </nav>
         <div className="detail-content-grid">
           <div id="habilidades" className="detail-panel detail-wide">
-            <h3 className="section-title mb-4">Habilidades</h3>
+            <h3 className="section-title mb-4">{localized('Habilidades', 'Abilities')}</h3>
             <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
               {pokemon.abilities.map((a) => (
                 <AbilityChip
@@ -418,8 +445,10 @@ export default function PokemonDetailPage() {
 
           <div id="atributos" className="detail-panel">
             <div className="flex flex-wrap items-center justify-between gap-3 mb-4">
-              <h3 className="section-title">Estatísticas Base</h3>
-              <span className="text-code">Total: {totalStats}</span>
+              <h3 className="section-title">{localized('Estatísticas Base', 'Base stats')}</h3>
+              <span className="text-code">
+                {localized('Total', 'Total')}: {totalStats}
+              </span>
             </div>
             <div className="space-y-3">
               {pokemon.stats.map((s) => (
@@ -436,17 +465,17 @@ export default function PokemonDetailPage() {
             <div className="detail-location-toolbar">
               <div className="flex items-center gap-2">
                 <MapPin className="h-5 w-5 text-primary" />
-                <h3 className="section-title">Localizações</h3>
+                <h3 className="section-title">{localized('Localizações', 'Locations')}</h3>
               </div>
               {encounters && encounters.length > 0 && (
                 <label className="detail-location-filter">
-                  <span>Jogo</span>
+                  <span>{localized('Jogo', 'Game')}</span>
                   <select
                     className="detail-game-select"
                     value={selectedEncounterGame}
                     onChange={(event) => setSelectedEncounterGame(event.target.value)}
                   >
-                    <option value="">Todos os jogos</option>
+                    <option value="">{localized('Todos os jogos', 'All games')}</option>
                     {encounterGames.map((game) => (
                       <option key={game} value={game}>
                         {game.replace(/-/g, ' ')}
@@ -463,7 +492,10 @@ export default function PokemonDetailPage() {
               </div>
             ) : encountersError ? (
               <QueryErrorState
-                title="Não foi possível carregar as localizações"
+                title={localized(
+                  'Não foi possível carregar as localizações',
+                  'Could not load locations',
+                )}
                 onRetry={() => void refetchEncounters()}
               />
             ) : encounters && encounters.length > 0 && filteredEncounters?.length ? (
@@ -471,7 +503,7 @@ export default function PokemonDetailPage() {
                 {filteredEncounters.map((enc, i) => (
                   <div key={i} className="rounded-lg bg-muted/50 p-3">
                     <p className="text-sm font-semibold text-foreground capitalize">
-                      {enc.location}
+                      {encounterLocation(enc.location)}
                     </p>
                     <div className="mt-2 space-y-2">
                       {enc.versions.map((version) => (
@@ -527,11 +559,15 @@ export default function PokemonDetailPage() {
               </div>
             ) : encounters && encounters.length > 0 ? (
               <p className="text-support">
-                Nenhuma localização encontrada em {selectedEncounterGame.replace(/-/g, ' ')}.
+                {localized('Nenhuma localização encontrada em', 'No locations found in')}{' '}
+                {selectedEncounterGame.replace(/-/g, ' ')}.
               </p>
             ) : (
               <p className="text-support">
-                Não encontrado em nenhuma rota — pode ser obtido por evento, troca ou evolução.
+                {localized(
+                  'Não encontrado em nenhuma rota — pode ser obtido por evento, troca ou evolução.',
+                  'Not found in any location. It may be obtained through an event, trade, or evolution.',
+                )}
               </p>
             )}
           </div>
