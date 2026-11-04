@@ -349,3 +349,177 @@
     transition: none;
   }
 }
+/* Every catalog shares the same Pokédex frame and blue grid as the home screen. */
+.catalog-page .home-grid-screen {
+  --primary-foreground: 215 65% 13%;
+  --secondary: 204 48% 22%;
+  --secondary-foreground: 202 60% 94%;
+  --input: 202 50% 85%;
+  --ring: 196 100% 84%;
+}
+.catalog-page .catalog-heading {
+  gap: 12px;
+  margin-bottom: 24px;
+  align-items: flex-start;
+}
+.catalog-page .catalog-heading-copy {
+  padding: 0;
+  background: none;
+  border: 0;
+}
+.catalog-page .catalog-title {
+  font-size: clamp(1.4rem, 3vw, 2rem);
+  color: hsl(var(--foreground));
+}
+.catalog-page .catalog-title::after {
+  display: none;
+}
+.catalog-page .catalog-subtitle {
+  margin-top: 6px;
+  font-size: 0.9rem;
+  line-height: 1.5;
+  color: hsl(var(--muted-foreground));
+}
+.catalog-page .catalog-back-button {
+  border: 1px solid hsl(var(--home-line) / 0.75);
+  border-radius: 3px;
+  color: hsl(var(--foreground));
+}
+.catalog-page .catalog-tools {
+  max-width: none;
+}
+.catalog-page .catalog-search-help {
+  background: transparent;
+  border: 1px solid hsl(var(--home-line) / 0.3);
+  border-radius: 3px;
+  padding: 8px 10px;
+  color: hsl(var(--muted-foreground));
+  font-size: 0.8rem;
+}
+.catalog-page .catalog-grid {
+  gap: 12px;
+}
+.catalog-page .catalog-grid > div {
+  height: 100%;
+  min-width: 0;
+}
+.catalog-page .catalog-pokemon-card {
+  border: 2px solid hsl(var(--home-line) / 0.85);
+  border-radius: 3px;
+  background: transparent;
+  color: hsl(var(--foreground));
+  padding: 12px;
+  text-align: center;
+  box-shadow: none;
+}
+.catalog-page .catalog-pokemon-card:hover {
+  border-color: white;
+  background: hsl(0 0% 100% / 0.07);
+}
+.catalog-page .catalog-pokemon-card > .relative {
+  height: 112px;
+  margin-bottom: 8px;
+}
+.catalog-page .catalog-pokemon-card > .relative > .absolute {
+  display: none;
+}
+.catalog-page .catalog-pokemon-card img {
+  width: 104px;
+  height: 104px;
+  max-width: 100%;
+  image-rendering: pixelated;
+}
+.catalog-page .catalog-pokemon-card .text-code {
+  align-self: center;
+  border: 0;
+  border-radius: 0;
+  background: none;
+  color: hsl(var(--muted-foreground));
+  padding: 0;
+  font-size: 0.8rem;
+  margin-bottom: 4px;
+}
+.catalog-page .catalog-card-name {
+  justify-content: center;
+  font-size: 1rem;
+  color: hsl(var(--foreground));
+}
+.catalog-page .catalog-pokemon-types {
+  justify-content: center;
+  gap: 4px;
+}
+.catalog-page .catalog-pokemon-types > span {
+  border-radius: 3px;
+}
+.catalog-page .catalog-skeleton-card {
+  background: hsl(0 0% 100% / 0.04);
+  border: 2px solid hsl(var(--home-line) / 0.4);
+  border-radius: 3px;
+}
+.catalog-page
+  :is(input, .catalog-actions > button, .catalog-pagination button, .catalog-back-to-top button) {
+  border-radius: 3px;
+  border-color: hsl(var(--home-line) / 0.7);
+}
+.catalog-page .catalog-search input {
+  background: hsl(var(--home-blue));
+  color: hsl(var(--foreground));
+}
+.catalog-page .catalog-search input::placeholder {
+  color: hsl(var(--muted-foreground));
+}
+.catalog-page .catalog-actions > button,
+.catalog-page .catalog-pagination button,
+.catalog-page .catalog-back-to-top button {
+  background: transparent;
+  color: hsl(var(--foreground));
+}
+.catalog-page .catalog-actions > .catalog-view-active {
+  background: hsl(var(--home-line));
+  color: hsl(215 65% 13%);
+}
+.catalog-page .catalog-actions > .catalog-shiny-active {
+  background: hsl(45 90% 72%);
+  color: hsl(32 70% 16%);
+}
+.catalog-page .catalog-pagination {
+  margin-block: 24px;
+}
+.catalog-page .catalog-page-input {
+  background: transparent;
+  color: hsl(var(--foreground));
+}
+.catalog-page .catalog-page-input::placeholder {
+  color: hsl(var(--foreground));
+  opacity: 1;
+}
+.catalog-page .catalog-suggestions {
+  border-radius: 3px;
+  border-color: hsl(var(--home-line) / 0.75);
+  background: hsl(var(--home-blue));
+}
+@media (max-width: 639px) {
+  .catalog-page .catalog-heading {
+    gap: 10px;
+    margin-bottom: 18px;
+  }
+  .catalog-page .catalog-grid {
+    gap: 10px;
+  }
+  .catalog-page .catalog-pokemon-card {
+    padding: 10px 6px;
+  }
+  .catalog-page .catalog-pokemon-card > .relative {
+    height: 94px;
+  }
+  .catalog-page .catalog-pokemon-card img {
+    width: 88px;
+    height: 88px;
+  }
+  .catalog-page .catalog-card-name {
+    font-size: 0.9rem;
+  }
+  .catalog-page .catalog-actions {
+    gap: 6px;
+  }
+}
