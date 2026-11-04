@@ -17,6 +17,7 @@ import {
   type ClassificationOption,
   type EvolutionStageOption,
 } from '@/features/catalog/filter-state';
+import { localized } from '@/lib/language';
 
 export function FilterContent({
   filters,
@@ -52,7 +53,7 @@ export function FilterContent({
       />
       <div>
         <div className="flex items-center justify-between mb-2">
-          <h4 className="text-sm font-semibold text-foreground">Tipos</h4>
+          <h4 className="text-sm font-semibold text-foreground">{localized('Tipos', 'Types')}</h4>
 
           <div className="flex rounded-full bg-muted p-1 sm:bg-transparent sm:p-0 sm:gap-1.5">
             <button
@@ -63,7 +64,7 @@ export function FilterContent({
                   : 'text-muted-foreground hover:text-foreground'
               }`}
             >
-              Um
+              {localized('Um', 'Any')}
             </button>
 
             <button
@@ -80,15 +81,18 @@ export function FilterContent({
                   : 'text-muted-foreground hover:text-foreground'
               }`}
             >
-              Todos
+              {localized('Todos', 'All')}
             </button>
           </div>
         </div>
 
         <p className="text-xs text-muted-foreground mb-2">
           {local.typeMatchMode === 'any'
-            ? 'Possui ao menos um dos tipos selecionados'
-            : 'Possui todos os tipos selecionados'}
+            ? localized(
+                'Possui ao menos um dos tipos selecionados',
+                'Has at least one selected type',
+              )
+            : localized('Possui todos os tipos selecionados', 'Has all selected types')}
         </p>
 
         <div className="flex flex-wrap gap-1.5">
@@ -137,7 +141,9 @@ export function FilterContent({
       </div>
 
       <div>
-        <h4 className="text-sm font-semibold text-foreground mb-2">Fraco contra</h4>
+        <h4 className="text-sm font-semibold text-foreground mb-2">
+          {localized('Fraco contra', 'Weak to')}
+        </h4>
         <div className="flex flex-wrap gap-1.5">
           {WEAKNESS_FILTER_TYPES.map((type) => (
             <button
@@ -161,7 +167,9 @@ export function FilterContent({
       </div>
 
       <div>
-        <h4 className="text-sm font-semibold text-foreground mb-2">Forte contra</h4>
+        <h4 className="text-sm font-semibold text-foreground mb-2">
+          {localized('Forte contra', 'Strong against')}
+        </h4>
         <div className="flex flex-wrap gap-1.5">
           {ALL_TYPES.map((type) => (
             <button
@@ -186,14 +194,16 @@ export function FilterContent({
 
       {showSpecialFormFilters && (
         <div>
-          <h4 className="text-sm font-semibold text-foreground mb-2">Formas Especiais</h4>
+          <h4 className="text-sm font-semibold text-foreground mb-2">
+            {localized('Formas Especiais', 'Special forms')}
+          </h4>
           <div className="flex flex-wrap gap-2">
             {(
               [
-                { label: 'Tem Mega', key: 'hasMega', value: true },
-                { label: 'Sem Mega', key: 'hasMega', value: false },
-                { label: 'Tem Gmax', key: 'hasGmax', value: true },
-                { label: 'Sem Gmax', key: 'hasGmax', value: false },
+                { label: localized('Tem Mega', 'Has Mega'), key: 'hasMega', value: true },
+                { label: localized('Sem Mega', 'No Mega'), key: 'hasMega', value: false },
+                { label: localized('Tem Gmax', 'Has Gmax'), key: 'hasGmax', value: true },
+                { label: localized('Sem Gmax', 'No Gmax'), key: 'hasGmax', value: false },
               ] as const
             ).map((option) => (
               <button
@@ -219,7 +229,9 @@ export function FilterContent({
 
       {showRegionFilter && (
         <div>
-          <h4 className="text-sm font-semibold text-foreground mb-2">Região</h4>
+          <h4 className="text-sm font-semibold text-foreground mb-2">
+            {localized('Região', 'Region')}
+          </h4>
           <div className="flex flex-wrap gap-2">
             {ALL_REGIONS.map((region) => (
               <button
@@ -244,7 +256,9 @@ export function FilterContent({
       )}
 
       <div>
-        <h4 className="text-sm font-semibold text-foreground mb-2">Classificação</h4>
+        <h4 className="text-sm font-semibold text-foreground mb-2">
+          {localized('Classificação', 'Classification')}
+        </h4>
         <div className="flex flex-wrap gap-2">
           {(Object.keys(CLASSIFICATION_LABELS) as ClassificationOption[]).map((classification) => (
             <button
@@ -268,7 +282,9 @@ export function FilterContent({
       </div>
 
       <div>
-        <h4 className="text-sm font-semibold text-foreground mb-2">Estágio Evolutivo</h4>
+        <h4 className="text-sm font-semibold text-foreground mb-2">
+          {localized('Estágio Evolutivo', 'Evolution stage')}
+        </h4>
         <div className="flex flex-wrap gap-2">
           {(Object.keys(EVOLUTION_STAGE_LABELS) as EvolutionStageOption[]).map((stage) => (
             <button
@@ -292,7 +308,9 @@ export function FilterContent({
       </div>
 
       <div>
-        <h4 className="text-sm font-semibold text-foreground mb-2">Ordenar por</h4>
+        <h4 className="text-sm font-semibold text-foreground mb-2">
+          {localized('Ordenar por', 'Sort by')}
+        </h4>
         <div className="flex flex-wrap gap-1.5">
           {SORT_OPTIONS.map((option) => (
             <button
@@ -328,10 +346,10 @@ export function FilterContent({
 
       <div className="flex gap-2 pt-2">
         <Button onClick={apply} className="flex-1">
-          Aplicar Filtros
+          {localized('Aplicar Filtros', 'Apply filters')}
         </Button>
         <Button variant="outline" onClick={clear}>
-          Limpar
+          {localized('Limpar', 'Clear')}
         </Button>
       </div>
     </div>
