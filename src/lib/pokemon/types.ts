@@ -44,6 +44,7 @@ export interface PokemonDetail {
 
 export interface PokemonSpeciesInfo {
   description: string;
+  pokedexEntries: { version: string; text: string }[];
   genus: string | null;
   captureRate: number | null;
   genderRate: number | null;
