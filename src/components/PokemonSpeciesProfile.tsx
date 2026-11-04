@@ -2,44 +2,45 @@ import { useQuery } from '@tanstack/react-query';
 import { ChevronDown } from 'lucide-react';
 import { fetchPokemonSpeciesInfo } from '@/lib/pokeapi';
 import { Skeleton } from '@/components/ui/skeleton';
+import { localized, siteLocale } from '@/lib/language';
 
 const EGG_GROUPS: Record<string, string> = {
-  amorphous: 'Amorfo',
-  bug: 'Inseto',
-  dragon: 'Dragão',
-  fairy: 'Fada',
-  field: 'Campo',
-  flying: 'Voador',
-  grass: 'Planta',
-  'human-like': 'Humanoide',
-  mineral: 'Mineral',
-  monster: 'Monstro',
-  'no-eggs': 'Não pode gerar ovos',
-  water1: 'Água 1',
-  water2: 'Água 2',
-  water3: 'Água 3',
+  amorphous: localized('Amorfo', 'Amorphous'),
+  bug: localized('Inseto', 'Bug'),
+  dragon: localized('Dragão', 'Dragon'),
+  fairy: localized('Fada', 'Fairy'),
+  field: localized('Campo', 'Field'),
+  flying: localized('Voador', 'Flying'),
+  grass: localized('Planta', 'Grass'),
+  'human-like': localized('Humanoide', 'Human-Like'),
+  mineral: localized('Mineral', 'Mineral'),
+  monster: localized('Monstro', 'Monster'),
+  'no-eggs': localized('Não pode gerar ovos', 'No eggs'),
+  water1: localized('Água 1', 'Water 1'),
+  water2: localized('Água 2', 'Water 2'),
+  water3: localized('Água 3', 'Water 3'),
   ditto: 'Ditto',
 };
 
 const GROWTH_RATES: Record<string, string> = {
-  slow: 'Lento',
-  medium: 'Médio',
-  fast: 'Rápido',
-  'medium-slow': 'Médio-lento',
-  'slow-then-very-fast': 'Lento e depois muito rápido',
-  'fast-then-very-slow': 'Rápido e depois muito lento',
+  slow: localized('Lento', 'Slow'),
+  medium: localized('Médio', 'Medium'),
+  fast: localized('Rápido', 'Fast'),
+  'medium-slow': localized('Médio-lento', 'Medium-slow'),
+  'slow-then-very-fast': localized('Lento e depois muito rápido', 'Slow, then very fast'),
+  'fast-then-very-slow': localized('Rápido e depois muito lento', 'Fast, then very slow'),
 };
 
 const HABITATS: Record<string, string> = {
-  cave: 'Caverna',
-  forest: 'Floresta',
-  grassland: 'Campos',
-  mountain: 'Montanha',
-  rare: 'Raro',
-  'rough-terrain': 'Terreno acidentado',
-  sea: 'Mar',
-  urban: 'Urbano',
-  'waters-edge': 'Margem de água',
+  cave: localized('Caverna', 'Cave'),
+  forest: localized('Floresta', 'Forest'),
+  grassland: localized('Campos', 'Grassland'),
+  mountain: localized('Montanha', 'Mountain'),
+  rare: localized('Raro', 'Rare'),
+  'rough-terrain': localized('Terreno acidentado', 'Rough terrain'),
+  sea: localized('Mar', 'Sea'),
+  urban: localized('Urbano', 'Urban'),
+  'waters-edge': localized('Margem de água', 'Waters-edge'),
 };
 
 function humanize(value: string) {
@@ -47,7 +48,7 @@ function humanize(value: string) {
 }
 
 function percent(value: number) {
-  return new Intl.NumberFormat('pt-BR', { maximumFractionDigits: 1 }).format(value);
+  return new Intl.NumberFormat(siteLocale(), { maximumFractionDigits: 1 }).format(value);
 }
 
 export function PokemonSpeciesProfile({ speciesId }: { speciesId: number }) {
@@ -59,7 +60,10 @@ export function PokemonSpeciesProfile({ speciesId }: { speciesId: number }) {
 
   if (!data && isPending) {
     return (
-      <div className="species-profile" aria-label="Carregando dados da espécie">
+      <div
+        className="species-profile"
+        aria-label={localized('Carregando dados da espécie', 'Loading species data')}
+      >
         <Skeleton className="mb-2 h-3 w-28" />
         <Skeleton className="h-4 w-full max-w-md" />
       </div>
@@ -67,11 +71,12 @@ export function PokemonSpeciesProfile({ speciesId }: { speciesId: number }) {
   }
   if (!data) return null;
 
-  const femaleRate = data.genderRate === null || data.genderRate < 0 ? null : data.genderRate * 12.5;
+  const femaleRate =
+    data.genderRate === null || data.genderRate < 0 ? null : data.genderRate * 12.5;
   const statusTags = [
-    data.isMythical ? 'Mítico' : null,
-    data.isLegendary ? 'Lendário' : null,
-    data.isBaby ? 'Bebê' : null,
+    data.isMythical ? localized('Mítico', 'Mythical') : null,
+    data.isLegendary ? localized('Lendário', 'Legendary') : null,
+    data.isBaby ? localized('Bebê', 'Baby') : null,
   ].filter((tag): tag is string => Boolean(tag));
 
   return (
@@ -89,47 +94,49 @@ export function PokemonSpeciesProfile({ speciesId }: { speciesId: number }) {
       {data.description && <p className="species-profile-description">{data.description}</p>}
       <details className="species-profile-details">
         <summary>
-          Dados de captura e reprodução
+          {localized('Dados de captura e reprodução', 'Capture and breeding data')}
           <ChevronDown aria-hidden="true" />
         </summary>
         <div className="species-profile-facts">
           {data.captureRate !== null && (
             <div>
-              <span>Taxa de captura</span>
+              <span>{localized('Taxa de captura', 'Catch rate')}</span>
               <strong>{data.captureRate}/255</strong>
             </div>
           )}
           {data.genderRate !== null && (
             <div>
-              <span>Gênero</span>
+              <span>{localized('Gênero', 'Gender')}</span>
               <strong>
                 {femaleRate === null
-                  ? 'Sem gênero'
-                  : `Fêmea ${percent(femaleRate)}% · Macho ${percent(100 - femaleRate)}%`}
+                  ? localized('Sem gênero', 'Genderless')
+                  : `${localized('Fêmea', 'Female')} ${percent(femaleRate)}% · ${localized('Macho', 'Male')} ${percent(100 - femaleRate)}%`}
               </strong>
             </div>
           )}
           {data.eggGroups.length > 0 && (
             <div>
-              <span>Grupo de ovos</span>
-              <strong>{data.eggGroups.map((group) => EGG_GROUPS[group] ?? humanize(group)).join(' · ')}</strong>
+              <span>{localized('Grupo de ovos', 'Egg groups')}</span>
+              <strong>
+                {data.eggGroups.map((group) => EGG_GROUPS[group] ?? humanize(group)).join(' · ')}
+              </strong>
             </div>
           )}
           {data.hatchCounter !== null && (
             <div>
-              <span>Ciclos para eclodir</span>
+              <span>{localized('Ciclos para eclodir', 'Hatch cycles')}</span>
               <strong>{data.hatchCounter + 1}</strong>
             </div>
           )}
           {data.growthRate && (
             <div>
-              <span>Crescimento</span>
+              <span>{localized('Crescimento', 'Growth rate')}</span>
               <strong>{GROWTH_RATES[data.growthRate] ?? humanize(data.growthRate)}</strong>
             </div>
           )}
           {data.habitat && (
             <div>
-              <span>Habitat</span>
+              <span>{localized('Habitat', 'Habitat')}</span>
               <strong>{HABITATS[data.habitat] ?? humanize(data.habitat)}</strong>
             </div>
           )}
