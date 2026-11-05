@@ -193,10 +193,8 @@ const NotFound = () => {
           <div className="dex404-screen">
             <p className="dex404-code">404</p>
             <svg className="dex404-face" viewBox="0 0 160 160" role="img" aria-label={localized('Carinha triste com olhos em X', 'Sad face with X eyes')}>
-              <circle cx="80" cy="80" r="68" fill="#d9eff8" fillOpacity=".52" stroke="#39708f" strokeOpacity=".38" strokeWidth="3" />
               <path d="m43 52 22 22m0-22L43 74M95 52l22 22m0-22L95 74" fill="none" stroke="#102a46" strokeWidth="9" strokeLinecap="round" />
               <path d="M53 111 Q80 82 107 111" fill="none" stroke="#102a46" strokeWidth="8" strokeLinecap="round" />
-              <path d="M57 126 Q80 137 103 126" fill="none" stroke="#39708f" strokeOpacity=".55" strokeWidth="4" strokeLinecap="round" />
             </svg>
             <h1 id="dex404-title" className="dex404-screen-title">
               {localized('Página não encontrada', 'Page not found')}
