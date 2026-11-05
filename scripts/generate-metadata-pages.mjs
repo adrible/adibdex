@@ -26,7 +26,7 @@ export async function generateMetadataPages({ outDir = 'dist', catalogPath = 'pu
     if (!Number.isSafeInteger(entry.id) || entry.id < 1 || typeof entry.name !== 'string') throw new Error('Invalid Pokémon catalog entry');
     const name = displayName(entry.name);
     const number = String(entry.baseId || entry.id).padStart(4, '0');
-    pages.push([`/pokemon/${entry.id}`, `${name} #${number} — tipos, fraquezas e evoluções | AdibDex`, `Descubra tipos, fraquezas, atributos, habilidades, ataques e evoluções de ${name} (#${number}) na AdibDex.`, entry.id]);
+    pages.push([`/pokemon/${entry.id}`, `${name} (Pokémon) #${number} — tipos, fraquezas e evoluções | AdibDex`, `Descubra tipos, fraquezas, atributos, habilidades, ataques e evoluções de ${name} (#${number}) na AdibDex.`, entry.id]);
   }
   for (const [path, title, description, imageId] of pages) {
     const canonical = origin + path;

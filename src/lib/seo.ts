@@ -92,8 +92,8 @@ export function getPageMetadata(pathname: string, pokemon?: PokemonPage) {
     const paddedNumber = String(pokemonNumber).padStart(4, '0');
     title = pokemonName
       ? localized(
-          `${pokemonName} #${paddedNumber} — tipos, fraquezas e evoluções | AdibDex`,
-          `${pokemonName} #${paddedNumber} — types, weaknesses, and evolution | AdibDex`,
+          `${pokemonName} (Pokémon) #${paddedNumber} — tipos, fraquezas e evoluções | AdibDex`,
+          `${pokemonName} (Pokémon) #${paddedNumber} — types, weaknesses, and evolution | AdibDex`,
         )
       : localized(`Pokémon #${pokemonMatch[1]} — AdibDex`, `Pokémon #${pokemonMatch[1]} — AdibDex`);
     description = pokemonName
