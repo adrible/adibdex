@@ -787,3 +787,22 @@
 .pokedex-page :is(#stats, #fraquezas, #evolucoes, #formas, #ataques, #localizacoes, #entradas-pokedex) {
   scroll-margin-top: calc(var(--detail-nav-height, 112px) + 16px);
 }
+
+/* Keep the navigation in the same place and size as it becomes fixed. */
+.pokedex-page .detail-nav-slot {
+  min-height: var(--detail-nav-height, 112px);
+}
+.pokedex-page .detail-nav.detail-nav-fixed {
+  left: var(--detail-nav-left, 12px);
+  width: var(--detail-nav-width, calc(100vw - 24px));
+  transform: none;
+}
+@media (max-width: 767px) {
+  .pokedex-page .detail-nav-slot {
+    min-height: var(--detail-nav-height, 112px);
+  }
+  .pokedex-page .detail-nav.detail-nav-fixed {
+    width: var(--detail-nav-width, calc(100vw - 16px));
+    padding: 7px;
+  }
+}
