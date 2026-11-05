@@ -263,7 +263,7 @@ export default function PokemonDetailPage() {
       document.removeEventListener('scroll', update, true);
       window.removeEventListener('resize', update);
     };
-  }, []);
+  }, [pokemon, isLoading, pokemonError, isValidPokemonId]);
 
   useEffect(() => {
     const preload = (id: number | null) => {
