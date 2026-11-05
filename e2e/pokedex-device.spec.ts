@@ -200,3 +200,26 @@ test('English browsers use English interface labels', async ({ page }) => {
   await expect(page.locator('#localizacoes')).not.toContainText('de chance');
   await expect(page.locator('#localizacoes')).toContainText('FireRed');
 });
+
+for (const width of [320, 390, 1280]) {
+  test(`lens offers a visible keyboard-accessible Home link at ${width}px`, async ({ page }) => {
+    await page.setViewportSize({ width, height: 900 });
+    await page.goto('/pokemon/1');
+    const home = page.getByRole('link', { name: 'Voltar à tela inicial', exact: true });
+    await expect(home).toBeVisible();
+    await expect(home).toContainText('Início');
+    const box = await home.boundingBox();
+    expect(box!.width).toBeGreaterThanOrEqual(44);
+    expect(box!.height).toBeGreaterThanOrEqual(44);
+    expect(box!.y).toBeLessThan(100);
+    const colors = await page.locator('.pokedex-page').evaluate((element) => ({
+      surround: getComputedStyle(element).backgroundColor,
+      screen: getComputedStyle(element.querySelector('.pokedex-screen')!).backgroundColor,
+    }));
+    expect(colors.surround).not.toBe(colors.screen);
+    await home.focus();
+    await page.keyboard.press('Enter');
+    await expect(page).toHaveURL(/\/$/);
+    await expect(page.getByRole('heading', { name: 'Escolha sua Pokédex' })).toBeVisible();
+  });
+}

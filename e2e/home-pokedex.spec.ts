@@ -42,7 +42,7 @@ test('home navigation and readable typography carry into catalogs and Pokémon r
   await expect(page.getByRole('heading', { name: 'Pokédex Nacional' })).toBeVisible();
   expect(
     await page.locator('body').evaluate((element) => getComputedStyle(element).fontFamily),
-  ).toContain('Inter');
+  ).toContain('Chakra Petch');
   await page.goto('/');
   await page.locator('a.home-region-button[href="/generation/1"]').click();
   await expect(page).toHaveURL(/\/generation\/1$/);
@@ -50,5 +50,5 @@ test('home navigation and readable typography carry into catalogs and Pokémon r
   await expect(page.locator('.pokedex-name')).toHaveText('bulbasaur');
   expect(
     await page.locator('.pokedex-page').evaluate((element) => getComputedStyle(element).fontFamily),
-  ).toContain('Inter');
+  ).toContain('Chakra Petch');
 });

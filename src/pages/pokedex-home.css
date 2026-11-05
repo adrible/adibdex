@@ -4,7 +4,7 @@
   --home-blue: var(--pokedex-display-blue);
   --home-line: 215 65% 13%;
   padding: 22px 18px 0;
-  background: hsl(var(--pokedex-display-blue));
+  background: hsl(var(--pokedex-surround));
   color: hsl(var(--home-line));
 }
 .home-pokedex-device {

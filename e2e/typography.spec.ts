@@ -12,7 +12,7 @@ for (const dark of [false, true]) {
     const heading = page.getByRole('heading', { name: 'Escolha sua Pokédex' });
     await expect(heading).toBeVisible();
     expect(await heading.evaluate((element) => getComputedStyle(element).fontFamily)).toContain(
-      'Inter',
+      'Chakra Petch',
     );
     await heading.locator('..').screenshot({ path: testInfo.outputPath('home-heading.png') });
 

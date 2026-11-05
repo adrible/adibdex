@@ -333,7 +333,17 @@ export default function PokemonDetailPage() {
       <main className="container max-w-6xl detail-page">
         <div className="pokedex-shell">
           <div className="pokedex-device-header">
-            <span className="pokedex-lens" aria-hidden="true" />
+            <Link
+              to="/"
+              className="pokedex-home-link"
+              aria-label={localized('Voltar à tela inicial', 'Back to home')}
+              title={localized('Voltar à tela inicial', 'Back to home')}
+            >
+              <span className="pokedex-lens" aria-hidden="true">
+                <ArrowLeft />
+              </span>
+              <span className="pokedex-home-label">{localized('Início', 'Home')}</span>
+            </Link>
             <Header />
             <span className="pokedex-indicators" aria-hidden="true">
               <i />
@@ -366,11 +376,13 @@ export default function PokemonDetailPage() {
               <div className="pokedex-screen-controls">
                 <Button
                   variant="ghost"
-                  size="icon"
+                  size="sm"
+                  className="gap-1.5"
                   onClick={handleBack}
                   aria-label={localized('Voltar à lista', 'Back to list')}
                 >
-                  <ArrowLeft className="h-5 w-5" />
+                  <ArrowLeft className="h-4 w-4" />
+                  <span>{localized('Lista', 'List')}</span>
                 </Button>
 
                 <div className="flex gap-2 items-center">

@@ -1,6 +1,7 @@
 /* Shared display surface for the home and Pokémon records. */
 :root {
   --pokedex-display-blue: 201 56% 76%;
+  --pokedex-surround: 218 25% 12%;
   --pokedex-display-grid:
     linear-gradient(hsl(0 0% 100% / 0.08) 1px, transparent 1px),
     linear-gradient(90deg, hsl(0 0% 100% / 0.08) 1px, transparent 1px),
@@ -31,5 +32,12 @@
   --input: 211 31% 46%;
   --ring: 203 90% 30%;
   color: hsl(var(--foreground));
-  background-color: hsl(var(--pokedex-display-blue));
+  background-color: hsl(var(--pokedex-surround));
+}
+
+.home-pokedex-page > footer .footer-version,
+.pokedex-page > footer .footer-version {
+  background: hsl(218 25% 16%);
+  color: hsl(201 40% 88%);
+  border-color: hsl(211 25% 45%);
 }

@@ -147,7 +147,7 @@
   overflow-wrap: anywhere;
 }
 .pokedex-number {
-  font-family: 'Inter', sans-serif;
+  font-family: 'Chakra Petch', sans-serif;
   font-size: 0.9rem;
   font-weight: 700;
   letter-spacing: 0.04em;
@@ -522,7 +522,7 @@
   background-size: var(--pokedex-display-grid-size);
 }
 .pokedex-page {
-  font-family: 'Inter', sans-serif;
+  font-family: 'Chakra Petch', sans-serif;
 }
 .pokedex-page .detail-hero {
   align-items: stretch;
@@ -610,8 +610,63 @@
 .source-language-note {
   display: block;
   margin-bottom: 4px;
-  font-family: 'Inter', sans-serif;
+  font-family: 'Chakra Petch', sans-serif;
   font-size: 0.6875rem;
   font-weight: 600;
   color: hsl(var(--muted-foreground));
+}
+
+/* The blue lens doubles as a prominent, keyboard-accessible Home control. */
+.pokedex-home-link {
+  display: inline-flex;
+  flex: 0 0 52px;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  min-height: 62px;
+  color: white;
+  border-radius: 8px;
+  text-decoration: none;
+}
+.pokedex-home-link .pokedex-lens {
+  display: grid;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  flex: none;
+  transition:
+    filter 150ms ease,
+    transform 150ms ease;
+}
+.pokedex-home-link .pokedex-lens svg {
+  width: 24px;
+  height: 24px;
+  stroke-width: 3;
+  filter: drop-shadow(0 1px 1px hsl(215 65% 13%));
+}
+.pokedex-home-label {
+  font-size: 0.6875rem;
+  font-weight: 700;
+  line-height: 1;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+.pokedex-home-link:hover .pokedex-lens {
+  filter: brightness(1.15);
+  transform: translateX(-2px);
+}
+.pokedex-page .pokedex-home-link:focus-visible {
+  outline-color: white;
+}
+@media (prefers-reduced-motion: reduce) {
+  .pokedex-home-link .pokedex-lens {
+    transition: none;
+  }
+}
+
+.pokedex-page > main:not(.detail-page) {
+  margin-top: 24px;
+  border-radius: 8px;
+  background: hsl(var(--pokedex-display-blue));
 }
