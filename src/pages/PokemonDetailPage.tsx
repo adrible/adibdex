@@ -3,8 +3,9 @@ import { useParams, Link, useNavigate, useLocation } from 'react-router-dom';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import {
   fetchPokemonDetail,
+  fetchPokemonForms,
   fetchPokemonEncounters,
-  fetchAbilityDescription,
+  fetchAbilityDescriptionText,
   STAT_TRANSLATIONS,
   GENERATIONS,
 } from '@/lib/pokeapi';
@@ -17,13 +18,16 @@ import { PokemonMoves } from '@/components/PokemonMoves';
 import { PokemonDexEntries } from '@/components/PokemonDexEntries';
 import { PokemonSpeciesProfile } from '@/components/PokemonSpeciesProfile';
 import { Button } from '@/components/ui/button';
-import { ArrowLeft, ChevronLeft, ChevronRight, MapPin, Sparkles } from 'lucide-react';
+import { ArrowLeft, ChevronLeft, ChevronRight, ChevronDown, MapPin, Sparkles } from 'lucide-react';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Footer } from '@/components/Footer';
 import { QueryErrorState } from '@/components/QueryErrorState';
 import { parsePokemonNavigationState } from '@/lib/navigation';
 import { applyPageMetadata, getPageMetadata } from '@/lib/seo';
 import { getSiteLanguage, localized } from '@/lib/language';
+import { locationLabel, gameVersionLabel } from '@/lib/resource-labels';
+import { SourceText } from '@/components/SourceText';
+import './pokedex-detail.css';
 
 function StatBar({ name, value }: { name: string; value: number }) {
   const percentage = Math.min((value / 255) * 100, 100);
@@ -45,6 +49,17 @@ function StatBar({ name, value }: { name: string; value: number }) {
 
 const ENCOUNTER_METHODS: Record<string, string> = {
   walk: localized('Andando', 'Walking'),
+  gift: localized('Presente', 'Gift'),
+  'gift-egg': localized('Ovo de presente', 'Gift Egg'),
+  'island-scan': localized('Scanner de ilhas', 'Island Scan'),
+  'overworld-special': localized('Encontro especial no mapa', 'Special overworld encounter'),
+  overworld: localized('No mapa', 'Overworld'),
+  'only-one': localized('Encontro único', 'One-time encounter'),
+  pokeflute: localized('Pokéflauta', 'Poké Flute'),
+  'squirt-bottle': localized('Regador', 'Squirt Bottle'),
+  'berry-piles': localized('Montes de frutas', 'Berry piles'),
+  'roaming-grass': localized('Encontro itinerante na grama', 'Roaming in grass'),
+  'roaming-water': localized('Encontro itinerante na água', 'Roaming on water'),
   surf: localized('Surfando', 'Surfing'),
   'old-rod': localized('Vara velha', 'Old Rod'),
   'good-rod': localized('Vara boa', 'Good Rod'),
@@ -63,6 +78,11 @@ const ENCOUNTER_METHODS: Record<string, string> = {
 };
 
 const ENCOUNTER_CONDITIONS: Record<string, string> = {
+  'story-progress-beat-red': localized('Após derrotar Red', 'After defeating Red'),
+  'story-progress-master-dojo-complete-first-trial': localized(
+    'Após o primeiro desafio do Dojô Mestre',
+    'After the first Master Dojo trial',
+  ),
   'time-morning': localized('Manhã', 'Morning'),
   'time-day': localized('Dia', 'Day'),
   'time-night': localized('Noite', 'Night'),
@@ -79,7 +99,10 @@ const ENCOUNTER_CONDITIONS: Record<string, string> = {
 };
 
 function encounterLabel(value: string, labels: Record<string, string>) {
-  return labels[value] ?? value.replace(/-/g, ' ').replace(/^\w/, (letter) => letter.toUpperCase());
+  return (
+    labels[value.replace(/ /g, '-')] ??
+    value.replace(/-/g, ' ').replace(/^\w/, (letter) => letter.toUpperCase())
+  );
 }
 
 function encounterLevelRange(min: number | null, max: number | null) {
@@ -89,22 +112,6 @@ function encounterLevelRange(min: number | null, max: number | null) {
   return localized(`Nv. ${min}–${max}`, `Lv. ${min}–${max}`);
 }
 
-function gameName(value: string) {
-  return value.replace(/-/g, ' ').replace(/\b\w/g, (letter) => letter.toUpperCase());
-}
-
-function encounterLocation(value: string) {
-  const words = value.replace(/-/g, ' ');
-  if (getSiteLanguage() === 'en') return words.replace(/\b\w/g, (letter) => letter.toUpperCase());
-  return words
-    .replace(/\broute\b/g, 'rota')
-    .replace(/\bcave\b/g, 'caverna')
-    .replace(/\bforest\b/g, 'floresta')
-    .replace(/\bmountain\b/g, 'montanha')
-    .replace(/\broad\b/g, 'estrada')
-    .replace(/\b\w/g, (letter) => letter.toUpperCase());
-}
-
 function AbilityChip({ ability, hidden }: { ability: string; hidden: boolean }) {
   const {
     data: description,
@@ -112,7 +119,7 @@ function AbilityChip({ ability, hidden }: { ability: string; hidden: boolean }) 
     isError,
   } = useQuery({
     queryKey: ['ability-desc', ability],
-    queryFn: ({ signal }) => fetchAbilityDescription(ability, signal),
+    queryFn: ({ signal }) => fetchAbilityDescriptionText(ability, signal),
     staleTime: Infinity,
   });
   return (
@@ -120,15 +127,19 @@ function AbilityChip({ ability, hidden }: { ability: string; hidden: boolean }) 
       <div className="flex flex-wrap items-center justify-between gap-2">
         <h4 className="font-semibold capitalize">{ability.replace(/-/g, ' ')}</h4>
         <span className={hidden ? 'detail-hidden-tag' : 'text-overline'}>
-          {hidden ? 'Oculta' : 'Comum'}
+          {hidden ? localized('Oculta', 'Hidden') : localized('Comum', 'Common')}
         </span>
       </div>
       <p className="text-support mt-3">
-        {isLoading
-          ? localized('Carregando descrição...', 'Loading description...')
-          : isError
-            ? localized('Não foi possível carregar a descrição.', 'Could not load the description.')
-            : description || localized('Descrição indisponível.', 'Description unavailable.')}
+        {isLoading ? (
+          localized('Carregando descrição...', 'Loading description...')
+        ) : isError ? (
+          localized('Não foi possível carregar a descrição.', 'Could not load the description.')
+        ) : description?.text ? (
+          <SourceText text={description.text} language={description.language} />
+        ) : (
+          localized('Descrição indisponível.', 'Description unavailable.')
+        )}
       </p>
     </article>
   );
@@ -190,6 +201,14 @@ export default function PokemonDetailPage() {
     enabled: isValidPokemonId,
     staleTime: 1000 * 60 * 30,
   });
+
+  const { data: alternateForms } = useQuery({
+    queryKey: ['pokemon-forms', pokemonId],
+    queryFn: ({ signal }) => fetchPokemonForms(pokemonId, signal),
+    enabled: isValidPokemonId,
+    staleTime: 1000 * 60 * 60,
+  });
+  const hasAlternateForms = Boolean(alternateForms?.length);
 
   const encounterGames = useMemo(
     () =>
@@ -258,7 +277,7 @@ export default function PokemonDetailPage() {
 
   if (!isValidPokemonId) {
     return (
-      <div className="min-h-screen bg-background">
+      <div className="pokedex-page min-h-screen bg-background">
         <Header />
         <main className="container py-20 max-w-2xl">
           <QueryErrorState
@@ -275,7 +294,7 @@ export default function PokemonDetailPage() {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-background">
+      <div className="pokedex-page min-h-screen bg-background">
         <Header />
         <div className="container py-12 max-w-3xl">
           <Skeleton className="h-8 w-48 mb-8" />
@@ -290,7 +309,7 @@ export default function PokemonDetailPage() {
 
   if (pokemonError || !pokemon) {
     return (
-      <div className="min-h-screen bg-background">
+      <div className="pokedex-page min-h-screen bg-background">
         <Header />
         <main className="container py-20 max-w-2xl">
           <QueryErrorState
@@ -310,295 +329,342 @@ export default function PokemonDetailPage() {
   const artworkSrc = isShiny ? pokemon.sprites.artwork_shiny : pokemon.sprites.artwork;
 
   return (
-    <div className="min-h-screen bg-background">
-      <Header />
-      <main className="container py-6 sm:py-8 max-w-6xl detail-page">
-        <div className="flex items-center justify-between mb-8">
-          <Button
-            variant="ghost"
-            size="icon"
-            onClick={handleBack}
-            aria-label={localized('Voltar à lista', 'Back to list')}
-          >
-            <ArrowLeft className="h-5 w-5" />
-          </Button>
-
-          <div className="flex gap-2 items-center">
-            <Button
-              variant={isShiny ? 'default' : 'outline'}
-              size="sm"
-              onClick={() => setIsShiny(!isShiny)}
-              className={`gap-1.5 ${
-                isShiny
-                  ? 'bg-gradient-to-r from-yellow-500 to-amber-500 hover:from-yellow-600 hover:to-amber-600 text-white border-0'
-                  : ''
-              }`}
+    <div className="pokedex-page min-h-screen bg-background">
+      <main className="container max-w-6xl detail-page">
+        <div className="pokedex-shell">
+          <div className="pokedex-device-header">
+            <Link
+              to="/"
+              className="pokedex-home-link"
+              aria-label={localized('Voltar à tela inicial', 'Back to home')}
+              title={localized('Voltar à tela inicial', 'Back to home')}
             >
-              <Sparkles className="h-4 w-4" />
-              {localized('Shiny', 'Shiny')}
-            </Button>
-
-            {prevId && (
-              <Button variant="outline" size="icon" asChild>
-                <Link
-                  to={`/pokemon/${prevId}`}
-                  replace
-                  aria-label={localized('Pokémon anterior', 'Previous Pokémon')}
-                  state={{
-                    origin: stableOrigin,
-                    listContext: {
-                      ids: idsSafe,
-                      currentIndex: safeIndex - 1,
-                    },
-                  }}
-                >
-                  <ChevronLeft className="h-4 w-4" />
-                </Link>
-              </Button>
-            )}
-
-            {nextId && (
-              <Button variant="outline" size="icon" asChild>
-                <Link
-                  to={`/pokemon/${nextId}`}
-                  replace
-                  aria-label={localized('Próximo Pokémon', 'Next Pokémon')}
-                  state={{
-                    origin: stableOrigin,
-                    listContext: {
-                      ids: idsSafe,
-                      currentIndex: safeIndex + 1,
-                    },
-                  }}
-                >
-                  <ChevronRight className="h-4 w-4" />
-                </Link>
-              </Button>
-            )}
-          </div>
-        </div>
-
-        <section
-          className="detail-hero"
-          aria-label={localized('Resumo do Pokémon', 'Pokémon overview')}
-        >
-          <div className="detail-identity">
-            <p className="text-code mb-3">#{String(displayId).padStart(4, '0')}</p>
-            <h2 className="site-display capitalize mb-4">{pokemon.name.replace(/-/g, ' ')}</h2>
-            <div className="flex flex-wrap gap-2 mb-6">
-              {pokemon.types.map((t) => (
-                <TypeBadge key={t} type={t} size="md" />
-              ))}
-            </div>
-            <PokemonSpeciesProfile speciesId={pokemon.speciesId} />
-          </div>
-
-          <div className="detail-artwork">
-            <div className="relative w-48 h-48 sm:w-64 sm:h-64">
-              <div className="absolute inset-0 rounded-3xl bg-muted/60 blur-2xl scale-110" />
-              <img
-                src={artworkSrc}
-                alt={pokemon.name}
-                className="relative z-10 w-full h-full object-contain"
-              />
-            </div>
-          </div>
-
-          <div className="detail-measurements grid grid-cols-2 gap-3">
-            <div className="rounded-xl bg-card border border-border p-5 text-center">
-              <p className="text-overline mb-2">Altura</p>
-              <p className="metric-value">
-                {(pokemon.height / 10).toFixed(1)} <span className="metric-unit">m</span>
-              </p>
-            </div>
-            <div className="rounded-xl bg-card border border-border p-5 text-center">
-              <p className="text-overline mb-2">Peso</p>
-              <p className="metric-value">
-                {(pokemon.weight / 10).toFixed(1)} <span className="metric-unit">kg</span>
-              </p>
-            </div>
-          </div>
-        </section>
-        <nav className="detail-nav" aria-label={localized('Seções do Pokémon', 'Pokémon sections')}>
-          {[
-            ['habilidades', localized('Habilidades', 'Abilities')],
-            ['atributos', localized('Atributos', 'Stats')],
-            ['fraquezas', localized('Fraquezas', 'Type matchups')],
-            ['evolucoes', localized('Evoluções', 'Evolution')],
-            ['formas', localized('Formas', 'Forms')],
-            ['ataques', localized('Ataques', 'Moves')],
-            ['localizacoes', localized('Localizações', 'Locations')],
-            ['entradas-pokedex', localized('Pokédex', 'Pokédex')],
-          ].map(([anchor, label]) => (
-            <a key={anchor} href={`#${anchor}`} className="detail-nav-link">
-              {label}
-            </a>
-          ))}
-        </nav>
-        <div className="detail-content-grid">
-          <div id="habilidades" className="detail-panel detail-wide">
-            <h3 className="section-title mb-4">{localized('Habilidades', 'Abilities')}</h3>
-            <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-              {pokemon.abilities.map((a) => (
-                <AbilityChip
-                  key={a}
-                  ability={a}
-                  hidden={pokemon.hiddenAbilities?.includes(a) ?? false}
-                />
-              ))}
-            </div>
-          </div>
-
-          <div id="atributos" className="detail-panel">
-            <div className="flex flex-wrap items-center justify-between gap-3 mb-4">
-              <h3 className="section-title">{localized('Estatísticas Base', 'Base stats')}</h3>
-              <span className="text-code">
-                {localized('Total', 'Total')}: {totalStats}
+              <span className="pokedex-lens" aria-hidden="true">
+                <ArrowLeft />
               </span>
-            </div>
-            <div className="space-y-3">
-              {pokemon.stats.map((s) => (
-                <StatBar key={s.name} name={s.name} value={s.value} />
-              ))}
-            </div>
+              <span className="pokedex-home-label">{localized('Início', 'Home')}</span>
+            </Link>
+            <Header />
+            <span className="pokedex-indicators" aria-hidden="true">
+              <i />
+              <i />
+              <i />
+            </span>
           </div>
-
-          <div id="fraquezas" className="detail-section">
-            <TypeEffectiveness types={pokemon.types} />
-          </div>
-
-          <div id="localizacoes" className="detail-panel detail-wide detail-locations">
-            <div className="detail-location-toolbar">
-              <div className="flex items-center gap-2">
-                <MapPin className="h-5 w-5 text-primary" />
-                <h3 className="section-title">{localized('Localizações', 'Locations')}</h3>
-              </div>
-            </div>
-            {encounters && encounters.length > 0 && (
-              <label className="detail-game-picker mb-4">
-                <span className="text-overline">{localized('Jogo', 'Game')}</span>
-                <select
-                  className="detail-game-select"
-                  value={selectedEncounterGame}
-                  onChange={(event) => setSelectedEncounterGame(event.target.value)}
-                >
-                  <option value="">{localized('Todos os jogos', 'All games')}</option>
-                  {encounterGames.map((game) => (
-                    <option key={game} value={game}>
-                      {gameName(game)}
-                    </option>
+          <div className="pokedex-layout">
+            <section
+              id="perfil"
+              className="detail-hero pokedex-screen"
+              aria-label={localized('Resumo do Pokémon', 'Pokémon overview')}
+            >
+              <div className="pokedex-identity">
+                <h2 className="pokedex-name">{pokemon.name.replace(/-/g, ' ')}</h2>
+                <span className="pokedex-number">#{String(displayId).padStart(4, '0')}</span>
+                <div className="pokedex-types">
+                  {pokemon.types.map((t) => (
+                    <TypeBadge key={t} type={t} size="md" />
                   ))}
-                </select>
-              </label>
-            )}
-            {encountersLoading ? (
-              <div className="space-y-2">
-                <Skeleton className="h-4 w-full" />
-                <Skeleton className="h-4 w-3/4" />
+                </div>
               </div>
-            ) : encountersError ? (
-              <QueryErrorState
-                title={localized(
-                  'Não foi possível carregar as localizações',
-                  'Could not load locations',
-                )}
-                onRetry={() => void refetchEncounters()}
-              />
-            ) : encounters && encounters.length > 0 && filteredEncounters?.length ? (
-              <div className="grid gap-3 sm:grid-cols-2 max-h-80 overflow-y-auto pr-2">
-                {filteredEncounters.map((enc, i) => (
-                  <div key={i} className="rounded-lg bg-muted/50 p-3">
-                    <p className="text-sm font-semibold text-foreground capitalize">
-                      {encounterLocation(enc.location)}
-                    </p>
-                    <div className="mt-2 space-y-2">
-                      {enc.versions.map((version) => (
-                        <div key={version.version} className="detail-encounter-version">
-                          <span className="detail-encounter-game">{gameName(version.version)}</span>
-                          {(
-                            version.encounters ??
-                            version.methods.map((method) => ({
-                              method: method.replace(/ /g, '-'),
-                              minLevel: null,
-                              maxLevel: null,
-                              chance: null,
-                              conditions: [],
-                            }))
-                          ).map((encounter, encounterIndex) => (
-                            <div
-                              key={`${encounter.method}-${encounterIndex}`}
-                              className="detail-encounter-entry"
-                            >
-                              <div className="flex flex-wrap items-center gap-1.5">
-                                <span className="font-semibold text-card-foreground">
-                                  {encounterLabel(encounter.method, ENCOUNTER_METHODS)}
+              <div className="pokedex-artwork">
+                <img
+                  key={`${pokemonId}-${isShiny}`}
+                  src={artworkSrc || pokemon.sprites.front_default}
+                  alt={pokemon.name}
+                />
+              </div>
+              <div className="pokedex-screen-controls">
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="gap-1.5"
+                  onClick={handleBack}
+                  aria-label={localized('Voltar à lista', 'Back to list')}
+                >
+                  <ArrowLeft className="h-4 w-4" />
+                  <span>{localized('Lista', 'List')}</span>
+                </Button>
+
+                <div className="flex gap-2 items-center">
+                  <Button
+                    variant={isShiny ? 'default' : 'outline'}
+                    size="sm"
+                    onClick={() => setIsShiny(!isShiny)}
+                    aria-pressed={isShiny}
+                    className={`gap-1.5 ${
+                      isShiny
+                        ? 'bg-gradient-to-r from-yellow-500 to-amber-500 hover:from-yellow-600 hover:to-amber-600 text-white border-0'
+                        : ''
+                    }`}
+                  >
+                    <Sparkles className="h-4 w-4" />
+                    {localized('Shiny', 'Shiny')}
+                  </Button>
+
+                  {prevId && (
+                    <Button variant="outline" size="icon" asChild>
+                      <Link
+                        to={`/pokemon/${prevId}`}
+                        replace
+                        aria-label={localized('Pokémon anterior', 'Previous Pokémon')}
+                        state={{
+                          origin: stableOrigin,
+                          listContext: {
+                            ids: idsSafe,
+                            currentIndex: safeIndex - 1,
+                          },
+                        }}
+                      >
+                        <ChevronLeft className="h-4 w-4" />
+                      </Link>
+                    </Button>
+                  )}
+
+                  {nextId && (
+                    <Button variant="outline" size="icon" asChild>
+                      <Link
+                        to={`/pokemon/${nextId}`}
+                        replace
+                        aria-label={localized('Próximo Pokémon', 'Next Pokémon')}
+                        state={{
+                          origin: stableOrigin,
+                          listContext: {
+                            ids: idsSafe,
+                            currentIndex: safeIndex + 1,
+                          },
+                        }}
+                      >
+                        <ChevronRight className="h-4 w-4" />
+                      </Link>
+                    </Button>
+                  )}
+                </div>
+              </div>
+              <dl className="pokedex-measurements">
+                <div>
+                  <dt>{localized('Altura', 'Height')}</dt>
+                  <dd>
+                    {(pokemon.height / 10).toLocaleString(
+                      getSiteLanguage() === 'pt' ? 'pt-BR' : 'en-US',
+                    )}{' '}
+                    m
+                  </dd>
+                </div>
+                <div>
+                  <dt>{localized('Peso', 'Weight')}</dt>
+                  <dd>
+                    {(pokemon.weight / 10).toLocaleString(
+                      getSiteLanguage() === 'pt' ? 'pt-BR' : 'en-US',
+                    )}{' '}
+                    kg
+                  </dd>
+                </div>
+              </dl>
+              <PokemonSpeciesProfile speciesId={pokemon.speciesId} />
+            </section>
+            <nav
+              className="detail-nav"
+              aria-label={localized('Seções do Pokémon', 'Pokémon sections')}
+            >
+              {[
+                ['stats', 'Stats'],
+                ['fraquezas', localized('Defesa', 'Defense')],
+                ['evolucoes', localized('Evoluções', 'Evolution')],
+                ...(hasAlternateForms ? [['formas', localized('Formas', 'Forms')]] : []),
+                ['ataques', localized('Ataques', 'Moves')],
+                ['localizacoes', localized('Locais', 'Locations')],
+                ['entradas-pokedex', localized('Pokédex', 'Pokédex')],
+              ].map(([anchor, label]) => (
+                <a key={anchor} href={`#${anchor}`} className="detail-nav-link">
+                  {label}
+                </a>
+              ))}
+            </nav>
+            <div id="stats" className="pokedex-instruments pokedex-screen">
+              <div id="atributos" className="detail-panel">
+                <div className="flex flex-wrap items-center justify-between gap-3 mb-4">
+                  <h3 className="section-title">{localized('Estatísticas Base', 'Base stats')}</h3>
+                  <span className="text-code">
+                    {localized('Total', 'Total')}: {totalStats}
+                  </span>
+                </div>
+                <div className="space-y-3">
+                  {pokemon.stats.map((s) => (
+                    <StatBar key={s.name} name={s.name} value={s.value} />
+                  ))}
+                </div>
+              </div>
+
+              <div id="habilidades" className="detail-panel detail-wide">
+                <h3 className="section-title mb-4">{localized('Habilidades', 'Abilities')}</h3>
+                <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+                  {pokemon.abilities.map((a) => (
+                    <AbilityChip
+                      key={a}
+                      ability={a}
+                      hidden={pokemon.hiddenAbilities?.includes(a) ?? false}
+                    />
+                  ))}
+                </div>
+              </div>
+            </div>
+          </div>
+          <div className="detail-content-grid">
+            <div id="fraquezas" className="detail-section">
+              <TypeEffectiveness types={pokemon.types} />
+            </div>
+
+            <div id="localizacoes" className="detail-panel detail-wide detail-locations">
+              <details className="pokedex-locations-disclosure" open>
+                <summary>
+                  <span className="flex items-center gap-2">
+                    <MapPin className="h-5 w-5 text-primary" aria-hidden="true" />
+                    <h3 className="section-title">{localized('Localizações', 'Locations')}</h3>
+                  </span>
+                  <ChevronDown className="pokedex-disclosure-arrow h-4 w-4" aria-hidden="true" />
+                </summary>
+                <div className="pokedex-locations-body">
+                  {encounters && encounters.length > 0 && (
+                    <label className="detail-game-picker mb-4">
+                      <span className="text-overline">{localized('Jogo', 'Game')}</span>
+                      <select
+                        className="detail-game-select"
+                        value={selectedEncounterGame}
+                        onChange={(event) => setSelectedEncounterGame(event.target.value)}
+                      >
+                        <option value="">{localized('Todos os jogos', 'All games')}</option>
+                        {encounterGames.map((game) => (
+                          <option key={game} value={game}>
+                            {gameVersionLabel(game)}
+                          </option>
+                        ))}
+                      </select>
+                    </label>
+                  )}
+                  {encountersLoading ? (
+                    <div className="space-y-2">
+                      <Skeleton className="h-4 w-full" />
+                      <Skeleton className="h-4 w-3/4" />
+                    </div>
+                  ) : encountersError ? (
+                    <QueryErrorState
+                      title={localized(
+                        'Não foi possível carregar as localizações',
+                        'Could not load locations',
+                      )}
+                      onRetry={() => void refetchEncounters()}
+                    />
+                  ) : encounters && encounters.length > 0 && filteredEncounters?.length ? (
+                    <div className="grid gap-3 sm:grid-cols-2 max-h-80 overflow-y-auto pr-2">
+                      {filteredEncounters.map((enc, i) => (
+                        <div key={i} className="rounded-lg bg-muted/50 p-3">
+                          <p className="text-sm font-semibold text-foreground capitalize">
+                            {locationLabel(enc.location)}
+                          </p>
+                          <div className="mt-2 space-y-2">
+                            {enc.versions.map((version) => (
+                              <div key={version.version} className="detail-encounter-version">
+                                <span className="detail-encounter-game">
+                                  {gameVersionLabel(version.version)}
                                 </span>
-                                {encounterLevelRange(encounter.minLevel, encounter.maxLevel) && (
-                                  <span className="detail-encounter-fact">
-                                    {encounterLevelRange(encounter.minLevel, encounter.maxLevel)}
-                                  </span>
-                                )}
-                                {encounter.chance !== null && (
-                                  <span className="detail-encounter-fact">
-                                    {encounter.chance}% de chance
-                                  </span>
-                                )}
+                                {(
+                                  version.encounters ??
+                                  version.methods.map((method) => ({
+                                    method: method.replace(/ /g, '-'),
+                                    minLevel: null,
+                                    maxLevel: null,
+                                    chance: null,
+                                    conditions: [],
+                                  }))
+                                ).map((encounter, encounterIndex) => (
+                                  <div
+                                    key={`${encounter.method}-${encounterIndex}`}
+                                    className="detail-encounter-entry"
+                                  >
+                                    <div className="flex flex-wrap items-center gap-1.5">
+                                      <span className="font-semibold text-card-foreground">
+                                        {encounterLabel(encounter.method, ENCOUNTER_METHODS)}
+                                      </span>
+                                      {encounterLevelRange(
+                                        encounter.minLevel,
+                                        encounter.maxLevel,
+                                      ) && (
+                                        <span className="detail-encounter-fact">
+                                          {encounterLevelRange(
+                                            encounter.minLevel,
+                                            encounter.maxLevel,
+                                          )}
+                                        </span>
+                                      )}
+                                      {encounter.chance !== null && (
+                                        <span className="detail-encounter-fact">
+                                          {localized(
+                                            `${encounter.chance}% de chance`,
+                                            `${encounter.chance}% chance`,
+                                          )}
+                                        </span>
+                                      )}
+                                    </div>
+                                    {encounter.conditions.length > 0 && (
+                                      <p className="mt-1 text-[10px] text-muted-foreground">
+                                        {encounter.conditions
+                                          .map((condition) =>
+                                            encounterLabel(condition, ENCOUNTER_CONDITIONS),
+                                          )
+                                          .join(' · ')}
+                                      </p>
+                                    )}
+                                  </div>
+                                ))}
                               </div>
-                              {encounter.conditions.length > 0 && (
-                                <p className="mt-1 text-[10px] text-muted-foreground">
-                                  {encounter.conditions
-                                    .map((condition) =>
-                                      encounterLabel(condition, ENCOUNTER_CONDITIONS),
-                                    )
-                                    .join(' · ')}
-                                </p>
-                              )}
-                            </div>
-                          ))}
+                            ))}
+                          </div>
                         </div>
                       ))}
                     </div>
-                  </div>
-                ))}
+                  ) : encounters && encounters.length > 0 ? (
+                    <p className="text-support">
+                      {localized('Nenhuma localização encontrada em', 'No locations found in')}{' '}
+                      {gameVersionLabel(selectedEncounterGame)}.
+                    </p>
+                  ) : (
+                    <p className="text-support">
+                      {localized(
+                        'Não encontrado em nenhuma rota — pode ser obtido por evento, troca ou evolução.',
+                        'Not found in any location. It may be obtained through an event, trade, or evolution.',
+                      )}
+                    </p>
+                  )}
+                </div>
+              </details>
+            </div>
+
+            <PokemonDexEntries speciesId={pokemon.speciesId} />
+
+            <div id="evolucoes" className="detail-section detail-wide">
+              <EvolutionChainDisplay
+                pokemonId={pokemonId}
+                speciesId={pokemon.speciesId}
+                isShiny={isShiny}
+                origin={stableOrigin}
+                listContext={listContext}
+              />
+            </div>
+
+            {hasAlternateForms && (
+              <div id="formas" className="detail-section detail-wide">
+                <PokemonForms
+                  pokemonId={pokemonId}
+                  isShiny={isShiny}
+                  origin={stableOrigin}
+                  listContext={listContext}
+                />
               </div>
-            ) : encounters && encounters.length > 0 ? (
-              <p className="text-support">
-                {localized('Nenhuma localização encontrada em', 'No locations found in')}{' '}
-                {gameName(selectedEncounterGame)}.
-              </p>
-            ) : (
-              <p className="text-support">
-                {localized(
-                  'Não encontrado em nenhuma rota — pode ser obtido por evento, troca ou evolução.',
-                  'Not found in any location. It may be obtained through an event, trade, or evolution.',
-                )}
-              </p>
             )}
-          </div>
 
-          <PokemonDexEntries speciesId={pokemon.speciesId} />
-
-          <div id="evolucoes" className="detail-section detail-wide">
-            <EvolutionChainDisplay
-              pokemonId={pokemonId}
-              speciesId={pokemon.speciesId}
-              isShiny={isShiny}
-              origin={stableOrigin}
-              listContext={listContext}
-            />
-          </div>
-
-          <div id="formas" className="detail-section detail-wide">
-            <PokemonForms
-              pokemonId={pokemonId}
-              isShiny={isShiny}
-              origin={stableOrigin}
-              listContext={listContext}
-            />
-          </div>
-
-          <div id="ataques" className="detail-section detail-wide">
-            <PokemonMoves key={pokemonId} pokemonId={pokemonId} />
+            <div id="ataques" className="detail-section detail-wide">
+              <PokemonMoves key={pokemonId} pokemonId={pokemonId} />
+            </div>
           </div>
         </div>
       </main>

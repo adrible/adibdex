@@ -35,7 +35,6 @@ Testes cobrem filtros, estado salvo inválido, storage bloqueado, paginação du
 - `npm run data:generate`: gera o JSON compacto a partir do commit oficial fixado no script.
 - `npm run data:update`: consulta a revisão mais recente do repositório oficial da PokeAPI e atualiza o catálogo, incluindo habilidades e descoberta de formas. Revise o diff e rode testes/build antes de publicar. Não há atualização ou publicação automática em produção.
 - `src/lib/version.ts`: fonte única do changelog da página inicial e da versão no rodapé. A data dos dados vem do catálogo, não da data do release.
-- `npm run images:convert`: converte os originais de `assets/backgrounds` para os WebP em `public/backgrounds`. Não é executado automaticamente no build.
 - `npm run format`: formata código e configuração.
 - A CI verifica qualidade, testes e build. A auditoria online tem workflow semanal separado. O conversor manual entrega um artefato; não faz commits ou push automático.
 

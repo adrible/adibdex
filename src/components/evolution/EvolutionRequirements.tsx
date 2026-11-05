@@ -14,18 +14,19 @@ import {
 } from 'lucide-react';
 import type { EvolutionCondition } from '@/lib/pokemon/types';
 import { TYPE_TRANSLATIONS } from '@/lib/pokemon/constants';
+import { itemLabel, locationLabel } from '@/lib/resource-labels';
 import { localized } from '@/lib/language';
 
 const triggers: Record<string, string> = {
   'level-up': localized('Subir de nível', 'Level up'),
-  trade: 'Troca',
-  'use-item': 'Usar item',
-  shed: 'Especial',
-  spin: 'Girar',
+  trade: localized('Troca', 'Trade'),
+  'use-item': localized('Usar item', 'Use item'),
+  shed: localized('Especial', 'Special'),
+  spin: localized('Girar', 'Spin'),
   'tower-of-darkness': localized('Torre da Escuridão', 'Tower of Darkness'),
   'tower-of-waters': localized('Torre das Águas', 'Tower of Waters'),
   'three-critical-hits': localized('3 golpes críticos', '3 critical hits'),
-  'take-damage': 'Receber dano',
+  'take-damage': localized('Receber dano', 'Take damage'),
   other: localized('Condição especial', 'Special condition'),
   'agile-style-move': localized('Golpe em estilo ágil', 'Agile-style move'),
   'strong-style-move': localized('Golpe em estilo forte', 'Strong-style move'),
@@ -42,8 +43,12 @@ function Conditions({ value }: { value: EvolutionCondition }) {
       triggers[value.trigger] ?? words(value.trigger),
       value.trigger === 'trade' ? ArrowLeftRight : Sparkles,
     );
-  if (value.item) add(words(value.item), Gem);
-  if (value.heldItem) add(`Segurando ${words(value.heldItem)}`, Gem);
+  if (value.item) add(itemLabel(value.item), Gem);
+  if (value.heldItem)
+    add(
+      localized(`Segurando ${itemLabel(value.heldItem)}`, `Holding ${itemLabel(value.heldItem)}`),
+      Gem,
+    );
   if (value.minHappiness !== null)
     add(localized(`Amizade ${value.minHappiness}+`, `Friendship ${value.minHappiness}+`), Heart);
   if (value.minAffection !== null)
@@ -63,7 +68,7 @@ function Conditions({ value }: { value: EvolutionCondition }) {
       `${localized('Golpe', 'Move')} ${TYPE_TRANSLATIONS[value.knownMoveType] ?? value.knownMoveType}`,
       Swords,
     );
-  if (value.location) add(words(value.location), MapPin);
+  if (value.location) add(locationLabel(value.location), MapPin);
   if (value.needsRain) add(localized('Chuva', 'Rain'), Droplets);
   if (value.turnUpsideDown) add(localized('Console invertido', 'Console upside down'), RotateCcw);
   if (value.gender === 1 || value.gender === 2)

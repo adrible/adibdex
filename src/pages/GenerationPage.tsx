@@ -3,20 +3,6 @@ import { GENERATIONS } from '@/lib/pokeapi';
 import { PokemonGrid } from '@/components/PokemonGrid';
 import { CatalogPageShell } from '@/components/catalog/CatalogPageShell';
 import { localized } from '@/lib/language';
-const REGION_BG: Record<string, string> = {
-  Kanto: '/backgrounds/kanto.webp',
-  Johto: '/backgrounds/johto.webp',
-  Hoenn: '/backgrounds/hoenn.webp',
-  Sinnoh: '/backgrounds/sinnoh.webp',
-  Unova: '/backgrounds/unova.webp',
-  Kalos: '/backgrounds/kalos.webp',
-  Alola: '/backgrounds/alola.webp',
-  Galar: '/backgrounds/galar.webp',
-  Hisui: '/backgrounds/hisui.webp',
-  Paldea: '/backgrounds/paldea.webp',
-  Desconhecida: '',
-};
-
 export default function GenerationPage() {
   const { id } = useParams();
   const generation = GENERATIONS.find((g) => g.id === Number(id));
@@ -34,13 +20,8 @@ export default function GenerationPage() {
     );
   return (
     <CatalogPageShell
-      title={
-        generation.region === 'Desconhecida'
-          ? localized('Desconhecida', 'Unknown')
-          : generation.region
-      }
-      subtitle={`${generation.region === 'Desconhecida' ? localized('Pokémon sem região definida', 'Pokémon with no region assigned') : `${localized('Região de', 'Region:')} ${generation.region}`} · #${generation.pokemonRange[0]}–#${generation.pokemonRange[1]}`}
-      background={REGION_BG[generation.region] ?? ''}
+      title={generation.id === 10 ? localized('Desconhecida', 'Unknown') : generation.region}
+      subtitle={`${generation.id === 10 ? localized('Pokémon sem região definida', 'Pokémon with no region assigned') : `${localized('Região de', 'Region:')} ${generation.region}`} · #${generation.pokemonRange[0]}–#${generation.pokemonRange[1]}`}
       backToTop
     >
       <PokemonGrid key={generation.id} generation={generation} />

@@ -1,8 +1,9 @@
+import { SourceText } from '@/components/SourceText';
 import { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import {
   fetchPokemonMovesByGame,
-  fetchMoveDescription,
+  fetchMoveDescriptionText,
   METHOD_LABELS,
   type MoveByGame,
   type MovesByVersionGroup,
@@ -59,7 +60,7 @@ function MoveRow({ move, showLevel }: { move: MoveByGame; showLevel: boolean }) 
     isError,
   } = useQuery({
     queryKey: ['move-desc', move.name],
-    queryFn: ({ signal }) => fetchMoveDescription(move.name, signal),
+    queryFn: ({ signal }) => fetchMoveDescriptionText(move.name, signal),
     enabled: expanded,
     staleTime: Infinity,
   });
@@ -109,7 +110,7 @@ function MoveRow({ move, showLevel }: { move: MoveByGame; showLevel: boolean }) 
               ? localized('Fís.', 'Phys.')
               : move.damageClass === 'special'
                 ? localized('Esp.', 'Spec.')
-                : localized('Sta.', 'Status')}
+                : localized('Estado', 'Status')}
           </span>
         </td>
         <td
@@ -160,14 +161,18 @@ function MoveRow({ move, showLevel }: { move: MoveByGame; showLevel: boolean }) 
               )}
             </div>
             <p className="text-sm leading-relaxed text-muted-foreground">
-              {isLoading
-                ? localized('Carregando...', 'Loading...')
-                : isError
-                  ? localized(
-                      'Não foi possível carregar a descrição.',
-                      'Could not load the description.',
-                    )
-                  : description || localized('Descrição indisponível.', 'Description unavailable.')}
+              {isLoading ? (
+                localized('Carregando...', 'Loading...')
+              ) : isError ? (
+                localized(
+                  'Não foi possível carregar a descrição.',
+                  'Could not load the description.',
+                )
+              ) : description?.text ? (
+                <SourceText text={description.text} language={description.language} />
+              ) : (
+                localized('Descrição indisponível.', 'Description unavailable.')
+              )}
             </p>
           </td>
         </tr>

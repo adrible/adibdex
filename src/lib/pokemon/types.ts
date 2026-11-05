@@ -43,6 +43,9 @@ export interface PokemonDetail {
 }
 
 export interface PokemonSpeciesInfo {
+  descriptionLanguage?: string;
+  entriesLanguage?: string;
+  genusLanguage?: string;
   description: string;
   pokedexEntries: { version: string; text: string }[];
   genus: string | null;

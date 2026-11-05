@@ -75,7 +75,7 @@ export function EvolutionCard({
         {selected && (
           <span className="evolution-current">
             <Check className="h-3 w-3" />
-            Atual
+            {localized('Atual', 'Current')}
           </span>
         )}
         {!selected && <ArrowUpRight aria-hidden="true" className="evolution-card-open" />}

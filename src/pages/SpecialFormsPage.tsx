@@ -17,7 +17,6 @@ export default function SpecialFormsPage({ type }: { type: 'mega' | 'gmax' }) {
     <CatalogPageShell
       title={isMega ? localized('Mega Evoluções', 'Mega Evolution') : 'Gigantamax'}
       subtitle={`${isMega ? localized('Todas as formas Mega e Primal', 'All Mega and Primal forms') : localized('Todas as formas Gigantamax', 'All Gigantamax forms')}${query.isSuccess ? ` (${view.filtered.length})` : ''}`}
-      background={`/backgrounds/${type}.webp`}
       backToTop
     >
       <CatalogBrowser

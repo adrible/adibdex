@@ -20,9 +20,7 @@ function localizedEntry<T extends { language: { name: string } }>(entries: T[], 
   return (
     entries.find(
       (entry) => entry.language.name === language || entry.language.name.startsWith(`${language}-`),
-    ) ??
-    entries.find((entry) => entry.language.name === 'en') ??
-    entries.at(-1)
+    ) ?? entries.find((entry) => entry.language.name === 'en')
   );
 }
 
@@ -55,6 +53,9 @@ export async function fetchPokemonSpeciesInfo(
   ].map(([version, text]) => ({ version, text }));
   const genus = localizedEntry(data.genera ?? [], language)?.genus ?? null;
   return {
+    descriptionLanguage: localizedEntry(flavorTextEntries, language)?.language.name,
+    entriesLanguage: selectedFlavorEntries[0]?.language.name,
+    genusLanguage: localizedEntry(data.genera ?? [], language)?.language.name,
     description: description
       .replace(/[\n\f\r]+/g, ' ')
       .replace(/\s+/g, ' ')

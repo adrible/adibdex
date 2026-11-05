@@ -13,3 +13,6 @@ Object.defineProperty(window, 'matchMedia', {
     dispatchEvent: () => {},
   }),
 });
+
+// Most UI fixtures assert Portuguese copy; individual language tests can override this.
+Object.defineProperty(navigator, 'language', { configurable: true, value: 'pt-BR' });

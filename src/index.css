@@ -132,10 +132,6 @@
   .catalog-main {
     @apply container flex-1 py-8 relative;
   }
-  .catalog-background {
-    @apply fixed inset-x-0 top-0 -z-10 h-[100lvh] bg-cover bg-center bg-no-repeat pointer-events-none;
-    background-color: #0b0f14;
-  }
   .catalog-heading {
     @apply mb-8 flex items-center gap-4;
   }
@@ -147,20 +143,6 @@
   }
   .catalog-heading-copy {
     @apply min-w-0;
-  }
-  .catalog-page--illustrated .catalog-heading-copy {
-    @apply rounded-xl border border-white/10 px-4 py-3;
-    background: hsl(220 20% 8% / 0.76);
-  }
-  .catalog-page--illustrated .catalog-title {
-    @apply text-white;
-  }
-  .catalog-page--illustrated .catalog-subtitle {
-    color: hsl(0 0% 100% / 0.85);
-  }
-  .catalog-page--illustrated .catalog-back-button {
-    @apply border border-white/15 text-white;
-    background: hsl(220 20% 8% / 0.76);
   }
   .catalog-tools {
     @apply mx-auto mb-4 max-w-3xl;

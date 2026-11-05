@@ -106,7 +106,7 @@ test('home changelog shows the release, actual catalog metadata and history', as
   page,
 }, testInfo) => {
   await page.goto('/');
-  await page.getByRole('link', { name: 'Ver novidades da versão' }).click();
+  await page.getByRole('link', { name: 'Novidades', exact: true }).click();
   const changelog = page.getByRole('region', { name: 'Novidades' });
   await expect(changelog.getByText(`v${CHANGELOG[0].version}`, { exact: true })).toBeVisible();
   await expect(changelog.getByRole('button', { name: 'Ver alterações' })).toHaveAttribute(
@@ -221,11 +221,11 @@ test('branching evolutions show every alternative condition on mobile', async ({
     8,
   );
   const toLeafeon = panel.getByRole('group', { name: 'Como evoluir eevee para leafeon' });
-  await expect(toLeafeon.getByText('eterna forest', { exact: true })).toBeVisible();
-  await expect(toLeafeon.getByText('leaf stone', { exact: true })).toBeHidden();
+  await expect(toLeafeon.getByText('Eterna Floresta', { exact: true })).toBeVisible();
+  await expect(toLeafeon.getByText('Pedra de Folha', { exact: true })).toBeHidden();
   await toLeafeon.getByText('Outras condições (1)', { exact: true }).click();
-  await expect(panel.getByText('leaf stone', { exact: true })).toBeVisible();
-  await expect(panel.getByText('eterna forest', { exact: true })).toBeVisible();
+  await expect(panel.getByText('Pedra de Folha', { exact: true })).toBeVisible();
+  await expect(panel.getByText('Eterna Floresta', { exact: true })).toBeVisible();
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
   await panel.screenshot({
     path: testInfo.outputPath('evolution-branches-mobile.png'),

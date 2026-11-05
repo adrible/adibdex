@@ -15,8 +15,9 @@ export default {
     },
     extend: {
       fontFamily: {
-        pixel: ['"Press Start 2P"', 'cursive'],
-        sans: ['Inter', 'sans-serif'],
+        pixel: ['"Press Start 2P"', 'ui-monospace', 'monospace'],
+        sans: ['"Chakra Petch"', 'sans-serif'],
+        mono: ['"Chakra Petch"', 'ui-monospace', 'monospace'],
       },
       colors: {
         border: 'hsl(var(--border))',
