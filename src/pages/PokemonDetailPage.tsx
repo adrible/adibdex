@@ -18,7 +18,7 @@ import { PokemonMoves } from '@/components/PokemonMoves';
 import { PokemonDexEntries } from '@/components/PokemonDexEntries';
 import { PokemonSpeciesProfile } from '@/components/PokemonSpeciesProfile';
 import { Button } from '@/components/ui/button';
-import { ArrowLeft, ChevronLeft, ChevronRight, ChevronDown, MapPin, Sparkles } from 'lucide-react';
+import { ArrowLeft, ArrowRight, ChevronDown, MapPin, Sparkles } from 'lucide-react';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Footer } from '@/components/Footer';
 import { QueryErrorState } from '@/components/QueryErrorState';
@@ -415,7 +415,7 @@ export default function PokemonDetailPage() {
                           },
                         }}
                       >
-                        <ChevronLeft className="h-4 w-4" />
+                        <ArrowLeft className="h-4 w-4" />
                       </Link>
                     </Button>
                   )}
@@ -434,7 +434,7 @@ export default function PokemonDetailPage() {
                           },
                         }}
                       >
-                        <ChevronRight className="h-4 w-4" />
+                        <ArrowRight className="h-4 w-4" />
                       </Link>
                     </Button>
                   )}
