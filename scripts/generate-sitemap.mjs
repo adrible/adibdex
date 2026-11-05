@@ -1,6 +1,6 @@
 import { readFile, writeFile } from 'node:fs/promises';
 
-const origin = 'https://adibdex.netlify.app';
+const origin = 'https://adibdex.com';
 const catalog = JSON.parse(
   await readFile(new URL('../public/data/catalog.json', import.meta.url), 'utf8'),
 );

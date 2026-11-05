@@ -1,7 +1,7 @@
 import { GENERATIONS } from '@/lib/pokemon/constants';
 import { getSiteLanguage, localized } from '@/lib/language';
 
-export const SITE_URL = 'https://adibdex.netlify.app';
+export const SITE_URL = 'https://adibdex.com';
 export const SITE_TITLE = localized('AdibDex — A Pokédex de Adib', 'AdibDex — Adib’s Pokédex');
 export const SITE_DESCRIPTION = localized(
   'A Pokédex de Adib: explore 1.025 Pokémon, formas regionais, Mega e Gigantamax. Pesquise ataques, habilidades e jogos na AdibDex.',
