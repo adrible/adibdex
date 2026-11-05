@@ -131,13 +131,13 @@ test('regional pagination is persisted after next-page clicks', async ({ page })
 test('changing catalog routes does not carry another scope’s state', async ({ page }) => {
   await page.goto('/mega');
   await page.getByRole('button', { name: 'Shiny', exact: true }).click();
-  await page.getByRole('link', { name: 'ADIBDEX' }).click();
+  await page.getByRole('link', { name: 'Voltar ao início', exact: true }).click();
   await page.locator('a[href="/gmax"]').click();
   await expect(page.getByRole('button', { name: 'Shiny', exact: true })).toHaveAttribute(
     'aria-pressed',
     'false',
   );
-  await page.getByRole('link', { name: 'ADIBDEX' }).click();
+  await page.getByRole('link', { name: 'Voltar ao início', exact: true }).click();
   await page.locator('a[href="/mega"]').click();
   await expect(page.getByRole('button', { name: 'Shiny', exact: true })).toHaveAttribute(
     'aria-pressed',
