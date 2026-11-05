@@ -239,11 +239,30 @@ export default function PokemonDetailPage() {
   useEffect(() => {
     const slot = detailNavSlotRef.current;
     if (!slot) return;
-    const observer = new IntersectionObserver(([entry]) => {
-      setDetailNavFixed(entry.boundingClientRect.top <= 0);
-    });
-    observer.observe(slot);
-    return () => observer.disconnect();
+    const scrollTop = () =>
+      window.pageYOffset || document.documentElement.scrollTop || document.body.scrollTop || 0;
+    let threshold = slot.getBoundingClientRect().top + scrollTop();
+    let isFixed = false;
+    let frame = 0;
+    const update = () => {
+      cancelAnimationFrame(frame);
+      frame = requestAnimationFrame(() => {
+        const currentScroll = scrollTop();
+        if (!isFixed) threshold = slot.getBoundingClientRect().top + currentScroll;
+        isFixed = currentScroll >= threshold;
+        setDetailNavFixed(isFixed);
+      });
+    };
+    window.addEventListener('scroll', update, { passive: true });
+    document.addEventListener('scroll', update, { passive: true, capture: true });
+    window.addEventListener('resize', update);
+    update();
+    return () => {
+      cancelAnimationFrame(frame);
+      window.removeEventListener('scroll', update);
+      document.removeEventListener('scroll', update, true);
+      window.removeEventListener('resize', update);
+    };
   }, []);
 
   useEffect(() => {
