@@ -421,10 +421,10 @@
     padding: 3px 6px 14px;
     gap: 12px;
   }
-  .pokedex-device-header > header a {
+  .pokedex-device-header > header .site-brand {
     gap: 8px;
   }
-  .pokedex-device-header > header a > div {
+  .pokedex-device-header > header .site-brand > div {
     width: 26px;
     height: 26px;
   }

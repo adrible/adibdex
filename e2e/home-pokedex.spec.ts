@@ -52,3 +52,16 @@ test('home navigation and readable typography carry into catalogs and Pokémon r
     await page.locator('.pokedex-page').evaluate((element) => getComputedStyle(element).fontFamily),
   ).toContain('Chakra Petch');
 });
+
+test('brand is static while the blue lens remains the Home control', async ({ page }) => {
+  await page.goto('/pokemon/1');
+  const brand = page.locator('.site-brand');
+  await expect(brand).toBeVisible();
+  await expect(brand.getByRole('link')).toHaveCount(0);
+  await expect(brand.getByRole('button')).toHaveCount(0);
+  expect(await brand.evaluate((element) => element.closest('a, button'))).toBeNull();
+  expect(await brand.locator('[class*="group-hover"]').count()).toBe(0);
+  await page.getByRole('link', { name: 'Voltar à tela inicial', exact: true }).click();
+  await expect(page).toHaveURL(/\/$/);
+  await expect(page.getByRole('heading', { name: 'Escolha sua Pokédex' })).toBeVisible();
+});
