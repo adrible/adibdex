@@ -44,7 +44,7 @@ export const CHANGELOG: ChangelogEntry[] = [
       'Search for learned moves across all catalogs alongside the existing filters. Try names such as Surf or Thunderbolt.',
       'Tags below each Pokémon name show which games teach the searched move.',
       'The game selector supports search, mobile-friendly options, and quick filter removal. Results and tags follow the selected game, which is kept when returning from a detail page.',
-      'The National Pokédex now uses the same controls as regional pages: paginated or all-at-once views, pagination above and below the list, and a back-to-top button.',
+      'The National Pokédex now uses the same controls as regional pages: paged or all-at-once views, pagination above and below the list, and a back-to-top button.',
       'The evolution chain has larger artwork, type-colored halos, clearer paths, requirements on arrows, labeled branches, and expandable alternatives.',
       'Search metadata, AdibDex identity, and the sitemap now use adibdex.netlify.app.',
       'Move results include every game and learning method recorded by the source; availability varies by selected game.',
