@@ -65,7 +65,7 @@ export function CatalogBrowser({
               onClick={() => view.setShowAll(false)}
               className={!view.showAll ? 'catalog-view-active' : ''}
             >
-              {localized('Paginado', 'Paginated')}
+              {localized('Paginado', 'Paged')}
             </Button>
             <Button
               variant="outline"
