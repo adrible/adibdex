@@ -239,6 +239,15 @@ export default function PokemonDetailPage() {
   useEffect(() => {
     const slot = detailNavSlotRef.current;
     if (!slot) return;
+    const nav = slot.querySelector<HTMLElement>('.detail-nav');
+    const page = slot.closest<HTMLElement>('.pokedex-page');
+    const updateNavHeight = () => {
+      if (nav && page) page.style.setProperty('--detail-nav-height', `${nav.getBoundingClientRect().height}px`);
+    };
+    const resizeObserver = typeof ResizeObserver !== 'undefined' ? new ResizeObserver(updateNavHeight) : null;
+    if (nav) resizeObserver?.observe(nav);
+    updateNavHeight();
+    window.addEventListener('resize', updateNavHeight);
     const scrollTop = () =>
       window.pageYOffset || document.documentElement.scrollTop || document.body.scrollTop || 0;
     let threshold = slot.getBoundingClientRect().top + scrollTop();
@@ -259,6 +268,9 @@ export default function PokemonDetailPage() {
     update();
     return () => {
       cancelAnimationFrame(frame);
+      resizeObserver?.disconnect();
+      window.removeEventListener('resize', updateNavHeight);
+      page?.style.removeProperty('--detail-nav-height');
       window.removeEventListener('scroll', update);
       document.removeEventListener('scroll', update, true);
       window.removeEventListener('resize', update);
