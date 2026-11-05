@@ -55,3 +55,51 @@ for (const width of [320, 1280]) {
     await page.screenshot({ path: info.outputPath(`catalog-${width}.png`), fullPage: true });
   });
 }
+
+test('selected Paginated and All buttons keep readable text', async ({ page }) => {
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page.goto('/generation/1');
+  const paginated = page.getByRole('button', { name: 'Paginado', exact: true });
+  const all = page.getByRole('button', { name: 'Todos', exact: true });
+  await expect(paginated).toHaveAttribute('aria-pressed', 'true');
+  await expect(paginated).toHaveCSS('color', 'rgb(255, 255, 255)');
+  await all.click();
+  await expect(all).toHaveAttribute('aria-pressed', 'true');
+  await expect(all).toHaveCSS('color', 'rgb(255, 255, 255)');
+  await paginated.click();
+  await expect(paginated).toHaveCSS('color', 'rgb(255, 255, 255)');
+});
+
+for (const dark of [false, true]) {
+  test(`filter sheet matches the Pokédex and stays readable (${dark ? 'dark' : 'light'})`, async ({
+    page,
+  }, info) => {
+    await page.setViewportSize({ width: 390, height: 844 });
+    await page.goto('/national');
+    if (dark) await page.getByRole('button', { name: 'Ativar tema escuro' }).click();
+    const screenColor = await page
+      .locator('.home-grid-screen')
+      .evaluate((element) => getComputedStyle(element).backgroundColor);
+    await page.getByRole('button', { name: 'Filtros', exact: true }).click();
+    const sheet = page.getByRole('dialog');
+    await expect(sheet).toHaveClass(/pokedex-filters/);
+    await expect(sheet).toHaveCSS('background-color', screenColor);
+    await expect(sheet.getByRole('heading', { name: 'Filtros e Ordenação' })).toHaveCSS(
+      'color',
+      'rgb(255, 255, 255)',
+    );
+    await expect(sheet.getByRole('button', { name: 'Um', exact: true })).toHaveCSS(
+      'color',
+      'rgb(255, 255, 255)',
+    );
+    await expect(sheet.getByRole('button', { name: 'Aplicar Filtros' })).toBeVisible();
+    await expect(sheet.getByRole('button', { name: 'Limpar', exact: true })).toBeVisible();
+    await expect(sheet.getByRole('button', { name: 'Fechar', exact: true })).toBeVisible();
+    expect(await sheet.evaluate((element) => element.scrollWidth <= element.clientWidth)).toBe(
+      true,
+    );
+    await page.screenshot({ path: info.outputPath('filters-mobile.png') });
+    await sheet.getByRole('button', { name: 'Fechar', exact: true }).click();
+    await expect(sheet).toHaveCount(0);
+  });
+}

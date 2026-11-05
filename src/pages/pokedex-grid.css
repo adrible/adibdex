@@ -17,7 +17,8 @@
 
 /* Navy text on the same pale blue display in every catalog and record. */
 .home-pokedex-page,
-.pokedex-page {
+.pokedex-page,
+.pokedex-filters {
   --foreground: 215 65% 13%;
   --card-foreground: 215 65% 13%;
   --muted-foreground: 211 31% 29%;
@@ -32,6 +33,9 @@
   --input: 211 31% 46%;
   --ring: 203 90% 30%;
   color: hsl(var(--foreground));
+}
+.home-pokedex-page,
+.pokedex-page {
   background-color: hsl(var(--pokedex-surround));
 }
 

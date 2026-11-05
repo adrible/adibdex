@@ -45,7 +45,7 @@ export function FilterContent({
   };
 
   return (
-    <div className="space-y-6 py-2">
+    <div className="pokedex-filter-content space-y-6">
       <GameSelector
         value={local.game}
         options={gameOptions}
@@ -344,8 +344,8 @@ export function FilterContent({
         </div>
       </div>
 
-      <div className="flex gap-2 pt-2">
-        <Button onClick={apply} className="flex-1">
+      <div className="pokedex-filter-actions flex gap-2">
+        <Button onClick={apply} className="pokedex-filter-apply flex-1">
           {localized('Aplicar Filtros', 'Apply filters')}
         </Button>
         <Button variant="outline" onClick={clear}>

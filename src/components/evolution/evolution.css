@@ -85,19 +85,19 @@
   @apply max-w-[360px];
 }
 .evolution-transition--linear {
-  @apply grid grid-cols-[112px_minmax(0,1fr)] gap-x-4 px-3 py-3;
+  @apply flex flex-col items-center gap-2 px-3 py-3;
 }
 .evolution-transition--linear::before {
-  left: 68px;
+  left: 50%;
 }
 .evolution-transition--linear .evolution-transition-method {
-  @apply col-start-2 row-start-1 justify-self-start;
+  @apply flex flex-col items-center;
 }
 .evolution-transition--linear .evolution-requirements {
-  @apply justify-start;
+  @apply justify-center;
 }
 .evolution-transition--linear .evolution-transition-arrow {
-  @apply col-start-1 row-start-1 justify-self-center;
+  @apply self-center;
 }
 .evolution-stage-cards {
   @apply grid gap-4;

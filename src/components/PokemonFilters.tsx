@@ -11,6 +11,7 @@ import {
 } from '@/components/ui/sheet';
 import { countActiveFilters, type FilterProps } from '@/features/catalog/filter-state';
 import { FilterContent } from './filters/FilterContent';
+import './filters/filters.css';
 import { localized } from '@/lib/language';
 export { ActiveFilterChips } from './filters/ActiveFilterChips';
 
@@ -45,7 +46,7 @@ export function PokemonFilterButton({
 
       <SheetContent
         side="right"
-        className="w-full sm:max-w-md overflow-y-auto"
+        className="pokedex-filters w-full sm:max-w-md overflow-y-auto"
         onEscapeKeyDown={(event) => {
           if (
             event.target instanceof Element &&
@@ -55,7 +56,7 @@ export function PokemonFilterButton({
           }
         }}
       >
-        <SheetHeader>
+        <SheetHeader className="pokedex-filter-header">
           <SheetTitle className="flex items-center gap-2">
             <ArrowUpDown className="h-5 w-5" />
             {localized('Filtros e Ordenação', 'Filters and sorting')}

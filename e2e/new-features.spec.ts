@@ -164,6 +164,14 @@ test('three-stage evolution is linked, highlights the current Pokémon and separ
   });
   await page.setViewportSize({ width: 390, height: 844 });
   await expect(panel.getByText('Nível 32', { exact: true })).toBeVisible();
+  for (const transition of [toIvysaur, toVenusaur]) {
+    const group = await transition.boundingBox();
+    const arrow = await transition.locator('.evolution-transition-arrow').boundingBox();
+    const method = await transition.locator('.evolution-requirements').boundingBox();
+    const center = group!.x + group!.width / 2;
+    expect(Math.abs(arrow!.x + arrow!.width / 2 - center)).toBeLessThan(2);
+    expect(Math.abs(method!.x + method!.width / 2 - center)).toBeLessThan(2);
+  }
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
   await panel.screenshot({
     path: testInfo.outputPath('evolution-mobile.png'),

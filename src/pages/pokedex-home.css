@@ -465,7 +465,7 @@
 }
 .catalog-page .catalog-actions > .catalog-view-active {
   background: hsl(var(--home-line));
-  color: hsl(215 65% 13%);
+  color: hsl(0 0% 100%);
 }
 .catalog-page .catalog-actions > .catalog-shiny-active {
   background: hsl(45 90% 72%);

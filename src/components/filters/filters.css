@@ -1,0 +1,103 @@
+@import '../../pages/pokedex-grid.css';
+
+/* The sheet is portaled outside the catalog, so it owns the same display palette. */
+.pokedex-filters {
+  padding: 0;
+  border-left: 5px solid hsl(0 79% 40%);
+  background-color: hsl(var(--pokedex-display-blue));
+  background-image: var(--pokedex-display-grid);
+  background-size: var(--pokedex-display-grid-size);
+  font-family: 'Chakra Petch', sans-serif;
+  overscroll-behavior: contain;
+}
+.pokedex-filter-header {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  padding: 20px 60px 20px 20px;
+  border-bottom: 2px solid hsl(0 72% 24%);
+  background: hsl(0 79% 43%);
+  text-align: left;
+}
+.pokedex-filter-header h2 {
+  color: white;
+  font-size: 1.125rem;
+}
+.pokedex-filters > .sheet-close-button {
+  position: fixed;
+  z-index: 20;
+  top: 10px;
+  right: 12px;
+  display: grid;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  border: 1px solid hsl(0 0% 100% / 0.65);
+  background: hsl(0 74% 34%);
+  color: white;
+  opacity: 1;
+}
+.pokedex-filter-content {
+  padding: 18px 18px 0;
+}
+.pokedex-filter-content > div:not(.pokedex-filter-actions) {
+  padding-bottom: 18px;
+  border-bottom: 1px solid hsl(var(--border) / 0.5);
+}
+.pokedex-filter-content h4 {
+  font-size: 0.9375rem;
+}
+.pokedex-filters button,
+.pokedex-filters input,
+.pokedex-filters [data-game-selector-options],
+.pokedex-filters button > span {
+  border-radius: 3px;
+}
+.pokedex-filter-content button {
+  min-height: 40px;
+  font-size: 0.8125rem;
+}
+.pokedex-filter-content .text-xs {
+  font-size: 0.8125rem;
+  line-height: 1.5;
+}
+.pokedex-filter-content button:not(:disabled) {
+  opacity: 1;
+}
+.pokedex-filter-content button[class*='scale-110'] {
+  transform: none;
+}
+.pokedex-filter-content button.bg-primary {
+  color: white;
+}
+.pokedex-filter-content input {
+  background: hsl(201 60% 88%);
+  color: hsl(var(--foreground));
+}
+.pokedex-filters :is(button, input):focus-visible {
+  outline: 3px solid hsl(215 65% 13%);
+  outline-offset: 2px;
+}
+.pokedex-filter-actions {
+  position: sticky;
+  bottom: 0;
+  z-index: 5;
+  margin-inline: -18px;
+  padding: 14px 18px max(14px, env(safe-area-inset-bottom));
+  border-top: 2px solid hsl(var(--border));
+  background: hsl(201 60% 87%);
+}
+.pokedex-filter-actions button {
+  min-height: 44px;
+}
+.pokedex-filter-apply {
+  background: hsl(0 79% 40%);
+  color: white;
+}
+.pokedex-filter-apply:hover {
+  background: hsl(0 79% 32%);
+}
+
+.pokedex-filter-content .rounded-full {
+  border-radius: 3px;
+}
