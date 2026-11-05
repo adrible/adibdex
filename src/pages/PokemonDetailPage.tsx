@@ -156,7 +156,7 @@ export default function PokemonDetailPage() {
   const [isShiny, setIsShiny] = useState(false);
   const [selectedEncounterGame, setSelectedEncounterGame] = useState('');
   const [detailNavFixed, setDetailNavFixed] = useState(false);
-  const detailNavRef = useRef<HTMLElement | null>(null);
+  const detailNavSlotRef = useRef<HTMLDivElement | null>(null);
 
   const navigationState = useMemo(
     () => parsePokemonNavigationState(location.state),
@@ -237,21 +237,13 @@ export default function PokemonDetailPage() {
   }, [pokemonId]);
 
   useEffect(() => {
-    const nav = detailNavRef.current;
-    if (!nav) return;
-    let threshold = nav.getBoundingClientRect().top + window.scrollY;
-    const update = () => setDetailNavFixed(window.scrollY >= threshold);
-    const onResize = () => {
-      if (!detailNavFixed) threshold = nav.getBoundingClientRect().top + window.scrollY;
-      update();
-    };
-    window.addEventListener('scroll', update, { passive: true });
-    window.addEventListener('resize', onResize);
-    update();
-    return () => {
-      window.removeEventListener('scroll', update);
-      window.removeEventListener('resize', onResize);
-    };
+    const slot = detailNavSlotRef.current;
+    if (!slot) return;
+    const observer = new IntersectionObserver(([entry]) => {
+      setDetailNavFixed(entry.boundingClientRect.top <= 0);
+    });
+    observer.observe(slot);
+    return () => observer.disconnect();
   }, []);
 
   useEffect(() => {
@@ -482,9 +474,8 @@ export default function PokemonDetailPage() {
               </dl>
               <PokemonSpeciesProfile speciesId={pokemon.speciesId} />
             </section>
-            <div className="detail-nav-slot">
+            <div ref={detailNavSlotRef} className="detail-nav-slot">
               <nav
-                ref={detailNavRef}
                 className={detailNavFixed ? 'detail-nav detail-nav-fixed' : 'detail-nav'}
                 aria-label={localized('Seções do Pokémon', 'Pokémon sections')}
             >
