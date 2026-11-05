@@ -108,7 +108,7 @@ const NotFound = () => {
           text-shadow: 0 2px #ffffff75;
         }
         .dex404-face {
-          width: clamp(116px, 34vw, 150px);
+          width: clamp(130px, 38vw, 168px);
           height: auto;
           margin: 0 auto 7px;
           filter: drop-shadow(0 8px 4px #17365324);
