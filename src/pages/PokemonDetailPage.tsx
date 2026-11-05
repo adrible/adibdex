@@ -402,7 +402,7 @@ export default function PokemonDetailPage() {
                   </Button>
 
                   {prevId && (
-                    <Button variant="outline" size="icon" asChild>
+                    <Button variant="outline" size="icon" className="pokedex-arrow-control" asChild>
                       <Link
                         to={`/pokemon/${prevId}`}
                         replace
@@ -421,7 +421,7 @@ export default function PokemonDetailPage() {
                   )}
 
                   {nextId && (
-                    <Button variant="outline" size="icon" asChild>
+                    <Button variant="outline" size="icon" className="pokedex-arrow-control" asChild>
                       <Link
                         to={`/pokemon/${nextId}`}
                         replace
