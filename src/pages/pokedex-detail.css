@@ -721,3 +721,38 @@
     top: 8px;
   }
 }
+
+
+/* The slot preserves layout space while the section index is pinned to the viewport. */
+.pokedex-page .detail-nav-slot {
+  grid-column: 1 / -1;
+  min-width: 0;
+  min-height: 58px;
+  position: relative;
+  z-index: 60;
+}
+.pokedex-page .detail-nav {
+  position: relative;
+  top: auto;
+  align-self: auto;
+}
+.pokedex-page .detail-nav.detail-nav-fixed {
+  position: fixed;
+  top: 0;
+  left: 50%;
+  z-index: 60;
+  width: min(calc(100vw - 24px), 1120px);
+  margin: 0;
+  transform: translateX(-50%);
+  border-radius: 0 0 10px 10px;
+}
+@media (max-width: 767px) {
+  .pokedex-page .detail-nav-slot {
+    order: 1;
+    min-height: 56px;
+  }
+  .pokedex-page .detail-nav.detail-nav-fixed {
+    width: calc(100vw - 16px);
+    padding: 5px;
+  }
+}
