@@ -106,11 +106,13 @@ export function getPageMetadata(pathname: string, pokemon?: PokemonPage) {
           `View types, stats, abilities, moves by game, and evolution for Pokémon #${pokemonMatch[1]} in AdibDex.`,
         );
   } else if (path !== '/') indexable = false;
-  return { title, description, canonical: `${SITE_URL}${canonicalPath}`, indexable };
+  const imageId = pokemonMatch ? pokemonMatch[1] : path === '/mega' ? '6' : '25';
+  const image = `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/${imageId}.png`;
+  return { title, description, canonical: `${SITE_URL}${canonicalPath}`, indexable, image };
 }
 
 export function applyPageMetadata(metadata: ReturnType<typeof getPageMetadata>) {
-  const { title, description, canonical, indexable } = metadata;
+  const { title, description, canonical, indexable, image } = metadata;
   document.title = title;
   for (const [attribute, key, content] of [
     ['name', 'description', description],
@@ -118,6 +120,8 @@ export function applyPageMetadata(metadata: ReturnType<typeof getPageMetadata>) 
     ['property', 'og:title', title],
     ['property', 'og:description', description],
     ['property', 'og:url', canonical],
+    ['property', 'og:image', image],
+    ['name', 'twitter:image', image],
     ['name', 'twitter:title', title],
     ['name', 'twitter:description', description],
   ]) {
