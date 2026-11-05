@@ -1,1 +1,7 @@
-/* /index.html 200
+/national /index.html 200
+/regional-forms /index.html 200
+/mega /index.html 200
+/gmax /index.html 200
+/generation/:id /index.html 200
+/pokemon/:id /index.html 200
+/* /index.html 404
