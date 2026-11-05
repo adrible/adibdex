@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect, useMemo, useRef } from 'react';
 import { useParams, Link, useNavigate, useLocation } from 'react-router-dom';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import {
@@ -155,6 +155,8 @@ export default function PokemonDetailPage() {
   const isValidPokemonId = Number.isSafeInteger(pokemonId) && pokemonId > 0;
   const [isShiny, setIsShiny] = useState(false);
   const [selectedEncounterGame, setSelectedEncounterGame] = useState('');
+  const [detailNavFixed, setDetailNavFixed] = useState(false);
+  const detailNavRef = useRef<HTMLElement | null>(null);
 
   const navigationState = useMemo(
     () => parsePokemonNavigationState(location.state),
@@ -233,6 +235,24 @@ export default function PokemonDetailPage() {
   useEffect(() => {
     setSelectedEncounterGame('');
   }, [pokemonId]);
+
+  useEffect(() => {
+    const nav = detailNavRef.current;
+    if (!nav) return;
+    let threshold = nav.getBoundingClientRect().top + window.scrollY;
+    const update = () => setDetailNavFixed(window.scrollY >= threshold);
+    const onResize = () => {
+      if (!detailNavFixed) threshold = nav.getBoundingClientRect().top + window.scrollY;
+      update();
+    };
+    window.addEventListener('scroll', update, { passive: true });
+    window.addEventListener('resize', onResize);
+    update();
+    return () => {
+      window.removeEventListener('scroll', update);
+      window.removeEventListener('resize', onResize);
+    };
+  }, []);
 
   useEffect(() => {
     const preload = (id: number | null) => {
@@ -462,9 +482,11 @@ export default function PokemonDetailPage() {
               </dl>
               <PokemonSpeciesProfile speciesId={pokemon.speciesId} />
             </section>
-            <nav
-              className="detail-nav"
-              aria-label={localized('Seções do Pokémon', 'Pokémon sections')}
+            <div className="detail-nav-slot">
+              <nav
+                ref={detailNavRef}
+                className={detailNavFixed ? 'detail-nav detail-nav-fixed' : 'detail-nav'}
+                aria-label={localized('Seções do Pokémon', 'Pokémon sections')}
             >
               {[
                 ['stats', 'Stats'],
@@ -479,7 +501,8 @@ export default function PokemonDetailPage() {
                   {label}
                 </a>
               ))}
-            </nav>
+              </nav>
+            </div>
             <div id="stats" className="pokedex-instruments pokedex-screen">
               <div id="atributos" className="detail-panel">
                 <div className="flex flex-wrap items-center justify-between gap-3 mb-4">
