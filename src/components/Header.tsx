@@ -1,11 +1,4 @@
-import { useTheme } from '@/hooks/use-theme';
-import { Button } from './ui/button';
-import { Moon, Sun } from 'lucide-react';
-import { localized } from '@/lib/language';
-
 export function Header() {
-  const { theme, toggleTheme } = useTheme();
-
   return (
     <header className="sticky top-0 z-50 border-b border-border bg-primary">
       <div className="container flex items-center justify-between h-16">
@@ -24,19 +17,6 @@ export function Header() {
           </h1>
         </div>
 
-        <Button
-          variant="ghost"
-          size="icon"
-          onClick={toggleTheme}
-          aria-label={
-            theme === 'dark'
-              ? localized('Ativar tema claro', 'Switch to light theme')
-              : localized('Ativar tema escuro', 'Switch to dark theme')
-          }
-          className="text-primary-foreground hover:bg-primary-foreground/20"
-        >
-          {theme === 'dark' ? <Sun className="h-5 w-5" /> : <Moon className="h-5 w-5" />}
-        </Button>
       </div>
     </header>
   );
