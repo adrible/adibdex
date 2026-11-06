@@ -16,7 +16,6 @@ export function Header() {
             ADIBDEX
           </h1>
         </div>
-
       </div>
     </header>
   );
