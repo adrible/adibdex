@@ -1,31 +1,24 @@
-/** Original pixel globe artwork, drawn on a 64-unit grid. No emoji font or external icon. */
+/** A small illustrated globe for the National Pokédex. */
 export function NationalGlobe() {
   return (
-    <svg
-      className="national-globe"
-      viewBox="0 0 64 64"
-      fill="none"
-      aria-hidden="true"
-      shapeRendering="crispEdges"
-    >
+    <svg className="national-globe" viewBox="0 0 64 64" fill="none" aria-hidden="true">
+      <circle cx="32" cy="32" r="27" fill="#0b385c" />
+      <circle cx="32" cy="31" r="23" fill="#3799c6" stroke="#092c50" strokeWidth="2" />
       <path
-        d="M24 3h16v4h8v4h5v6h4v7h4v16h-4v8h-4v5h-6v4h-7v4H24v-4h-8v-4h-5v-6H7v-7H3V24h4v-8h4v-5h6V7h7Z"
-        fill="#092c50"
+        d="M15 20c3-4 7-7 12-8l5 3-1 4-5 1-2 4-5 1-1 5-5-2a22 22 0 0 1 2-8Zm8 12 5-2 5 3 3 5-2 4-1 5-4 3-2-6-3-4-3-3 2-5Zm14-17 4-2a23 23 0 0 1 11 11l-5 2-4-2-1 4-5-1-3-5 3-3Zm5 22 6-2 4 3a22 22 0 0 1-6 9l-5-2-1-4 2-4Z"
+        fill="#b7e69d"
+        stroke="#427c63"
+        strokeWidth="1.3"
+        strokeLinejoin="round"
       />
       <path
-        d="M24 6h16v4h8v4h4v10h5v16h-4v8h-6v5h-7v4H24v-4h-8v-6h-5v-7H7V24h4v-8h6v-5h7Z"
-        fill="#79d4fa"
+        d="M16 18a23 23 0 0 1 12-8"
+        stroke="#effcff"
+        strokeWidth="2.5"
+        strokeLinecap="round"
+        opacity=".8"
       />
-      <path
-        d="M40 10h8v4h4v10h5v16h-4v8h-6v5h-7v4H24v-4h16v-5h7V37h5V24h-5v-8h-7Z"
-        fill="#3c9bd4"
-      />
-      <path d="M17 12h14v5h-6v5h-8v5h6v5h8v6h-7v-4h-7v-6h-6V17h6Z" fill="#a0e7a0" />
-      <path d="M24 34h12v5h5v7h-5v6h-5v-5h-5v-7h-5v-6Z" fill="#9bdf91" />
-      <path d="M39 15h9v7h5v7h-7v5h-7v-6h-5v-7h5Z" fill="#b4ecad" />
-      <path d="M45 40h7v8h-9v-5h2Z" fill="#b4ecad" />
-      <path d="M24 6h16v3H24Zm-7 5h7v3h-7Zm-6 6h3v7h-3Z" fill="#effbff" />
-      <path d="M24 58h16v3H24Z" fill="#d4f0ff" />
+      <path d="M23 58h18" stroke="#d4f0ff" strokeWidth="3" strokeLinecap="round" />
     </svg>
   );
 }

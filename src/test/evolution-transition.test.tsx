@@ -3,6 +3,7 @@ import { render, screen, within } from '@testing-library/react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { MemoryRouter } from 'react-router-dom';
 import { describe, expect, it } from 'vitest';
+import { EvolutionRequirements } from '@/components/evolution/EvolutionRequirements';
 import { EvolutionChainDisplay } from '@/components/EvolutionChain';
 import type { EvolutionCondition, EvolutionStep } from '@/lib/pokemon/types';
 
@@ -103,5 +104,18 @@ describe('incoming evolution methods', () => {
   it('renders a single species without a transition', () => {
     const { container } = show([[step(1, 'single', null, [])]]);
     expect(container.querySelector('.evolution-transition')).toBeNull();
+  });
+});
+
+describe('evolution requirements', () => {
+  it('hides identical alternatives while keeping genuinely different conditions', () => {
+    const stone = { ...condition, trigger: 'use-item', item: 'thunder-stone' };
+    const { rerender } = render(<EvolutionRequirements conditions={[stone, { ...stone }]} />);
+    expect(screen.getAllByText('Pedra do Trovão')).toHaveLength(1);
+    expect(screen.queryByText(/Outras condições/)).not.toBeInTheDocument();
+    const distinct = [stone, { ...stone }, { ...stone, timeOfDay: 'night' }];
+    rerender(<EvolutionRequirements conditions={distinct} />);
+    expect(screen.getByText('Outras condições (1)')).toBeInTheDocument();
+    expect(screen.getByText('Noite')).toBeInTheDocument();
   });
 });
