@@ -9,6 +9,26 @@ export interface ChangelogEntry {
 
 export const CHANGELOG: ChangelogEntry[] = [
   {
+    version: '0.9.6',
+    date: '2026-11-06',
+    title: 'Navegação e informações mais claras',
+    titleEn: 'Clearer navigation and information',
+    changes: [
+      'O jogo escolhido no catálogo acompanha a navegação pelos Pokémon e já é selecionado na lista de ataques.',
+      'O sumário da página do Pokémon acompanha a rolagem e posiciona os títulos das seções de forma mais clara.',
+      'Botões e filtros dos catálogos seguem o visual dos controles da Pokédex, com uma nova figurinha para a Pokédex Nacional.',
+      'Condições de evolução idênticas não aparecem repetidas.',
+      'Nova página para endereços não encontrados e melhorias nos resultados de busca e no compartilhamento de páginas.',
+    ],
+    changesEn: [
+      'The game selected in the catalog stays selected in the move list and while navigating between Pokémon.',
+      'The Pokémon page index stays visible while scrolling and positions section headings more clearly.',
+      'Catalog buttons and filters match the Pokédex controls, with a new illustration for the National Pokédex.',
+      'Identical evolution requirements are no longer shown more than once.',
+      'A new page for missing addresses and improvements to search results and page sharing.',
+    ],
+  },
+  {
     version: '0.9.5',
     date: '2026-11-03',
     title: 'Detalhes mais claros em qualquer tela',
