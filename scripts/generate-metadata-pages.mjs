@@ -1,6 +1,7 @@
 import { readFile, writeFile, mkdir } from 'node:fs/promises';
 import { join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { pokemonSearchDescription, searchTypeName } from '../src/lib/pokemon-search.ts';
 
 const origin = 'https://adibdex.com';
 const artwork = (id) =>
@@ -30,6 +31,52 @@ const displayName = (name) => {
   );
 };
 
+function pokemonSummary(entry, description, byId) {
+  const name = displayName(entry.name);
+  const number = String(entry.baseId || entry.id).padStart(4, '0');
+  const stats = Object.entries(entry.stats ?? {})
+    .map(([key, value]) => {
+      const labels = {
+        hp: 'HP',
+        attack: 'Ataque',
+        defense: 'Defesa',
+        spAtk: 'Ataque especial',
+        spDef: 'Defesa especial',
+        speed: 'Velocidade',
+      };
+      return `<dt>${labels[key] ?? escape(key)}</dt><dd>${escape(value)}</dd>`;
+    })
+    .join('');
+  const abilities = (entry.abilities ?? [])
+    .map(({ name, isHidden }) => `${escape(displayName(name))}${isHidden ? ' (oculta)' : ''}`)
+    .join(', ');
+  const related = [entry.id - 1, entry.id + 1]
+    .map((id) => byId.get(id))
+    .filter(Boolean)
+    .map((other) => `<a href="/pokemon/${other.id}">${escape(displayName(other.name))}</a>`)
+    .join(' · ');
+  // This visible initial content is replaced by React, so users never see duplicate facts.
+  return `<main class="container"><nav><a href="/">AdibDex</a> · <a href="/national">Pokédex Nacional</a></nav>
+    <article><h1>${escape(name)} #${number}</h1><p>${escape(description)}</p>
+    <img src="${artwork(entry.id)}" alt="${escape(name)}" width="240" height="240" />
+    ${abilities ? `<h2>Habilidades</h2><p>${abilities}</p>` : ''}
+    ${stats ? `<h2>Atributos base</h2><dl>${stats}</dl>` : ''}
+    <p>Consulte fraquezas, ataques por jogo, evoluções e localizações na ficha interativa.</p>
+    </article><nav aria-label="Outros Pokémon">${related}</nav></main>`;
+}
+
+function catalogSummary(path, title, description, entries) {
+  const items =
+    path === '/national'
+      ? entries
+      : path === '/'
+        ? entries.filter((entry) => [1, 4, 7, 25].includes(entry.id))
+        : [];
+  return `<main class="container"><h1>${escape(title)}</h1><p>${escape(description)}</p>
+    <nav><a href="/">AdibDex</a> · <a href="/national">Pokédex Nacional</a></nav>
+    ${items.length ? `<ul>${items.map((entry) => `<li><a href="/pokemon/${entry.id}">${escape(displayName(entry.name))}</a> — ${entry.types.map((type) => escape(searchTypeName(type))).join(' / ')}</li>`).join('')}</ul>` : ''}</main>`;
+}
+
 export async function generateMetadataPages({
   outDir = 'dist',
   catalogPath = 'public/data/catalog.json',
@@ -37,6 +84,7 @@ export async function generateMetadataPages({
   const html = await readFile(join(outDir, 'index.html'), 'utf8');
   const { entries } = JSON.parse(await readFile(catalogPath, 'utf8'));
   if (!Array.isArray(entries) || !entries.length) throw new Error('Pokémon catalog is empty');
+  const byId = new Map(entries.map((entry) => [entry.id, entry]));
   const pages = [
     [
       '/national',
@@ -87,7 +135,7 @@ export async function generateMetadataPages({
     pages.push([
       `/pokemon/${entry.id}`,
       `${name} (Pokémon) #${number} — tipos, fraquezas e evoluções | AdibDex`,
-      `Descubra tipos, fraquezas, atributos, habilidades, ataques e evoluções de ${name} (#${number}) na AdibDex.`,
+      pokemonSearchDescription(name, number, entry),
       entry.id,
     ]);
   }
@@ -112,10 +160,26 @@ export async function generateMetadataPages({
       page = page.replace(pattern, `$1${escape(value)}$2`);
     }
     page = page.replace('</head>', `  <link rel="canonical" href="${canonical}" />\n  </head>`);
+    const entry = path.startsWith('/pokemon/') ? byId.get(imageId) : undefined;
+    const content = entry
+      ? pokemonSummary(entry, description, byId)
+      : catalogSummary(path, title, description, entries);
+    page = page.replace('<div id="root"></div>', `<div id="root">${content}</div>`);
     const dir = join(outDir, path.slice(1));
     await mkdir(dir, { recursive: true });
     await writeFile(join(dir, 'index.html'), page);
   }
+  // Real links let crawlers discover catalogs before JavaScript executes.
+  const home = catalogSummary(
+    '/',
+    'AdibDex — A Pokédex de Adib',
+    'Explore Pokémon, tipos, habilidades, atributos, ataques por jogo e evoluções.',
+    entries,
+  );
+  await writeFile(
+    join(outDir, 'index.html'),
+    html.replace('<div id="root"></div>', `<div id="root">${home}</div>`),
+  );
   // Cloudflare Pages serves 404.html with HTTP 404 for unknown paths.
   // Keep the React error screen while preventing indexing of missing URLs.
   const notFoundHtml = html
