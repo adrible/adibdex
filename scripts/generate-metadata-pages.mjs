@@ -116,7 +116,13 @@ export async function generateMetadataPages({
     await mkdir(dir, { recursive: true });
     await writeFile(join(dir, 'index.html'), page);
   }
-  console.log(`Generated metadata for ${pages.length} routes.`);
+  // Cloudflare Pages serves 404.html with HTTP 404 for unknown paths.
+  // Keep the React error screen while preventing indexing of missing URLs.
+  const notFoundHtml = html
+    .replace(/<title>[^<]*<\/title>/, '<title>Página não encontrada — AdibDex</title>')
+    .replace('</head>', '  <meta name="robots" content="noindex,follow" />\n  </head>');
+  await writeFile(join(outDir, '404.html'), notFoundHtml);
+  console.log(`Generated metadata for ${pages.length} routes and a 404 page.`);
 }
 
 if (process.argv[1] && resolve(process.argv[1]) === fileURLToPath(import.meta.url)) {
