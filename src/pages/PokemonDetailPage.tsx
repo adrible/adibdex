@@ -462,6 +462,7 @@ export default function PokemonDetailPage() {
                           origin: stableOrigin,
                           listContext: {
                             ids: idsSafe,
+                            game: listContext?.game,
                             currentIndex: safeIndex - 1,
                           },
                         }}
@@ -481,6 +482,7 @@ export default function PokemonDetailPage() {
                           origin: stableOrigin,
                           listContext: {
                             ids: idsSafe,
+                            game: listContext?.game,
                             currentIndex: safeIndex + 1,
                           },
                         }}
@@ -716,7 +718,7 @@ export default function PokemonDetailPage() {
             )}
 
             <div id="ataques" className="detail-section detail-wide">
-              <PokemonMoves key={pokemonId} pokemonId={pokemonId} />
+              <PokemonMoves key={pokemonId} pokemonId={pokemonId} initialGame={listContext?.game} />
             </div>
           </div>
         </div>
