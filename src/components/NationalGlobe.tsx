@@ -11,6 +11,13 @@ export function NationalGlobe() {
         strokeWidth="1.3"
         strokeLinejoin="round"
       />
+      <path
+        d="M16 18a23 23 0 0 1 12-8"
+        stroke="#effcff"
+        strokeWidth="2.5"
+        strokeLinecap="round"
+        opacity=".8"
+      />
       <path d="M23 58h18" stroke="#d4f0ff" strokeWidth="3" strokeLinecap="round" />
     </svg>
   );
