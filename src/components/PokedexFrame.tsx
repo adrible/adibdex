@@ -19,6 +19,13 @@ export function PokedexFrame({
         </div>
         <main className="home-grid-screen">{children}</main>
         <div className="home-device-cap home-device-cap--bottom" aria-hidden="true">
+          <span
+            className="home-device-origin"
+            lang="pt-BR"
+            style={{ left: '50%', transform: 'translateX(-50%)' }}
+          >
+            Brasil
+          </span>
           <span className="home-device-arc" />
           <span className="home-device-vents">
             <i />
