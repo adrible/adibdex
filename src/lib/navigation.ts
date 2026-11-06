@@ -46,6 +46,9 @@ export function parsePokemonNavigationState(value: unknown): PokemonNavigationSt
     return { origin };
   }
 
-  const game = typeof context.game === 'string' && /^[a-z0-9-]{1,80}$/.test(context.game) ? context.game : undefined;
+  const game =
+    typeof context.game === 'string' && /^[a-z0-9-]{1,80}$/.test(context.game)
+      ? context.game
+      : undefined;
   return { origin, listContext: { ids, currentIndex, ...(game ? { game } : {}) } };
 }

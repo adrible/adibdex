@@ -295,7 +295,13 @@ function GameMoves({ group }: { group: MovesByVersionGroup }) {
   );
 }
 
-export function PokemonMoves({ pokemonId, initialGame = '' }: { pokemonId: number; initialGame?: string }) {
+export function PokemonMoves({
+  pokemonId,
+  initialGame = '',
+}: {
+  pokemonId: number;
+  initialGame?: string;
+}) {
   const [isOpen, setIsOpen] = useState(true);
   const [selectedGame, setSelectedGame] = useState<string>(initialGame);
 
@@ -311,7 +317,9 @@ export function PokemonMoves({ pokemonId, initialGame = '' }: { pokemonId: numbe
     staleTime: 1000 * 60 * 60,
   });
 
-  const currentGame = selectedGame ? movesByGame?.find((g) => g.versionGroup === selectedGame) : movesByGame?.[0];
+  const currentGame = selectedGame
+    ? movesByGame?.find((g) => g.versionGroup === selectedGame)
+    : movesByGame?.[0];
 
   return (
     <div className="detail-moves-card rounded-xl bg-card border border-border overflow-hidden">
@@ -355,7 +363,11 @@ export function PokemonMoves({ pokemonId, initialGame = '' }: { pokemonId: numbe
                   onChange={(event) => setSelectedGame(event.target.value)}
                   className="detail-game-select"
                 >
-                  {selectedGame && !currentGame && <option value={selectedGame}>{localized('Sem dados para o jogo selecionado', 'No data for selected game')}</option>}
+                  {selectedGame && !currentGame && (
+                    <option value={selectedGame}>
+                      {localized('Sem dados para o jogo selecionado', 'No data for selected game')}
+                    </option>
+                  )}
                   {movesByGame.map((g) => (
                     <option key={g.versionGroup} value={g.versionGroup}>
                       {g.versionGroupLabel}
@@ -363,7 +375,16 @@ export function PokemonMoves({ pokemonId, initialGame = '' }: { pokemonId: numbe
                   ))}
                 </select>
               </label>
-              {currentGame ? <GameMoves key={currentGame.versionGroup} group={currentGame} /> : <p>{localized('Nenhum ataque registrado para o jogo selecionado. Escolha outro jogo.', 'No moves recorded for the selected game. Choose another game.')}</p>}
+              {currentGame ? (
+                <GameMoves key={currentGame.versionGroup} group={currentGame} />
+              ) : (
+                <p>
+                  {localized(
+                    'Nenhum ataque registrado para o jogo selecionado. Escolha outro jogo.',
+                    'No moves recorded for the selected game. Choose another game.',
+                  )}
+                </p>
+              )}
             </div>
           ) : (
             <p className="text-sm text-muted-foreground">
