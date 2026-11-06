@@ -111,12 +111,16 @@ function Conditions({ tags }: { tags: ReturnType<typeof conditionTags> }) {
 }
 
 export function EvolutionRequirements({ conditions }: { conditions: EvolutionCondition[] }) {
-  const options = conditions.map(conditionTags).filter((tags, index, all) => {
+  const options: ReturnType<typeof conditionTags>[] = [];
+  const seen = new Set<string>();
+  for (const condition of conditions) {
+    const tags = conditionTags(condition);
     const key = JSON.stringify(tags.map((tag) => tag.text).sort());
-    return (
-      all.findIndex((other) => JSON.stringify(other.map((tag) => tag.text).sort()) === key) === index
-    );
-  });
+    if (!seen.has(key)) {
+      options.push(tags);
+      seen.add(key);
+    }
+  }
   if (!options.length) return null;
   if (options.length === 1) return <Conditions tags={options[0]} />;
   return (

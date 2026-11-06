@@ -113,7 +113,8 @@ describe('evolution requirements', () => {
     const { rerender } = render(<EvolutionRequirements conditions={[stone, { ...stone }]} />);
     expect(screen.getAllByText('Pedra do Trovão')).toHaveLength(1);
     expect(screen.queryByText(/Outras condições/)).not.toBeInTheDocument();
-    rerender(<EvolutionRequirements conditions={[stone, { ...stone }, { ...stone, timeOfDay: 'night' }]} />);
+    const distinct = [stone, { ...stone }, { ...stone, timeOfDay: 'night' }];
+    rerender(<EvolutionRequirements conditions={distinct} />);
     expect(screen.getByText('Outras condições (1)')).toBeInTheDocument();
     expect(screen.getByText('Noite')).toBeInTheDocument();
   });
