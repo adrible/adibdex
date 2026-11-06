@@ -34,7 +34,7 @@ const triggers: Record<string, string> = {
 };
 const words = (value: string) => value.replace(/-/g, ' ');
 
-function Conditions({ value }: { value: EvolutionCondition }) {
+function conditionTags(value: EvolutionCondition) {
   const tags: { text: string; Icon: LucideIcon }[] = [];
   const add = (text: string, Icon: LucideIcon = Sparkles) => tags.push({ text, Icon });
   if (value.minLevel !== null) add(localized(`Nível ${value.minLevel}`, `Level ${value.minLevel}`));
@@ -94,6 +94,10 @@ function Conditions({ value }: { value: EvolutionCondition }) {
     );
   if (value.tradeSpecies)
     add(`${localized('Trocar por', 'Trade for')} ${words(value.tradeSpecies)}`, ArrowLeftRight);
+  return tags.filter((tag, index) => tags.findIndex((other) => other.text === tag.text) === index);
+}
+
+function Conditions({ tags }: { tags: ReturnType<typeof conditionTags> }) {
   return (
     <div className="evolution-requirements">
       {tags.map(({ text, Icon }, index) => (
@@ -107,22 +111,28 @@ function Conditions({ value }: { value: EvolutionCondition }) {
 }
 
 export function EvolutionRequirements({ conditions }: { conditions: EvolutionCondition[] }) {
-  if (!conditions.length) return null;
-  if (conditions.length === 1) return <Conditions value={conditions[0]} />;
+  const options = conditions.map(conditionTags).filter((tags, index, all) => {
+    const key = JSON.stringify(tags.map((tag) => tag.text).sort());
+    return (
+      all.findIndex((other) => JSON.stringify(other.map((tag) => tag.text).sort()) === key) === index
+    );
+  });
+  if (!options.length) return null;
+  if (options.length === 1) return <Conditions tags={options[0]} />;
   return (
     <div className="evolution-method-options">
-      <Conditions value={conditions[0]} />
+      <Conditions tags={options[0]} />
       <details className="evolution-alternatives">
         <summary>
-          {localized('Outras condições', 'Other conditions')} ({conditions.length - 1})
+          {localized('Outras condições', 'Other conditions')} ({options.length - 1})
         </summary>
         <div className="mt-3 space-y-3">
-          {conditions.slice(1).map((value, i) => (
+          {options.slice(1).map((tags, i) => (
             <div key={i}>
               <p className="mb-2 text-center text-[10px] uppercase tracking-wider text-muted-foreground">
                 {localized('ou', 'or')}
               </p>
-              <Conditions value={value} />
+              <Conditions tags={tags} />
             </div>
           ))}
         </div>
