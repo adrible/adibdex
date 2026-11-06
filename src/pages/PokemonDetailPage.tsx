@@ -311,9 +311,7 @@ export default function PokemonDetailPage() {
 
   useEffect(() => {
     if (!pokemon) return;
-    applyPageMetadata(
-      getPageMetadata(location.pathname, { name: pokemon.name, speciesId: displayId }),
-    );
+    applyPageMetadata(getPageMetadata(location.pathname, { ...pokemon, speciesId: displayId }));
   }, [displayId, location.pathname, pokemon]);
 
   const handleBack = () => {

@@ -1,5 +1,6 @@
 import { GENERATIONS } from '@/lib/pokemon/constants';
 import { getSiteLanguage, localized } from '@/lib/language';
+import { pokemonSearchDescription } from '@/lib/pokemon-search';
 
 export const SITE_URL = 'https://adibdex.com';
 export const SITE_TITLE = localized('AdibDex — A Pokédex de Adib', 'AdibDex — Adib’s Pokédex');
@@ -8,7 +9,13 @@ export const SITE_DESCRIPTION = localized(
   'Adib’s Pokédex: explore 1,025 Pokémon, regional forms, Mega Evolution, and Gigantamax. Search moves, abilities, and games in AdibDex.',
 );
 
-type PokemonPage = { name: string; speciesId: number };
+type PokemonPage = {
+  name: string;
+  speciesId: number;
+  types?: string[];
+  height?: number;
+  weight?: number;
+};
 
 function formatPokemonName(name: string) {
   const regionMatch = /^(.*)-(alola|galar|hisui|paldea)$/.exec(name);
@@ -97,10 +104,7 @@ export function getPageMetadata(pathname: string, pokemon?: PokemonPage) {
         )
       : localized(`Pokémon #${pokemonMatch[1]} — AdibDex`, `Pokémon #${pokemonMatch[1]} — AdibDex`);
     description = pokemonName
-      ? localized(
-          `Descubra tipos, fraquezas, atributos, habilidades, ataques e evoluções de ${pokemonName} (#${paddedNumber}) na AdibDex.`,
-          `Explore ${pokemonName} (#${paddedNumber}) in AdibDex, including its types, weaknesses, stats, abilities, moves, and evolution.`,
-        )
+      ? pokemonSearchDescription(pokemonName, paddedNumber, pokemon ?? {}, getSiteLanguage())
       : localized(
           `Consulte tipos, atributos, habilidades, ataques por jogo e evoluções do Pokémon #${pokemonMatch[1]} na AdibDex.`,
           `View types, stats, abilities, moves by game, and evolution for Pokémon #${pokemonMatch[1]} in AdibDex.`,
