@@ -172,8 +172,8 @@ export async function generateMetadataPages({
   // Real links let crawlers discover catalogs before JavaScript executes.
   const home = catalogSummary(
     '/',
-    'AdibDex — A Pokédex de Adib',
-    'Explore Pokémon, tipos, habilidades, atributos, ataques por jogo e evoluções.',
+    'AdibDex — Uma Pokédex de visual único',
+    'Explore Pokémon, evoluções, ataques e habilidades em uma Pokédex interativa inspirada nos jogos.',
     entries,
   );
   await writeFile(

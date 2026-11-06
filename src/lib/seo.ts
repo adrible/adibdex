@@ -3,10 +3,13 @@ import { getSiteLanguage, localized } from '@/lib/language';
 import { pokemonSearchDescription } from '@/lib/pokemon-search';
 
 export const SITE_URL = 'https://adibdex.com';
-export const SITE_TITLE = localized('AdibDex — A Pokédex de Adib', 'AdibDex — Adib’s Pokédex');
+export const SITE_TITLE = localized(
+  'AdibDex — Uma Pokédex de visual único',
+  'AdibDex — A Pokédex with a unique look',
+);
 export const SITE_DESCRIPTION = localized(
-  'A Pokédex de Adib: explore 1.025 Pokémon, formas regionais, Mega e Gigantamax. Pesquise ataques, habilidades e jogos na AdibDex.',
-  'Adib’s Pokédex: explore 1,025 Pokémon, regional forms, Mega Evolution, and Gigantamax. Search moves, abilities, and games in AdibDex.',
+  'Explore Pokémon, evoluções, ataques e habilidades em uma Pokédex interativa inspirada nos jogos.',
+  'Explore Pokémon, evolutions, moves, and abilities in an interactive Pokédex inspired by the games.',
 );
 
 type PokemonPage = {

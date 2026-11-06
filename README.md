@@ -1,4 +1,4 @@
-# AdibDex — A Pokédex de Adib
+# AdibDex — Uma Pokédex de visual único
 
 Pokédex em português com catálogo nacional (1.025 espécies), formas regionais, Mega/Primal e Gigantamax, busca por nome, número, habilidade (inclusive oculta) ou ataque aprendido, filtros e detalhes obtidos da PokeAPI. A página inicial mostra novidades e a data de conferência dos dados.
 
