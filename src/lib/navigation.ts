@@ -1,6 +1,7 @@
 export interface PokemonListContext {
   ids: number[];
   currentIndex: number;
+  game?: string;
 }
 
 export interface PokemonNavigationState {
@@ -45,5 +46,9 @@ export function parsePokemonNavigationState(value: unknown): PokemonNavigationSt
     return { origin };
   }
 
-  return { origin, listContext: { ids, currentIndex } };
+  const game =
+    typeof context.game === 'string' && /^[a-z0-9-]{1,80}$/.test(context.game)
+      ? context.game
+      : undefined;
+  return { origin, listContext: { ids, currentIndex, ...(game ? { game } : {}) } };
 }

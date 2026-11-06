@@ -11,7 +11,11 @@ export default defineConfig({
       name: 'adibdex-static-metadata',
       apply: 'build',
       closeBundle() {
-        execFileSync(process.execPath, [fileURLToPath(new URL('./scripts/generate-metadata-pages.mjs', import.meta.url))], { stdio: 'inherit' });
+        execFileSync(
+          process.execPath,
+          [fileURLToPath(new URL('./scripts/generate-metadata-pages.mjs', import.meta.url))],
+          { stdio: 'inherit' },
+        );
       },
     },
   ],

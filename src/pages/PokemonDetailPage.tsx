@@ -249,7 +249,8 @@ export default function PokemonDetailPage() {
         page.style.setProperty('--detail-nav-width', `${rect.width}px`);
       }
     };
-    const resizeObserver = typeof ResizeObserver !== 'undefined' ? new ResizeObserver(updateNavHeight) : null;
+    const resizeObserver =
+      typeof ResizeObserver !== 'undefined' ? new ResizeObserver(updateNavHeight) : null;
     if (nav) resizeObserver?.observe(nav);
     resizeObserver?.observe(slot);
     updateNavHeight();
@@ -462,6 +463,7 @@ export default function PokemonDetailPage() {
                           origin: stableOrigin,
                           listContext: {
                             ids: idsSafe,
+                            game: listContext?.game,
                             currentIndex: safeIndex - 1,
                           },
                         }}
@@ -481,6 +483,7 @@ export default function PokemonDetailPage() {
                           origin: stableOrigin,
                           listContext: {
                             ids: idsSafe,
+                            game: listContext?.game,
                             currentIndex: safeIndex + 1,
                           },
                         }}
@@ -517,20 +520,20 @@ export default function PokemonDetailPage() {
               <nav
                 className={detailNavFixed ? 'detail-nav detail-nav-fixed' : 'detail-nav'}
                 aria-label={localized('Seções do Pokémon', 'Pokémon sections')}
-            >
-              {[
-                ['stats', 'Stats'],
-                ['fraquezas', localized('Defesa', 'Defense')],
-                ['evolucoes', localized('Evoluções', 'Evolution')],
-                ...(hasAlternateForms ? [['formas', localized('Formas', 'Forms')]] : []),
-                ['ataques', localized('Ataques', 'Moves')],
-                ['localizacoes', localized('Locais', 'Locations')],
-                ['entradas-pokedex', localized('Pokédex', 'Pokédex')],
-              ].map(([anchor, label]) => (
-                <a key={anchor} href={`#${anchor}`} className="detail-nav-link">
-                  {label}
-                </a>
-              ))}
+              >
+                {[
+                  ['stats', 'Stats'],
+                  ['fraquezas', localized('Defesa', 'Defense')],
+                  ['evolucoes', localized('Evoluções', 'Evolution')],
+                  ...(hasAlternateForms ? [['formas', localized('Formas', 'Forms')]] : []),
+                  ['ataques', localized('Ataques', 'Moves')],
+                  ['localizacoes', localized('Locais', 'Locations')],
+                  ['entradas-pokedex', localized('Pokédex', 'Pokédex')],
+                ].map(([anchor, label]) => (
+                  <a key={anchor} href={`#${anchor}`} className="detail-nav-link">
+                    {label}
+                  </a>
+                ))}
               </nav>
             </div>
             <div id="stats" className="pokedex-instruments pokedex-screen">
@@ -716,7 +719,7 @@ export default function PokemonDetailPage() {
             )}
 
             <div id="ataques" className="detail-section detail-wide">
-              <PokemonMoves key={pokemonId} pokemonId={pokemonId} />
+              <PokemonMoves key={pokemonId} pokemonId={pokemonId} initialGame={listContext?.game} />
             </div>
           </div>
         </div>

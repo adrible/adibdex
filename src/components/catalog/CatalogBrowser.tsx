@@ -49,6 +49,7 @@ export function CatalogBrowser({
                     origin: location.pathname,
                     listContext: {
                       ids: view.visibleIds,
+                      game: view.filters.game,
                       currentIndex: view.visibleIds.indexOf(id),
                     },
                   },
@@ -116,6 +117,7 @@ export function CatalogBrowser({
                   originPath={location.pathname}
                   listContext={{
                     ids: view.visibleIds,
+                    game: view.filters.game,
                     currentIndex: view.visibleIds.indexOf(p.id),
                   }}
                 />

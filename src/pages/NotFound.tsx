@@ -187,20 +187,44 @@ const NotFound = () => {
           <div className="dex404-device-top" aria-hidden="true">
             <span className="dex404-lens" />
             <span className="dex404-brand">ADIBDEX</span>
-            <span className="dex404-lights"><i /><i /><i /></span>
+            <span className="dex404-lights">
+              <i />
+              <i />
+              <i />
+            </span>
           </div>
 
           <div className="dex404-screen">
             <p className="dex404-code">404</p>
-            <svg className="dex404-face" viewBox="0 0 160 160" role="img" aria-label={localized('Carinha triste com olhos em X', 'Sad face with X eyes')}>
-              <path d="m43 52 22 22m0-22L43 74M95 52l22 22m0-22L95 74" fill="none" stroke="#102a46" strokeWidth="9" strokeLinecap="round" />
-              <path d="M53 111 Q80 82 107 111" fill="none" stroke="#102a46" strokeWidth="8" strokeLinecap="round" />
+            <svg
+              className="dex404-face"
+              viewBox="0 0 160 160"
+              role="img"
+              aria-label={localized('Carinha triste com olhos em X', 'Sad face with X eyes')}
+            >
+              <path
+                d="m43 52 22 22m0-22L43 74M95 52l22 22m0-22L95 74"
+                fill="none"
+                stroke="#102a46"
+                strokeWidth="9"
+                strokeLinecap="round"
+              />
+              <path
+                d="M53 111 Q80 82 107 111"
+                fill="none"
+                stroke="#102a46"
+                strokeWidth="8"
+                strokeLinecap="round"
+              />
             </svg>
             <h1 id="dex404-title" className="dex404-screen-title">
               {localized('Página não encontrada', 'Page not found')}
             </h1>
             <p className="dex404-screen-copy">
-              {localized('Esse caminho não aparece nesta Pokédex.', 'This path is not listed in this Pokédex.')}
+              {localized(
+                'Esse caminho não aparece nesta Pokédex.',
+                'This path is not listed in this Pokédex.',
+              )}
             </p>
           </div>
 

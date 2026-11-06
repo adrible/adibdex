@@ -15,6 +15,7 @@ interface Props {
   listContext?: {
     ids: number[];
     currentIndex: number;
+    game?: string;
   };
 }
 
