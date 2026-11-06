@@ -512,3 +512,22 @@
     gap: 6px;
   }
 }
+
+/* Pokédex-style catalog controls */
+.catalog-page .catalog-actions > button {
+  border: 2px solid hsl(0 73% 22%);
+  border-radius: 7px;
+  background: linear-gradient(hsl(201 66% 88%), hsl(198 58% 75%));
+  color: hsl(215 65% 13%);
+  box-shadow: inset 0 1px 0 hsl(0 0% 100% / 0.8), 0 2px 0 hsl(0 70% 20% / 0.7);
+}
+.catalog-page .catalog-actions > button:hover { background: hsl(192 75% 92%); }
+.catalog-page .catalog-actions > .catalog-view-active {
+  background: linear-gradient(hsl(203 80% 38%), hsl(215 65% 20%));
+  color: white;
+}
+.catalog-page .catalog-actions > .catalog-shiny-active {
+  background: linear-gradient(hsl(49 100% 82%), hsl(43 92% 61%));
+  color: hsl(33 80% 15%);
+}
+.catalog-page .catalog-actions > button:active { transform: translateY(1px); }
