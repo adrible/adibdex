@@ -37,7 +37,7 @@ describe('search metadata', () => {
     fireEvent.click(screen.getByRole('link', { name: 'Home' }));
     expect(document.title).toBe(SITE_TITLE);
     expect(document.head.querySelector<HTMLMetaElement>('meta[name="robots"]')?.content).toBe(
-      'index,follow',
+      'index,follow,max-image-preview:large',
     );
     expect(document.head.querySelector<HTMLLinkElement>('link[rel="canonical"]')?.href).toBe(
       `${SITE_URL}/`,
