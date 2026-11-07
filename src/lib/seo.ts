@@ -115,7 +115,13 @@ export function getPageMetadata(pathname: string, pokemon?: PokemonPage) {
   } else if (path !== '/') indexable = false;
   const imageId = pokemonMatch ? pokemonMatch[1] : path === '/mega' ? '6' : '25';
   const image = `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/${imageId}.png`;
-  return { title, description, canonical: `${SITE_URL}${canonicalPath}`, indexable, image };
+  return {
+    title,
+    description,
+    canonical: `${SITE_URL}${canonicalPath === '/' ? '/' : `${canonicalPath}/`}`,
+    indexable,
+    image,
+  };
 }
 
 export function applyPageMetadata(metadata: ReturnType<typeof getPageMetadata>) {
