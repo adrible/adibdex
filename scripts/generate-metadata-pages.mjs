@@ -6,6 +6,7 @@ import { pokemonSearchDescription, searchTypeName } from '../src/lib/pokemon-sea
 const origin = 'https://adibdex.com';
 const artwork = (id) =>
   `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/${id}.png`;
+const safeJson = (value) => JSON.stringify(value).replaceAll('<', '\\u003c');
 const escape = (value) =>
   String(value)
     .replaceAll('&', '&amp;')
@@ -151,6 +152,11 @@ export async function generateMetadataPages({
       ['property', 'og:description', description],
       ['property', 'og:url', canonical],
       ['property', 'og:image', artwork(imageId)],
+      [
+        'property',
+        'og:image:alt',
+        `${displayName(byId.get(imageId)?.name ?? 'Pokémon')} — Pokémon #${String(imageId).padStart(4, '0')}`,
+      ],
       ['name', 'twitter:title', title],
       ['name', 'twitter:description', description],
       ['name', 'twitter:image', artwork(imageId)],
@@ -159,6 +165,25 @@ export async function generateMetadataPages({
       if (!pattern.test(page)) throw new Error(`Missing ${key} metadata`);
       page = page.replace(pattern, `$1${escape(value)}$2`);
     }
+    const pageData = safeJson({
+      '@context': 'https://schema.org',
+      '@type': 'WebPage',
+      '@id': `${canonical}#webpage`,
+      url: canonical,
+      name: title,
+      description,
+      primaryImageOfPage: {
+        '@type': 'ImageObject',
+        contentUrl: artwork(imageId),
+        url: artwork(imageId),
+        caption: `${displayName(byId.get(imageId)?.name ?? 'Pokémon')} — AdibDex`,
+      },
+      isPartOf: { '@id': `${origin}/#website` },
+    });
+    page = page.replace(
+      /<script\s+type="application\/ld\+json"\s+data-page-structured-data="true">[\s\S]*?<\/script>/,
+      `<script type="application/ld+json" data-page-structured-data="true">${pageData}</script>`,
+    );
     page = page.replace('</head>', `  <link rel="canonical" href="${canonical}" />\n  </head>`);
     const entry = path.startsWith('/pokemon/') ? byId.get(imageId) : undefined;
     const content = entry
@@ -184,7 +209,7 @@ export async function generateMetadataPages({
   // Keep the React error screen while preventing indexing of missing URLs.
   const notFoundHtml = html
     .replace(/<title>[^<]*<\/title>/, '<title>Página não encontrada — AdibDex</title>')
-    .replace('</head>', '  <meta name="robots" content="noindex,follow" />\n  </head>');
+    .replace(/(<meta\s+name="robots"\s+content=")[^"]*("\s*\/?>)/, '$1noindex,follow$2');
   await writeFile(join(outDir, '404.html'), notFoundHtml);
   console.log(`Generated metadata for ${pages.length} routes and a 404 page.`);
 }

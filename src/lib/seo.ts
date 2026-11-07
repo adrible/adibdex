@@ -129,11 +129,12 @@ export function applyPageMetadata(metadata: ReturnType<typeof getPageMetadata>) 
   document.title = title;
   for (const [attribute, key, content] of [
     ['name', 'description', description],
-    ['name', 'robots', indexable ? 'index,follow' : 'noindex,follow'],
+    ['name', 'robots', indexable ? 'index,follow,max-image-preview:large' : 'noindex,follow'],
     ['property', 'og:title', title],
     ['property', 'og:description', description],
     ['property', 'og:url', canonical],
     ['property', 'og:image', image],
+    ['property', 'og:image:alt', title],
     ['name', 'twitter:image', image],
     ['name', 'twitter:title', title],
     ['name', 'twitter:description', description],
@@ -146,6 +147,31 @@ export function applyPageMetadata(metadata: ReturnType<typeof getPageMetadata>) 
     }
     meta.content = content;
   }
+  const pageData = {
+    '@context': 'https://schema.org',
+    '@type': 'WebPage',
+    '@id': `${canonical}#webpage`,
+    url: canonical,
+    name: title,
+    description,
+    primaryImageOfPage: {
+      '@type': 'ImageObject',
+      contentUrl: image,
+      url: image,
+      caption: title,
+    },
+    isPartOf: { '@id': `${SITE_URL}/#website` },
+  };
+  let structured = document.head.querySelector<HTMLScriptElement>(
+    'script[data-page-structured-data="true"]',
+  );
+  if (!structured) {
+    structured = document.createElement('script');
+    structured.type = 'application/ld+json';
+    structured.dataset.pageStructuredData = 'true';
+    document.head.appendChild(structured);
+  }
+  structured.textContent = JSON.stringify(pageData).replaceAll('<', '\\u003c');
   // The shared SPA shell intentionally has no homepage canonical on detail URLs.
   let link = document.head.querySelector<HTMLLinkElement>('link[rel="canonical"]');
   if (!link) {
