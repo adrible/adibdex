@@ -209,10 +209,7 @@ export async function generateMetadataPages({
   // Keep the React error screen while preventing indexing of missing URLs.
   const notFoundHtml = html
     .replace(/<title>[^<]*<\/title>/, '<title>Página não encontrada — AdibDex</title>')
-    .replace(
-      /(<meta\s+name="robots"\s+content=")[^"]*("\s*\/?>)/,
-      '$1noindex,follow$2',
-    );
+    .replace(/(<meta\s+name="robots"\s+content=")[^"]*("\s*\/?>)/, '$1noindex,follow$2');
   await writeFile(join(outDir, '404.html'), notFoundHtml);
   console.log(`Generated metadata for ${pages.length} routes and a 404 page.`);
 }
