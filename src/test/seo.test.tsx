@@ -8,14 +8,14 @@ import { getPageMetadata, SITE_TITLE, SITE_URL } from '@/lib/seo';
 describe('search metadata', () => {
   it('keeps canonical URLs specific to each route and excludes unknown pages', () => {
     expect(getPageMetadata('/national/')).toMatchObject({
-      canonical: `${SITE_URL}/national`,
+      canonical: `${SITE_URL}/national/`,
       indexable: true,
     });
     expect(getPageMetadata('/generation/11').title).toContain('Hisui');
     expect(getPageMetadata('/generation/999').indexable).toBe(false);
     expect(getPageMetadata('/pokemon/invalid').indexable).toBe(false);
     expect(getPageMetadata('/not-found').indexable).toBe(false);
-    expect(getPageMetadata('/pokemon/25').canonical).toBe(`${SITE_URL}/pokemon/25`);
+    expect(getPageMetadata('/pokemon/25').canonical).toBe(`${SITE_URL}/pokemon/25/`);
   });
   it('updates metadata across navigation without duplicating tags or keeping a stale noindex', () => {
     document.head.innerHTML = '<meta name="description" content="old">';
@@ -27,7 +27,7 @@ describe('search metadata', () => {
       </MemoryRouter>,
     );
     expect(document.head.querySelector<HTMLLinkElement>('link[rel="canonical"]')?.href).toBe(
-      `${SITE_URL}/pokemon/25`,
+      `${SITE_URL}/pokemon/25/`,
     );
     expect(document.title).toContain('#25');
     fireEvent.click(screen.getByRole('link', { name: 'Unknown' }));
@@ -56,8 +56,8 @@ describe('search metadata', () => {
     expect(urls.every((url) => new URL(url).origin === SITE_URL && !new URL(url).search)).toBe(
       true,
     );
-    expect(urls).toContain(`${SITE_URL}/pokemon/25`);
-    expect(urls).toContain(`${SITE_URL}/generation/11`);
+    expect(urls).toContain(`${SITE_URL}/pokemon/25/`);
+    expect(urls).toContain(`${SITE_URL}/generation/11/`);
     expect(readFileSync('public/robots.txt', 'utf8')).toContain(`Sitemap: ${SITE_URL}/sitemap.xml`);
     const html = new DOMParser().parseFromString(readFileSync('index.html', 'utf8'), 'text/html');
     const structured = JSON.parse(

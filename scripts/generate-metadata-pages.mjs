@@ -53,10 +53,10 @@ function pokemonSummary(entry, description, byId) {
   const related = [entry.id - 1, entry.id + 1]
     .map((id) => byId.get(id))
     .filter(Boolean)
-    .map((other) => `<a href="/pokemon/${other.id}">${escape(displayName(other.name))}</a>`)
+    .map((other) => `<a href="/pokemon/${other.id}/">${escape(displayName(other.name))}</a>`)
     .join(' · ');
   // This visible initial content is replaced by React, so users never see duplicate facts.
-  return `<main class="container"><nav><a href="/">AdibDex</a> · <a href="/national">Pokédex Nacional</a></nav>
+  return `<main class="container"><nav><a href="/">AdibDex</a> · <a href="/national/">Pokédex Nacional</a></nav>
     <article><h1>${escape(name)} #${number}</h1><p>${escape(description)}</p>
     <img src="${artwork(entry.id)}" alt="${escape(name)}" width="240" height="240" />
     ${abilities ? `<h2>Habilidades</h2><p>${abilities}</p>` : ''}
@@ -73,8 +73,8 @@ function catalogSummary(path, title, description, entries) {
         ? entries.filter((entry) => [1, 4, 7, 25].includes(entry.id))
         : [];
   return `<main class="container"><h1>${escape(title)}</h1><p>${escape(description)}</p>
-    <nav><a href="/">AdibDex</a> · <a href="/national">Pokédex Nacional</a></nav>
-    ${items.length ? `<ul>${items.map((entry) => `<li><a href="/pokemon/${entry.id}">${escape(displayName(entry.name))}</a> — ${entry.types.map((type) => escape(searchTypeName(type))).join(' / ')}</li>`).join('')}</ul>` : ''}</main>`;
+    <nav><a href="/">AdibDex</a> · <a href="/national/">Pokédex Nacional</a></nav>
+    ${items.length ? `<ul>${items.map((entry) => `<li><a href="/pokemon/${entry.id}/">${escape(displayName(entry.name))}</a> — ${entry.types.map((type) => escape(searchTypeName(type))).join(' / ')}</li>`).join('')}</ul>` : ''}</main>`;
 }
 
 export async function generateMetadataPages({
@@ -140,7 +140,7 @@ export async function generateMetadataPages({
     ]);
   }
   for (const [path, title, description, imageId] of pages) {
-    const canonical = origin + path;
+    const canonical = `${origin}${path}/`;
     let page = html.replace(/<title>[^<]*<\/title>/, `<title>${escape(title)}</title>`);
     page = page.replace(
       /(<meta\s+name="description"\s+content=")[^"]*("\s*\/?>)/,

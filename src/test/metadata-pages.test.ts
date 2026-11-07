@@ -22,7 +22,7 @@ describe('generated Pokémon search pages', () => {
         const html = await readFile(join(outDir, `pokemon/${entry.id}/index.html`), 'utf8');
         const doc = new DOMParser().parseFromString(html, 'text/html');
         const canonical = doc.querySelector<HTMLLinkElement>('link[rel="canonical"]')!.href;
-        expect(canonical).toBe(`https://adibdex.com/pokemon/${entry.id}`);
+        expect(canonical).toBe(`https://adibdex.com/pokemon/${entry.id}/`);
         canonicals.add(canonical);
         expect(doc.querySelector('#root h1')!.textContent).not.toBe('');
         expect(doc.querySelector('title')!.textContent).toContain('AdibDex');
@@ -48,7 +48,7 @@ describe('generated Pokémon search pages', () => {
         'text/html',
       );
       expect(national.querySelectorAll('a[href^="/pokemon/"]')).toHaveLength(entries.length);
-      expect(await readFile(join(outDir, 'index.html'), 'utf8')).toContain('href="/pokemon/7"');
+      expect(await readFile(join(outDir, 'index.html'), 'utf8')).toContain('href="/pokemon/7/"');
       const missing = await readFile(join(outDir, '404.html'), 'utf8');
       expect(missing).toContain('noindex,follow');
       expect(missing).not.toContain('Squirtle #0007');

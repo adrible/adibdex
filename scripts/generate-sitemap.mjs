@@ -14,7 +14,9 @@ for (const { id } of catalog.entries) {
 }
 const sitemap =
   '<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n' +
-  [...paths].map((path) => `  <url><loc>${origin}${path}</loc></url>`).join('\n') +
+  [...paths]
+    .map((path) => `  <url><loc>${origin}${path === '/' ? path : `${path}/`}</loc></url>`)
+    .join('\n') +
   '\n</urlset>\n';
 await writeFile(new URL('../public/sitemap.xml', import.meta.url), sitemap);
 console.log(`Sitemap generated: ${paths.size} URLs for ${origin}.`);
