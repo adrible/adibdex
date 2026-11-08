@@ -43,11 +43,49 @@ export function CatalogPagination({
       >
         <ChevronLeft className="h-4 w-4" />
       </Button>
-      <div className="catalog-pagination-page">
-        <div className="catalog-page-current">
-          <Pencil className="catalog-page-edit-icon" aria-hidden="true" />
+      <div
+        className="catalog-pagination-page"
+        style={{
+          display: 'grid',
+          gridTemplateColumns: 'minmax(0, 1fr) auto minmax(0, 1fr)',
+          width: '5.75rem',
+          minWidth: '5.75rem',
+          height: 44,
+          minHeight: 44,
+          alignItems: 'center',
+          columnGap: 4,
+          padding: '0 8px',
+        }}
+      >
+        <div
+          className="catalog-page-current"
+          style={{
+            display: 'flex',
+            flexWrap: 'nowrap',
+            alignItems: 'center',
+            justifySelf: 'end',
+            minWidth: 0,
+            gap: 2,
+          }}
+        >
+          <Pencil
+            className="catalog-page-edit-icon"
+            aria-hidden="true"
+            width={10}
+            height={10}
+            style={{ width: 10, height: 10, flexShrink: 0 }}
+          />
           <input
             className="catalog-page-input"
+            style={{
+              width: '2ch',
+              minWidth: '2ch',
+              maxWidth: '2ch',
+              height: 40,
+              minHeight: 0,
+              padding: 0,
+              font: 'inherit',
+            }}
             type="text"
             inputMode="numeric"
             aria-label={localized('Número da página editável', 'Editable page number')}
