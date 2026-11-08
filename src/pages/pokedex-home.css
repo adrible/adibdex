@@ -576,15 +576,16 @@
   opacity: 0.55;
 }
 .catalog-page .catalog-pagination-page {
+  position: relative;
   display: grid;
   width: 5.75rem;
   min-width: 5.75rem;
   min-height: 44px;
-  grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
+  grid-template-columns: repeat(2, minmax(0, 1fr));
   align-items: center;
-  column-gap: 4px;
+  column-gap: 0;
   box-sizing: border-box;
-  padding: 0 8px;
+  padding: 0;
   border: 2px solid hsl(0 73% 22%);
   border-radius: 7px;
   background: linear-gradient(hsl(203 80% 38%), hsl(215 65% 20%));
@@ -599,19 +600,13 @@
   display: flex;
   min-width: 0;
   align-items: center;
-  justify-self: end;
-  gap: 2px;
-}
-.catalog-page .catalog-page-edit-icon {
-  width: 10px;
-  height: 10px;
-  flex: 0 0 auto;
-  opacity: 0.9;
+  justify-self: stretch;
+  justify-content: center;
 }
 .catalog-page .catalog-page-input {
-  width: 2ch;
-  min-width: 2ch;
-  max-width: 2ch;
+  width: 100%;
+  min-width: 0;
+  max-width: none;
   min-height: 2.5rem;
   border: 0;
   border-radius: 3px;
@@ -619,17 +614,26 @@
   color: white;
   padding: 0;
   font: inherit;
+  font-weight: 700;
   font-variant-numeric: tabular-nums;
   cursor: text;
   text-align: center;
 }
 .catalog-page .catalog-page-divider {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  color: hsl(0 0% 100% / 0.65);
+  pointer-events: none;
   text-align: center;
 }
 .catalog-page .catalog-page-total {
+  grid-column: 2;
   white-space: nowrap;
   font-variant-numeric: tabular-nums;
-  text-align: left;
+  color: hsl(0 0% 100% / 0.65);
+  text-align: center;
 }
 .catalog-page .catalog-page-input::placeholder {
   color: white;
