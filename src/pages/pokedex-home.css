@@ -643,3 +643,60 @@
   outline: 3px solid hsl(203 80% 38% / 0.45);
   outline-offset: 2px;
 }
+
+/* Experimental catalog surfaces: isolated for visual comparison. */
+.catalog-page :is(
+  .catalog-heading-copy,
+  .catalog-search input,
+  .catalog-search-help,
+  .catalog-pokemon-card,
+  .catalog-skeleton-card,
+  .catalog-empty,
+  .catalog-suggestions,
+  .catalog-back-to-top > button
+) {
+  border: 2px solid hsl(0 73% 22%);
+  border-radius: 7px;
+  background: linear-gradient(hsl(201 66% 88%), hsl(198 58% 75%));
+  color: hsl(215 65% 13%);
+  box-shadow:
+    inset 0 1px 0 hsl(0 0% 100% / 0.8),
+    0 2px 0 hsl(0 70% 20% / 0.7);
+}
+.catalog-page .catalog-heading-copy {
+  padding: 10px 14px;
+}
+.catalog-page .catalog-search input {
+  min-height: 44px;
+}
+.catalog-page .catalog-search input:focus-visible {
+  outline: 3px solid hsl(203 80% 38% / 0.45);
+  outline-offset: 2px;
+}
+.catalog-page .catalog-search-help {
+  padding: 10px 14px;
+}
+.catalog-page .catalog-pokemon-card:hover,
+.catalog-page .catalog-back-to-top > button:hover {
+  background: linear-gradient(hsl(192 75% 92%), hsl(201 66% 84%));
+  border-color: hsl(0 73% 22%);
+}
+.catalog-page .catalog-pokemon-card:active,
+.catalog-page .catalog-back-to-top > button:active {
+  transform: translateY(1px);
+  box-shadow: inset 0 1px 0 hsl(0 0% 100% / 0.6);
+}
+.catalog-page .catalog-pokemon-types > span {
+  border: 1px solid hsl(0 73% 22% / 0.65);
+  border-radius: 4px;
+  box-shadow:
+    inset 0 1px 0 hsl(0 0% 100% / 0.3),
+    0 1px 0 hsl(0 70% 20% / 0.35);
+}
+.catalog-page .catalog-suggestions {
+  overflow: hidden auto;
+}
+.catalog-page .catalog-suggestion:hover,
+.catalog-page .catalog-suggestion:focus-visible {
+  background: hsl(192 75% 92%);
+}
