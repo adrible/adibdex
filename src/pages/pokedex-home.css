@@ -577,10 +577,14 @@
 }
 .catalog-page .catalog-pagination-page {
   display: flex;
+  width: 4.5rem;
+  min-width: 4.5rem;
   min-height: 44px;
   align-items: center;
+  justify-content: center;
   gap: 0;
-  padding: 0 10px;
+  box-sizing: border-box;
+  padding: 0 8px;
   border: 2px solid hsl(0 73% 22%);
   border-radius: 7px;
   background: linear-gradient(hsl(203 80% 38%), hsl(215 65% 20%));
