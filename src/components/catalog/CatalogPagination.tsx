@@ -77,9 +77,13 @@ export function CatalogPagination({
               maxWidth: 'none',
               height: 40,
               minHeight: 0,
+              margin: 0,
               padding: 0,
+              border: 0,
+              appearance: 'none',
               font: 'inherit',
               fontWeight: 700,
+              lineHeight: '40px',
               color: '#fff',
               textAlign: 'center',
             }}
@@ -120,12 +124,32 @@ export function CatalogPagination({
         >
           /
         </span>
-        <span
+        <input
           className="catalog-page-total"
-          style={{ gridColumn: 2, textAlign: 'center', color: 'rgba(255, 255, 255, 0.65)' }}
-        >
-          {totalPages}
-        </span>
+          type="text"
+          readOnly
+          tabIndex={-1}
+          aria-label={localized('Total de páginas', 'Total pages')}
+          value={totalPages}
+          style={{
+            gridColumn: 2,
+            width: '100%',
+            minWidth: 0,
+            height: 40,
+            minHeight: 0,
+            margin: 0,
+            padding: 0,
+            border: 0,
+            appearance: 'none',
+            background: 'transparent',
+            font: 'inherit',
+            fontWeight: 700,
+            lineHeight: '40px',
+            textAlign: 'center',
+            color: 'rgba(255, 255, 255, 0.65)',
+            pointerEvents: 'none',
+          }}
+        />
       </div>
       <Button
         variant="outline"
