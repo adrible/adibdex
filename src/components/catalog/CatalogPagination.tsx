@@ -50,7 +50,7 @@ export function CatalogPagination({
             else setInput('');
           }}
         />
-        <span>/ {totalPages}</span>
+        <span className="catalog-page-total">/{totalPages}</span>
       </div>
       <Button
         variant="outline"
