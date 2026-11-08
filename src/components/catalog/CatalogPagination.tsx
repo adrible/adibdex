@@ -1,5 +1,5 @@
 import { useRef, useState } from 'react';
-import { ChevronLeft, ChevronRight, Pencil } from 'lucide-react';
+import { ChevronLeft, ChevronRight } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { localized } from '@/lib/language';
 
@@ -47,14 +47,15 @@ export function CatalogPagination({
         className="catalog-pagination-page"
         style={{
           display: 'grid',
-          gridTemplateColumns: 'minmax(0, 1fr) auto minmax(0, 1fr)',
+          gridTemplateColumns: 'repeat(2, minmax(0, 1fr))',
+          position: 'relative',
           width: '5.75rem',
           minWidth: '5.75rem',
           height: 44,
           minHeight: 44,
           alignItems: 'center',
-          columnGap: 4,
-          padding: '0 8px',
+          columnGap: 0,
+          padding: 0,
         }}
       >
         <div
@@ -63,28 +64,24 @@ export function CatalogPagination({
             display: 'flex',
             flexWrap: 'nowrap',
             alignItems: 'center',
-            justifySelf: 'end',
+            justifyContent: 'center',
+            justifySelf: 'stretch',
             minWidth: 0,
-            gap: 2,
           }}
         >
-          <Pencil
-            className="catalog-page-edit-icon"
-            aria-hidden="true"
-            width={10}
-            height={10}
-            style={{ width: 10, height: 10, flexShrink: 0 }}
-          />
           <input
             className="catalog-page-input"
             style={{
-              width: '2ch',
-              minWidth: '2ch',
-              maxWidth: '2ch',
+              width: '100%',
+              minWidth: 0,
+              maxWidth: 'none',
               height: 40,
               minHeight: 0,
               padding: 0,
               font: 'inherit',
+              fontWeight: 700,
+              color: '#fff',
+              textAlign: 'center',
             }}
             type="text"
             inputMode="numeric"
@@ -110,8 +107,25 @@ export function CatalogPagination({
             }}
           />
         </div>
-        <span className="catalog-page-divider">/</span>
-        <span className="catalog-page-total">{totalPages}</span>
+        <span
+          className="catalog-page-divider"
+          style={{
+            position: 'absolute',
+            left: '50%',
+            top: '50%',
+            transform: 'translate(-50%, -50%)',
+            color: 'rgba(255, 255, 255, 0.65)',
+            pointerEvents: 'none',
+          }}
+        >
+          /
+        </span>
+        <span
+          className="catalog-page-total"
+          style={{ gridColumn: 2, textAlign: 'center', color: 'rgba(255, 255, 255, 0.65)' }}
+        >
+          {totalPages}
+        </span>
       </div>
       <Button
         variant="outline"
