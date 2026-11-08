@@ -1,5 +1,5 @@
 import { useRef, useState } from 'react';
-import { ChevronLeft, ChevronRight } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Pencil } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { localized } from '@/lib/language';
 
@@ -44,11 +44,13 @@ export function CatalogPagination({
         <ChevronLeft className="h-4 w-4" />
       </Button>
       <div className="catalog-pagination-page">
-        <input
+        <div className="catalog-page-current">
+          <Pencil className="catalog-page-edit-icon" aria-hidden="true" />
+          <input
           className="catalog-page-input"
           type="text"
           inputMode="numeric"
-          aria-label={localized('Número da página', 'Page number')}
+          aria-label={localized('Número da página editável', 'Editable page number')}
           value={input}
           placeholder={String(page + 1)}
           onChange={(e) => {
@@ -68,7 +70,8 @@ export function CatalogPagination({
             e.preventDefault();
             submitInput(input);
           }}
-        />
+          />
+        </div>
         <span className="catalog-page-divider">/</span>
         <span className="catalog-page-total">{totalPages}</span>
       </div>
