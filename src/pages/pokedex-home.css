@@ -577,12 +577,12 @@
 }
 .catalog-page .catalog-pagination-page {
   display: grid;
-  width: 4.5rem;
-  min-width: 4.5rem;
+  width: 5.75rem;
+  min-width: 5.75rem;
   min-height: 44px;
   grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
   align-items: center;
-  gap: 0;
+  column-gap: 4px;
   box-sizing: border-box;
   padding: 0 8px;
   border: 2px solid hsl(0 73% 22%);
@@ -595,10 +595,23 @@
   font-size: 0.9rem;
   font-weight: 600;
 }
-.catalog-page .catalog-page-input {
-  width: 100%;
+.catalog-page .catalog-page-current {
+  display: flex;
   min-width: 0;
-  max-width: none;
+  align-items: center;
+  justify-self: end;
+  gap: 2px;
+}
+.catalog-page .catalog-page-edit-icon {
+  width: 10px;
+  height: 10px;
+  flex: 0 0 auto;
+  opacity: 0.9;
+}
+.catalog-page .catalog-page-input {
+  width: 2ch;
+  min-width: 2ch;
+  max-width: 2ch;
   min-height: 2.5rem;
   border: 0;
   border-radius: 3px;
@@ -607,7 +620,8 @@
   padding: 0;
   font: inherit;
   font-variant-numeric: tabular-nums;
-  text-align: right;
+  cursor: text;
+  text-align: center;
 }
 .catalog-page .catalog-page-divider {
   text-align: center;
