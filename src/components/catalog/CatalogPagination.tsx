@@ -33,7 +33,7 @@ export function CatalogPagination({
       >
         <ChevronLeft className="h-4 w-4" />
       </Button>
-      <div className="flex items-center gap-1.5 text-sm font-medium text-foreground">
+      <div className="catalog-pagination-page">
         <input
           className="catalog-page-input"
           type="text"
