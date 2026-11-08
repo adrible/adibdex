@@ -69,7 +69,8 @@ export function CatalogPagination({
             submitInput(input);
           }}
         />
-        <span className="catalog-page-total">/{totalPages}</span>
+        <span className="catalog-page-divider">/</span>
+        <span className="catalog-page-total">{totalPages}</span>
       </div>
       <Button
         variant="outline"
