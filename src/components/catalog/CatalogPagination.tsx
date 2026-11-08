@@ -47,29 +47,29 @@ export function CatalogPagination({
         <div className="catalog-page-current">
           <Pencil className="catalog-page-edit-icon" aria-hidden="true" />
           <input
-          className="catalog-page-input"
-          type="text"
-          inputMode="numeric"
-          aria-label={localized('Número da página editável', 'Editable page number')}
-          value={input}
-          placeholder={String(page + 1)}
-          onChange={(e) => {
-            submittedInput.current = null;
-            setInput(e.target.value.replace(/\D/g, ''));
-          }}
-          onBlur={() => {
-            if (!input) return;
-            if (submittedInput.current === input) {
+            className="catalog-page-input"
+            type="text"
+            inputMode="numeric"
+            aria-label={localized('Número da página editável', 'Editable page number')}
+            value={input}
+            placeholder={String(page + 1)}
+            onChange={(e) => {
               submittedInput.current = null;
-              return;
-            }
-            submitInput(input);
-          }}
-          onKeyDown={(e) => {
-            if (e.key !== 'Enter' && e.key !== 'Go') return;
-            e.preventDefault();
-            submitInput(input);
-          }}
+              setInput(e.target.value.replace(/\D/g, ''));
+            }}
+            onBlur={() => {
+              if (!input) return;
+              if (submittedInput.current === input) {
+                submittedInput.current = null;
+                return;
+              }
+              submitInput(input);
+            }}
+            onKeyDown={(e) => {
+              if (e.key !== 'Enter' && e.key !== 'Go') return;
+              e.preventDefault();
+              submitInput(input);
+            }}
           />
         </div>
         <span className="catalog-page-divider">/</span>
