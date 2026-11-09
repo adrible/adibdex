@@ -34,6 +34,6 @@ O React Router foi atualizado para uma versão posterior à correção do [aviso
 
 O domínio canônico é `https://adibdex.com`. O build usa o catálogo versionado e a lista de regiões para gerar o HTML de cada rota e o `dist/sitemap.xml`. A geração falha se faltar uma página ou se o HTML tiver metadados inválidos, duplicados ou uma URL canônica incorreta. A home e os catálogos incluem links para navegação antes de o JavaScript carregar.
 
-Use `npm run seo:audit` para conferir todas as URLs publicadas. Para auditar um preview, use `npm run seo:audit -- https://endereco-do-preview`. O script confere a lista do sitemap e testa cada página por HTTP, incluindo resposta 200, URL canônica de produção, metadados e conteúdo inicial.
+Use `npm run seo:audit` para conferir todas as URLs publicadas. Para auditar um preview, use `npm run seo:audit -- https://endereco-do-preview --preview`. O modo preview contabiliza o cabeçalho de não indexação do provedor sem reprovar o HTML da página. O script confere a lista do sitemap e testa cada página por HTTP, incluindo resposta 200, URL canônica de produção, metadados e conteúdo inicial.
 
 No Search Console, envie `https://adibdex.com/sitemap.xml` na propriedade do domínio. Use a Inspeção de URL na versão canônica para comparar o último rastreamento com a página publicada. O Google decide quais páginas indexar.

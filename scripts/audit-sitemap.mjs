@@ -1,6 +1,11 @@
 import { canonicalUrl, checkPageHtml, checkSitemap, origin, readSeoRoutes } from './seo-routes.mjs';
 
-const target = new URL(process.argv[2] ?? origin).origin;
+const [address = origin, mode] = process.argv.slice(2);
+const target = new URL(address).origin;
+const isPreview = mode === '--preview';
+if ((mode && !isPreview) || (isPreview && target === origin)) {
+  throw new Error('Usage: npm run seo:audit -- [URL] [--preview (non-production only)]');
+}
 const { routes } = await readSeoRoutes();
 const failures = [];
 const fetchPage = (path) =>
@@ -18,6 +23,7 @@ try {
 let next = 0;
 let completed = 0;
 let valid = 0;
+let previewNoindex = 0;
 async function worker() {
   while (next < routes.length) {
     const { path } = routes[next++];
@@ -33,7 +39,8 @@ async function worker() {
         throw new Error('response is not HTML');
       }
       if (/\b(noindex|none)\b/i.test(response.headers.get('x-robots-tag') ?? '')) {
-        throw new Error('response X-Robots-Tag blocks indexing');
+        if (!isPreview) throw new Error('response X-Robots-Tag blocks indexing');
+        previewNoindex++;
       }
       checkPageHtml(html, path);
       valid++;
@@ -47,6 +54,7 @@ async function worker() {
 
 await Promise.all(Array.from({ length: 8 }, worker));
 console.log(`${valid}/${routes.length} pages passed the HTTP and HTML checks at ${target}.`);
+if (previewNoindex) console.log(`${previewNoindex} preview pages sent a noindex header.`);
 if (failures.length) {
   console.error(failures.join('\n'));
   process.exitCode = 1;
