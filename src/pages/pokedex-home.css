@@ -645,11 +645,7 @@
 }
 
 /* Visual trial only: keep these catalog controls isolated for easy rollback. */
-.catalog-page :is(
-  .catalog-search input,
-  .catalog-suggestions,
-  .catalog-back-to-top > button
-) {
+.catalog-page :is(.catalog-search input, .catalog-suggestions, .catalog-back-to-top > button) {
   border: 2px solid hsl(0 73% 22%);
   border-radius: 7px;
   background: linear-gradient(hsl(201 66% 88%), hsl(198 58% 75%));

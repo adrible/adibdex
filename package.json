@@ -20,7 +20,7 @@
     "format:check": "prettier --check src scripts e2e '*.{ts,js,json,html}' README.md docs .github",
     "data:update": "node scripts/generate-catalog.mjs --latest",
     "seo:generate": "node scripts/generate-sitemap.mjs",
-    "prebuild": "npm run seo:generate"
+    "seo:audit": "node --use-env-proxy scripts/audit-sitemap.mjs"
   },
   "dependencies": {
     "@radix-ui/react-dialog": "^1.1.14",

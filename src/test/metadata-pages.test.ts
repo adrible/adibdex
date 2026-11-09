@@ -48,7 +48,27 @@ describe('generated Pokémon search pages', () => {
         'text/html',
       );
       expect(national.querySelectorAll('a[href^="/pokemon/"]')).toHaveLength(entries.length);
-      expect(await readFile(join(outDir, 'index.html'), 'utf8')).toContain('href="/pokemon/7/"');
+      const home = new DOMParser().parseFromString(
+        await readFile(join(outDir, 'index.html'), 'utf8'),
+        'text/html',
+      );
+      expect(home.querySelector<HTMLLinkElement>('link[rel="canonical"]')?.href).toBe(
+        'https://adibdex.com/',
+      );
+      expect(home.querySelector('a[href="/pokemon/7/"]')).not.toBeNull();
+      const sitemap = new DOMParser().parseFromString(
+        await readFile(join(outDir, 'sitemap.xml'), 'utf8'),
+        'text/xml',
+      );
+      expect(sitemap.querySelector('parsererror')).toBeNull();
+      const urls = [...sitemap.querySelectorAll('url > loc')].map((loc) => loc.textContent);
+      expect(urls).toHaveLength(entries.length + 16);
+      expect(new Set(urls).size).toBe(urls.length);
+      expect(urls).toEqual(expect.arrayContaining([...canonicals, 'https://adibdex.com/']));
+      const regional = await readFile(join(outDir, 'regional-forms/index.html'), 'utf8');
+      for (const id of [10162, 10164, 10178]) {
+        expect(regional).toContain(`href="/pokemon/${id}/"`);
+      }
       const missing = await readFile(join(outDir, '404.html'), 'utf8');
       expect(missing).toContain('noindex,follow');
       expect(missing).not.toContain('Squirtle #0007');
