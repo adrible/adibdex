@@ -3,7 +3,13 @@ import { join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { pokemonSearchDescription, searchTypeName } from '../src/lib/pokemon-search.ts';
 
-const origin = 'https://adibdex.com';
+import {
+  canonicalUrl,
+  checkBuiltPages,
+  origin,
+  readSeoRoutes,
+  renderSitemap,
+} from './seo-routes.mjs';
 const artwork = (id) =>
   `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/${id}.png`;
 const safeJson = (value) => JSON.stringify(value).replaceAll('<', '\\u003c');
@@ -66,82 +72,64 @@ function pokemonSummary(entry, description, byId) {
     </article><nav aria-label="Outros Pokémon">${related}</nav></main>`;
 }
 
-function catalogSummary(path, title, description, entries) {
-  const items =
-    path === '/national'
-      ? entries
-      : path === '/'
-        ? entries.filter((entry) => [1, 4, 7, 25].includes(entry.id))
-        : [];
+const catalogDescriptions = {
+  '/': 'Explore Pokémon, evoluções, ataques e habilidades em uma Pokédex interativa inspirada nos jogos.',
+  '/national': 'Explore todos os Pokémon da Pokédex Nacional na AdibDex.',
+  '/regional-forms': 'Conheça as formas regionais dos Pokémon na AdibDex.',
+  '/mega': 'Explore Mega Evoluções e formas Primal na AdibDex.',
+  '/gmax': 'Explore as formas Gigantamax na AdibDex.',
+};
+
+function catalogSummary(route, title, description, entries, catalogs) {
+  const { path, category, pokemonRange } = route;
+  const items = entries.filter((entry) => {
+    if (path === '/national') return true;
+    if (path === '/') return [1, 4, 7, 25].includes(entry.id);
+    if (category) return entry.category === category;
+    const [first, last] = pokemonRange;
+    return entry.category === 'base' && entry.id >= first && entry.id <= last;
+  });
+  const links = catalogs
+    .filter((catalog) => catalog.path !== path)
+    .map(
+      (catalog) =>
+        `<a href="${new URL(canonicalUrl(catalog.path)).pathname}">${escape(catalog.title)}</a>`,
+    )
+    .join(' · ');
   return `<main class="container"><h1>${escape(title)}</h1><p>${escape(description)}</p>
-    <nav><a href="/">AdibDex</a> · <a href="/national/">Pokédex Nacional</a></nav>
-    ${items.length ? `<ul>${items.map((entry) => `<li><a href="/pokemon/${entry.id}/">${escape(displayName(entry.name))}</a> — ${entry.types.map((type) => escape(searchTypeName(type))).join(' / ')}</li>`).join('')}</ul>` : ''}</main>`;
+    <nav aria-label="Catálogos">${links}</nav>
+    <ul>${items.map((entry) => `<li><a href="/pokemon/${entry.id}/">${escape(displayName(entry.name))}</a> — ${entry.types.map((type) => escape(searchTypeName(type))).join(' / ')}</li>`).join('')}</ul></main>`;
 }
 
-export async function generateMetadataPages({
-  outDir = 'dist',
-  catalogPath = 'public/data/catalog.json',
-} = {}) {
-  const html = await readFile(join(outDir, 'index.html'), 'utf8');
-  const { entries } = JSON.parse(await readFile(catalogPath, 'utf8'));
-  if (!Array.isArray(entries) || !entries.length) throw new Error('Pokémon catalog is empty');
-  const byId = new Map(entries.map((entry) => [entry.id, entry]));
-  const pages = [
-    [
-      '/national',
-      'Pokédex Nacional — AdibDex',
-      'Explore todos os Pokémon da Pokédex Nacional na AdibDex.',
-      25,
-    ],
-    [
-      '/regional-forms',
-      'Formas regionais — AdibDex',
-      'Conheça as formas regionais dos Pokémon na AdibDex.',
-      25,
-    ],
-    [
-      '/mega',
-      'Mega Evoluções e formas Primal — AdibDex',
-      'Explore Mega Evoluções e formas Primal na AdibDex.',
-      6,
-    ],
-    ['/gmax', 'Gigantamax — AdibDex', 'Explore as formas Gigantamax na AdibDex.', 25],
-  ];
-  const regions = [
-    'Kanto',
-    'Johto',
-    'Hoenn',
-    'Sinnoh',
-    'Unova',
-    'Kalos',
-    'Alola',
-    'Galar',
-    'Paldea',
-    'Desconhecida',
-    'Hisui',
-  ];
-  regions.forEach((region, i) =>
-    pages.push([
-      `/generation/${i + 1}`,
-      `${region} — AdibDex`,
-      `Conheça os Pokémon de ${region} na AdibDex. Consulte tipos, habilidades, ataques, jogos e evoluções.`,
-      25,
-    ]),
-  );
-  for (const entry of entries) {
-    if (!Number.isSafeInteger(entry.id) || entry.id < 1 || typeof entry.name !== 'string')
-      throw new Error('Invalid Pokémon catalog entry');
+function pageMetadata(route) {
+  const { path, entry, title } = route;
+  if (entry) {
     const name = displayName(entry.name);
     const number = String(entry.baseId || entry.id).padStart(4, '0');
-    pages.push([
-      `/pokemon/${entry.id}`,
-      `${name} (Pokémon) #${number} — tipos, fraquezas e evoluções | AdibDex`,
-      pokemonSearchDescription(name, number, entry),
-      entry.id,
-    ]);
+    return {
+      title: `${name} (Pokémon) #${number} — tipos, fraquezas e evoluções | AdibDex`,
+      description: pokemonSearchDescription(name, number, entry),
+      imageId: entry.id,
+    };
   }
-  for (const [path, title, description, imageId] of pages) {
-    const canonical = `${origin}${path}/`;
+  return {
+    title: path === '/' ? 'AdibDex — Uma Pokédex de visual único' : `${title} — AdibDex`,
+    description:
+      catalogDescriptions[path] ??
+      `Conheça os Pokémon de ${title} na AdibDex. Consulte tipos, habilidades, ataques, jogos e evoluções.`,
+    imageId: path === '/mega' ? 6 : 25,
+  };
+}
+
+export async function generateMetadataPages({ outDir = 'dist', catalogPath } = {}) {
+  const html = await readFile(join(outDir, 'index.html'), 'utf8');
+  const { entries, catalogs, routes } = await readSeoRoutes(catalogPath);
+  const byId = new Map(entries.map((entry) => [entry.id, entry]));
+
+  for (const route of routes) {
+    const { path, entry } = route;
+    const { title, description, imageId } = pageMetadata(route);
+    const canonical = canonicalUrl(path);
     let page = html.replace(/<title>[^<]*<\/title>/, `<title>${escape(title)}</title>`);
     page = page.replace(
       /(<meta\s+name="description"\s+content=")[^"]*("\s*\/?>)/,
@@ -185,33 +173,23 @@ export async function generateMetadataPages({
       `<script type="application/ld+json" data-page-structured-data="true">${pageData}</script>`,
     );
     page = page.replace('</head>', `  <link rel="canonical" href="${canonical}" />\n  </head>`);
-    const entry = path.startsWith('/pokemon/') ? byId.get(imageId) : undefined;
     const content = entry
       ? pokemonSummary(entry, description, byId)
-      : catalogSummary(path, title, description, entries);
+      : catalogSummary(route, title, description, entries, catalogs);
     page = page.replace('<div id="root"></div>', `<div id="root">${content}</div>`);
     const dir = join(outDir, path.slice(1));
     await mkdir(dir, { recursive: true });
     await writeFile(join(dir, 'index.html'), page);
   }
-  // Real links let crawlers discover catalogs before JavaScript executes.
-  const home = catalogSummary(
-    '/',
-    'AdibDex — Uma Pokédex de visual único',
-    'Explore Pokémon, evoluções, ataques e habilidades em uma Pokédex interativa inspirada nos jogos.',
-    entries,
-  );
-  await writeFile(
-    join(outDir, 'index.html'),
-    html.replace('<div id="root"></div>', `<div id="root">${home}</div>`),
-  );
+  await checkBuiltPages(outDir, routes);
+  await writeFile(join(outDir, 'sitemap.xml'), renderSitemap(routes));
   // Cloudflare Pages serves 404.html with HTTP 404 for unknown paths.
   // Keep the React error screen while preventing indexing of missing URLs.
   const notFoundHtml = html
     .replace(/<title>[^<]*<\/title>/, '<title>Página não encontrada — AdibDex</title>')
     .replace(/(<meta\s+name="robots"\s+content=")[^"]*("\s*\/?>)/, '$1noindex,follow$2');
   await writeFile(join(outDir, '404.html'), notFoundHtml);
-  console.log(`Generated metadata for ${pages.length} routes and a 404 page.`);
+  console.log(`Validated HTML and generated sitemap for ${routes.length} canonical URLs.`);
 }
 
 if (process.argv[1] && resolve(process.argv[1]) === fileURLToPath(import.meta.url)) {

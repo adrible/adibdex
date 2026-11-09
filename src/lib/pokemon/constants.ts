@@ -1,5 +1,5 @@
 import type { Generation } from './types';
-import { localized } from '@/lib/language';
+import { localized } from '../language.ts';
 
 export const NATIONAL_POKEDEX_SIZE = 1025;
 

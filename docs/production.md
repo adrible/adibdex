@@ -32,10 +32,8 @@ O React Router foi atualizado para uma versão posterior à correção do [aviso
 
 ## Descoberta no Google
 
-O endereço público configurado é `https://adibdex.netlify.app`. `npm run build` gera antes o sitemap em `public/sitemap.xml`, incluindo os catálogos, regiões e IDs do catálogo versionado. O `robots.txt` informa esse endereço. Não são inventadas datas de atualização. Ao trocar de domínio, atualize `src/lib/seo.ts`, `scripts/generate-sitemap.mjs`, `public/robots.txt` e o JSON-LD em `index.html`.
+O domínio canônico é `https://adibdex.com`. O build usa o catálogo versionado e a lista de regiões para gerar o HTML de cada rota e o `dist/sitemap.xml`. A geração falha se faltar uma página ou se o HTML tiver metadados inválidos, duplicados ou uma URL canônica incorreta. A home e os catálogos incluem links para navegação antes de o JavaScript carregar.
 
-O HTML contém título, descrição e dados WebSite para identificar a AdibDex. Como o aplicativo usa uma shell SPA compartilhada, o endereço canônico, título e descrição de cada rota são definidos após executar JavaScript. Não se inclui um canônico fixo da página inicial nas páginas de Pokémon. Não há pré-renderização HTML por rota; a inspeção de URL deve conferir a página renderizada no Google.
+Use `npm run seo:audit` para conferir todas as URLs publicadas. Para auditar um preview, use `npm run seo:audit -- https://endereco-do-preview --preview`. O modo preview contabiliza o cabeçalho de não indexação do provedor sem reprovar o HTML da página. O script confere a lista do sitemap e testa cada página por HTTP, incluindo resposta 200, URL canônica de produção, metadados e conteúdo inicial.
 
-Depois de publicar pelo Lovable, abra o Google Search Console e cadastre uma propriedade de **prefixo de URL** para `https://adibdex.netlify.app/`. Use a tag HTML de verificação disponibilizada pelo Google: acrescente a meta `google-site-verification` ao `index.html`, publique e confirme a propriedade. Um subdomínio do Lovable não dá controle do DNS de `lovable.app`; não use a verificação de domínio por DNS sem controle do domínio.
-
-Em Inspeção de URL, teste a página inicial publicada e solicite indexação. Em Sitemaps, envie `https://adibdex.netlify.app/sitemap.xml`. Essa preparação técnica não garante indexação ou posição nos resultados; acompanhe os relatórios do Search Console. A verificação e o envio precisam ser feitos pelo proprietário autorizado da propriedade.
+No Search Console, envie `https://adibdex.com/sitemap.xml` na propriedade do domínio. Use a Inspeção de URL na versão canônica para comparar o último rastreamento com a página publicada. O Google decide quais páginas indexar.
