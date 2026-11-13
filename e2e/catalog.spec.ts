@@ -81,6 +81,19 @@ test('filters, search, shiny and page survive detail navigation and return', asy
   await expect(page.getByText('Ordem:', { exact: false })).toBeVisible();
 });
 
+test('national catalog with a trailing slash remains the return target', async ({ page }) => {
+  await page.goto('/national/');
+  await expect(cards(page)).toHaveCount(50);
+  await page.getByRole('button', { name: 'Próxima página' }).first().click();
+  const selected = await cards(page).first().getAttribute('href');
+  await cards(page).first().click();
+  await expect(page).toHaveURL(new RegExp(`${selected}/?$`));
+  await page.getByRole('link', { name: 'Próximo Pokémon', exact: true }).click();
+  await page.getByRole('button', { name: 'Voltar à lista' }).click();
+  await expect(page).toHaveURL(/\/national\/?$/);
+  await expect(cards(page).first()).toHaveAttribute('href', selected!);
+});
+
 test('catalog errors expose retry and recover without retaining partial results', async ({
   page,
 }) => {
