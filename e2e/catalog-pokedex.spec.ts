@@ -1,9 +1,10 @@
 import { test, expect } from './fixtures';
+import { GENERATIONS } from '../src/lib/pokemon/constants';
 
 test.use({ locale: 'pt-BR' });
 const paths = [
   '/national',
-  ...Array.from({ length: 11 }, (_, i) => `/generation/${i + 1}`),
+  ...GENERATIONS.map(({ id }) => `/generation/${id}`),
   '/regional-forms',
   '/mega',
   '/gmax',

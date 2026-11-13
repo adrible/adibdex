@@ -1,5 +1,6 @@
 import { mkdir, rename, writeFile } from 'node:fs/promises';
 import { fileURLToPath } from 'node:url';
+import { NATIONAL_POKEDEX_SIZE } from '../src/lib/pokemon/constants.ts';
 
 // Resolve once, then use the same immutable revision for every table.
 const latest = process.argv.includes('--latest');
@@ -151,14 +152,16 @@ const entries = [];
 for (const p of pokemon) {
   const id = Number(p.id),
     baseId = Number(p.species_id);
+  // Future species require an intentional national catalog update first.
+  if (baseId > NATIONAL_POKEDEX_SIZE) continue;
   const category =
-    id <= 1025 && p.is_default === '1'
+    id <= NATIONAL_POKEDEX_SIZE && p.is_default === '1'
       ? 'base'
       : isRegional(p.identifier)
         ? 'regional'
         : isMega(p.identifier)
           ? 'mega'
-          : p.identifier.includes('-gmax') && baseId <= 1025
+          : p.identifier.includes('-gmax') && baseId <= NATIONAL_POKEDEX_SIZE
             ? 'gmax'
             : null;
   if (!category) continue;
@@ -207,7 +210,7 @@ for (const p of pokemon) {
 }
 entries.sort((a, b) => a.id - b.id);
 const baseEntries = entries.filter((p) => p.category === 'base');
-if (baseEntries.length !== 1025 || baseEntries.some((p, i) => p.id !== i + 1))
+if (baseEntries.length !== NATIONAL_POKEDEX_SIZE || baseEntries.some((p, i) => p.id !== i + 1))
   throw new Error('Incomplete national catalog.');
 if (new Set(entries.map((p) => p.id)).size !== entries.length)
   throw new Error('Duplicate catalog IDs.');
