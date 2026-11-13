@@ -9,6 +9,24 @@ export interface ChangelogEntry {
 
 export const CHANGELOG: ChangelogEntry[] = [
   {
+    version: '0.9.7',
+    date: '2026-11-13',
+    title: 'Navegação mais prática',
+    titleEn: 'Smoother navigation',
+    changes: [
+      'Digite o número da página para navegar pelo catálogo, inclusive no celular.',
+      'O botão Lista retorna ao catálogo de origem, incluindo a Pokédex Nacional e as regiões.',
+      'A barra de pesquisa e os controles de navegação seguem o visual da Pokédex.',
+      'A ilustração do globo da Pokédex Nacional foi refinada.',
+    ],
+    changesEn: [
+      'Enter a page number to navigate the catalog, including on mobile.',
+      'The List button returns to the original catalog, including the National Pokédex and regions.',
+      'The search bar and navigation controls match the Pokédex design.',
+      'The National Pokédex globe illustration has been refined.',
+    ],
+  },
+  {
     version: '0.9.6',
     date: '2026-11-06',
     title: 'Navegação e informações mais claras',
