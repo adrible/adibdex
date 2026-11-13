@@ -2,7 +2,7 @@ import React, { useMemo } from 'react';
 import { Link } from 'react-router-dom';
 import type { PokemonBasic } from '@/lib/pokeapi';
 import { getMatchingMoveGames } from '@/features/catalog/search';
-import { VERSION_GROUP_NAMES } from '@/lib/pokemon/constants';
+import { NATIONAL_POKEDEX_SIZE, VERSION_GROUP_NAMES } from '@/lib/pokemon/constants';
 import { TypeBadge } from './TypeBadge';
 import { localized } from '@/lib/language';
 
@@ -31,7 +31,7 @@ export const PokemonCard = React.memo(function PokemonCard({
     () => getMatchingMoveGames(pokemon, search, game),
     [pokemon, search, game],
   );
-  const displayId = pokemon.baseId ?? (pokemon.id <= 1025 ? pokemon.id : null);
+  const displayId = pokemon.baseId ?? (pokemon.id <= NATIONAL_POKEDEX_SIZE ? pokemon.id : null);
 
   const isSpecialFormsPage = originPath?.includes('/mega') || originPath?.includes('/gmax');
 

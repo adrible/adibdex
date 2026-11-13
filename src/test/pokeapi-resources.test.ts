@@ -1,3 +1,4 @@
+import { NATIONAL_POKEDEX_SIZE } from '@/lib/pokemon/constants';
 import { readFileSync } from 'node:fs';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
@@ -101,13 +102,13 @@ describe('typed resource projections and failures', () => {
     const fetchMock = vi.fn(async () => new Response(JSON.stringify(catalog)));
     vi.stubGlobal('fetch', fetchMock);
     const api = await import('@/lib/pokeapi/catalog');
-    expect(await api.fetchAllPokemonBasic()).toHaveLength(1025);
+    expect(await api.fetchAllPokemonBasic()).toHaveLength(NATIONAL_POKEDEX_SIZE);
     expect(await api.fetchAllRegionalForms()).toHaveLength(
       catalog.entries.filter((p: { category: string }) => p.category === 'regional').length,
     );
     expect((await api.fetchAllMegaForms()).length).toBeGreaterThan(80);
     expect((await api.fetchAllGmaxForms()).length).toBeGreaterThan(30);
-    expect(await api.fetchAllPokemonNames()).toHaveLength(1025);
+    expect(await api.fetchAllPokemonNames()).toHaveLength(NATIONAL_POKEDEX_SIZE);
     expect((await api.fetchPokemonListByRange(100, 110)).map((p) => p.id)).toEqual(
       Array.from({ length: 11 }, (_, i) => i + 100),
     );

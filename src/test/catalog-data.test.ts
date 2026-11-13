@@ -1,3 +1,4 @@
+import { NATIONAL_POKEDEX_SIZE } from '@/lib/pokemon/constants';
 import { readFileSync } from 'node:fs';
 import { describe, expect, it } from 'vitest';
 import { catalogSchema } from '@/lib/pokeapi/catalog';
@@ -55,7 +56,9 @@ describe('checked-in compact catalog', () => {
   });
   it('contains every national ID once and complete filter attributes', () => {
     const catalog = catalogSchema.parse(raw);
-    expect(catalog.entries.filter((p) => p.category === 'base')).toHaveLength(1025);
+    expect(catalog.entries.filter((p) => p.category === 'base')).toHaveLength(
+      NATIONAL_POKEDEX_SIZE,
+    );
     expect(
       catalog.entries.every((p) => p.types.length > 0 && Object.keys(p.stats).length === 6),
     ).toBe(true);

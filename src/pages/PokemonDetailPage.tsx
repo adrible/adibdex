@@ -9,6 +9,7 @@ import {
   STAT_TRANSLATIONS,
   GENERATIONS,
 } from '@/lib/pokeapi';
+import { NATIONAL_POKEDEX_SIZE } from '@/lib/pokemon/constants';
 import { Header } from '@/components/Header';
 import { TypeBadge } from '@/components/TypeBadge';
 import { TypeEffectiveness } from '@/components/TypeEffectiveness';
@@ -170,7 +171,7 @@ export default function PokemonDetailPage() {
   const ids = listContext?.ids ?? [];
   const currentIndex = listContext?.currentIndex ?? -1;
 
-  const idsSafe = ids.length ? ids : Array.from({ length: 1025 }, (_, i) => i + 1);
+  const idsSafe = ids.length ? ids : Array.from({ length: NATIONAL_POKEDEX_SIZE }, (_, i) => i + 1);
 
   const safeIndex =
     currentIndex >= 0 && idsSafe[currentIndex] === pokemonId
