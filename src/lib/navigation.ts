@@ -11,9 +11,9 @@ export interface PokemonNavigationState {
 
 const ALLOWED_ORIGINS = [
   /^\/$/,
-  /^\/national$/,
-  /^\/generation\/\d+$/,
-  /^\/(mega|gmax|regional-forms)$/,
+  /^\/national\/?$/,
+  /^\/generation\/\d+\/?$/,
+  /^\/(mega|gmax|regional-forms)\/?$/,
 ];
 
 export function sanitizeInternalOrigin(value: unknown): string | undefined {

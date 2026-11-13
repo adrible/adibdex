@@ -4,6 +4,11 @@ import { parsePokemonNavigationState, sanitizeInternalOrigin } from '@/lib/navig
 describe('navegação de Pokémon', () => {
   it('aceita somente origens internas conhecidas', () => {
     expect(sanitizeInternalOrigin('/national')).toBe('/national');
+    expect(sanitizeInternalOrigin('/national/')).toBe('/national/');
+    expect(sanitizeInternalOrigin('/generation/3/')).toBe('/generation/3/');
+    expect(sanitizeInternalOrigin('/regional-forms/')).toBe('/regional-forms/');
+    expect(sanitizeInternalOrigin('/national//')).toBeUndefined();
+    expect(sanitizeInternalOrigin('/national/?redirect=https://example.com')).toBeUndefined();
     expect(sanitizeInternalOrigin('/generation/3')).toBe('/generation/3');
     expect(sanitizeInternalOrigin('//example.com')).toBeUndefined();
     expect(sanitizeInternalOrigin('https://example.com')).toBeUndefined();
