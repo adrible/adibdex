@@ -94,6 +94,24 @@ test('national catalog with a trailing slash remains the return target', async (
   await expect(cards(page).first()).toHaveAttribute('href', selected!);
 });
 
+for (const origin of ['/national', '/generation/1']) {
+  test(`section navigation preserves the ${origin} return path`, async ({ page }) => {
+    await page.setViewportSize({ width: 390, height: 844 });
+    await page.goto(origin);
+    await expect(cards(page)).toHaveCount(50);
+    await cards(page).first().click();
+    const sections = page.getByRole('navigation', { name: 'Seções do Pokémon' });
+    await sections.getByRole('link', { name: 'Defesa' }).click();
+    await expect(page).toHaveURL(/\/pokemon\/1#fraquezas$/);
+    await expect.poll(() => page.evaluate(() => window.scrollY)).toBeGreaterThan(0);
+    await sections.getByRole('link', { name: 'Ataques' }).click();
+    await expect(page).toHaveURL(/\/pokemon\/1#ataques$/);
+    await page.reload();
+    await page.getByRole('button', { name: 'Voltar à lista' }).click();
+    await expect(page).toHaveURL(new RegExp(`${origin}$`));
+  });
+}
+
 test('catalog errors expose retry and recover without retaining partial results', async ({
   page,
 }) => {

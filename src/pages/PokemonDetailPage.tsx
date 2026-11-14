@@ -529,9 +529,26 @@ export default function PokemonDetailPage() {
                   ['localizacoes', localized('Locais', 'Locations')],
                   ['entradas-pokedex', localized('Pokédex', 'Pokédex')],
                 ].map(([anchor, label]) => (
-                  <a key={anchor} href={`#${anchor}`} className="detail-nav-link">
+                  <Link
+                    key={anchor}
+                    to={{ hash: `#${anchor}` }}
+                    state={location.state}
+                    preventScrollReset
+                    className="detail-nav-link"
+                    onClick={(event) => {
+                      if (
+                        event.button === 0 &&
+                        !event.metaKey &&
+                        !event.ctrlKey &&
+                        !event.shiftKey &&
+                        !event.altKey
+                      ) {
+                        document.getElementById(anchor)?.scrollIntoView();
+                      }
+                    }}
+                  >
                     {label}
-                  </a>
+                  </Link>
                 ))}
               </nav>
             </div>
