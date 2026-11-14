@@ -14,7 +14,8 @@ for (const width of [320, 390, 768, 1280]) {
     await expect(nav.getByRole('link')).toHaveCount(6);
     for (const link of await nav.getByRole('link').all()) {
       const href = await link.getAttribute('href');
-      await expect(page.locator(href!)).toHaveCount(1);
+      const anchor = new URL(href!, page.url()).hash;
+      await expect(page.locator(anchor)).toHaveCount(1);
       const box = await link.boundingBox();
       expect(box!.height).toBeGreaterThanOrEqual(40);
     }
