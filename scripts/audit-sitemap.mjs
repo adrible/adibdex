@@ -20,6 +20,21 @@ try {
   failures.push(`/sitemap.xml: ${error.message}`);
 }
 
+try {
+  const icon = await fetchPage('/adibdex-icon-v2.ico');
+  if (icon.status !== 200) throw new Error(`HTTP ${icon.status}`);
+  if (!/image\/(x-icon|vnd\.microsoft\.icon)/i.test(icon.headers.get('content-type') ?? ''))
+    throw new Error('response is not an ICO image');
+  if (/\b(noindex|none)\b/i.test(icon.headers.get('x-robots-tag') ?? ''))
+    throw new Error('X-Robots-Tag blocks indexing');
+  const bytes = new Uint8Array(await icon.arrayBuffer());
+  if (bytes.length < 6 || bytes[0] !== 0 || bytes[1] !== 0 || bytes[2] !== 1 || bytes[3] !== 0)
+    throw new Error('invalid ICO header');
+  console.log('Published favicon returns a valid ICO response.');
+} catch (error) {
+  failures.push(`/adibdex-icon-v2.ico: ${error.message}`);
+}
+
 let next = 0;
 let completed = 0;
 let valid = 0;
