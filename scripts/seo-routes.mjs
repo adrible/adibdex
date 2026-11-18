@@ -77,6 +77,10 @@ export function checkSitemap(xml, routes) {
 
 export function checkPageHtml(html, path) {
   const expected = canonicalUrl(path);
+  const head = html.match(/<head\b[^>]*>([\s\S]*?)<\/head>/i)?.[1] ?? '';
+  if (!/<link\s+rel="icon"\s+href="\/adibdex-icon-v2\.ico"/i.test(head)) {
+    throw new Error('missing expected favicon in head');
+  }
   const canonical = [...html.matchAll(/<link\s+rel="canonical"\s+href="([^"]+)"/gi)];
   const title = html.match(/<title>([^<]+)<\/title>/i)?.[1]?.trim();
   const description = html.match(/<meta\s+name="description"\s+content="([^"]+)"/i)?.[1]?.trim();
