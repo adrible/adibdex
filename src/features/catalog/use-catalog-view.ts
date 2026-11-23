@@ -1,9 +1,17 @@
-import { useCallback, useEffect, useMemo, useRef, useState, type SetStateAction } from 'react';
+import {
+  useCallback,
+  useDeferredValue,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+  type SetStateAction,
+} from 'react';
 import { VERSION_GROUP_NAMES } from '@/lib/pokemon/constants';
 import type { PokemonBasic } from '@/lib/pokemon/types';
 import { writeSessionJson } from '@/lib/session-storage';
 import { applyFilters } from './filtering';
-import { matchesPokemonSearch } from './search';
+import { createPokemonSearch } from './search';
 import type { FilterState } from './filter-state';
 import { loadCatalogView, viewStateKey, type CatalogViewState } from './view-state';
 
@@ -55,20 +63,22 @@ export function useCatalogView(
     writeSessionJson(storageKey, { ...state, scrollY: scrollRef.current });
   }, [state, storageKey]);
 
+  const resultsSearch = useDeferredValue(state.search);
   const filtered = useMemo(() => {
-    const source = (data ?? EMPTY).filter((p) =>
-      matchesPokemonSearch(p, state.search, state.filters.game),
-    );
+    const source = (data ?? EMPTY).filter(createPokemonSearch(resultsSearch, state.filters.game));
     return applyFilters(source, {
       ...state.filters,
       ...(!showSpecial ? { hasMega: null, hasGmax: null } : {}),
       ...(!showRegion ? { regions: [] } : {}),
     });
-  }, [data, state.filters, state.search, showSpecial, showRegion]);
+  }, [data, state.filters, resultsSearch, showSpecial, showRegion]);
   const gameOptions = useMemo(() => {
-    const available = new Set(
-      (data ?? EMPTY).flatMap((p) => Object.values(p.moveGames ?? {}).flat()),
-    );
+    const available = new Set<string>();
+    for (const pokemon of data ?? EMPTY) {
+      for (const games of Object.values(pokemon.moveGames ?? {})) {
+        for (const game of games) available.add(game);
+      }
+    }
     return Object.entries(VERSION_GROUP_NAMES)
       .filter(([value]) => available.has(value))
       .map(([value, label]) => ({ value, label }));
@@ -117,6 +127,7 @@ export function useCatalogView(
   return {
     ...state,
     gameOptions,
+    resultsSearch,
     page,
     setPage,
     setFilters,

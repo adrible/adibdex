@@ -1,3 +1,4 @@
+import { useMemo } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { ActiveFilterChips } from '@/components/PokemonFilters';
 import { PokemonCard } from '@/components/PokemonCard';
@@ -32,6 +33,16 @@ export function CatalogBrowser({
 }: Props) {
   const location = useLocation(),
     navigate = useNavigate();
+  const listContexts = useMemo(
+    () =>
+      new Map(
+        view.visibleIds.map((id, currentIndex) => [
+          id,
+          { ids: view.visibleIds, currentIndex, game: view.filters.game },
+        ]),
+      ),
+    [view.visibleIds, view.filters.game],
+  );
   const filterOptions = { showRegionFilter, showSpecialFormFilters };
   const pagination = !view.showAll && (
     <CatalogPagination page={view.page} totalPages={view.totalPages} onChange={view.setPage} />
@@ -47,11 +58,7 @@ export function CatalogBrowser({
                 navigate(`/pokemon/${id}`, {
                   state: {
                     origin: location.pathname,
-                    listContext: {
-                      ids: view.visibleIds,
-                      game: view.filters.game,
-                      currentIndex: view.visibleIds.indexOf(id),
-                    },
+                    listContext: listContexts.get(id),
                   },
                 })
             : undefined
@@ -111,15 +118,11 @@ export function CatalogBrowser({
               <div key={p.id} style={{ contentVisibility: 'auto', containIntrinsicSize: '220px' }}>
                 <PokemonCard
                   pokemon={p}
-                  search={view.search}
+                  search={view.resultsSearch}
                   game={view.filters.game}
                   isShiny={view.isShiny}
                   originPath={location.pathname}
-                  listContext={{
-                    ids: view.visibleIds,
-                    game: view.filters.game,
-                    currentIndex: view.visibleIds.indexOf(p.id),
-                  }}
+                  listContext={listContexts.get(p.id)}
                 />
               </div>
             ))}

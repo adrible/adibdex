@@ -9,16 +9,34 @@ export function normalizeSearch(value: string): string {
     .trim();
 }
 
-export function matchesPokemonSearch(pokemon: PokemonBasic, search: string, game = ''): boolean {
+export function createPokemonSearch(search: string, game = '') {
   const query = normalizeSearch(search);
-  if (!query) return true;
-  return (
-    normalizeSearch(pokemon.name).includes(query) ||
+  if (!query) return () => true;
+
+  const normalized = new Map<string, string>();
+  const includesQuery = (value: string) => {
+    let label = normalized.get(value);
+    if (label === undefined) {
+      label = normalizeSearch(value);
+      normalized.set(value, label);
+    }
+    return label.includes(query);
+  };
+
+  return (pokemon: PokemonBasic): boolean =>
+    includesQuery(pokemon.name) ||
     String(pokemon.id).includes(query) ||
     String(pokemon.baseId ?? pokemon.id).includes(query) ||
-    Boolean(pokemon.abilities?.some((ability) => normalizeSearch(ability.name).includes(query))) ||
-    getMatchingMoveGames(pokemon, query, game).length > 0
-  );
+    Boolean(pokemon.abilities?.some((ability) => includesQuery(ability.name))) ||
+    Boolean(
+      pokemon.moves?.some(
+        (move) => includesQuery(move) && (!game || pokemon.moveGames?.[move]?.includes(game)),
+      ),
+    );
+}
+
+export function matchesPokemonSearch(pokemon: PokemonBasic, search: string, game = ''): boolean {
+  return createPokemonSearch(search, game)(pokemon);
 }
 
 /** A separate row for each matching move prevents mixing up game availability. */
