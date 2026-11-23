@@ -17,7 +17,9 @@ interface Props extends Pick<FilterProps, 'showRegionFilter' | 'showSpecialFormF
 export function CatalogToolbar({ view, children, onSuggestion, ...filterOptions }: Props) {
   const [focused, setFocused] = useState(false);
   const suggestions =
-    focused && view.search.trim() && onSuggestion ? view.filtered.slice(0, 20) : [];
+    focused && view.search === view.resultsSearch && view.search.trim() && onSuggestion
+      ? view.filtered.slice(0, 20)
+      : [];
   return (
     <div className="catalog-tools">
       <div className="catalog-toolbar">
