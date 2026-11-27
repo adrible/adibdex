@@ -1,4 +1,4 @@
-const redirectHosts = new Set(['adibdex.lovable.app', 'adibdex.netlify.app']);
+const redirectHosts = new Set(['adibdex.lovable.app']);
 
 if (redirectHosts.has(window.location.hostname)) {
   const destination = new URL(window.location.href);
